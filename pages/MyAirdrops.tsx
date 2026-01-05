@@ -1,0 +1,404 @@
+
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useApp } from '../AppContext';
+import { Plus, CheckCircle2, Trash2, ListChecks, Zap, Clock, PieChart, RefreshCw, Target, ArrowUpRight, ChevronLeft, ChevronRight, Mail, DollarSign, Calendar, Filter, X, ChevronDown, Check } from 'lucide-react';
+
+export const MyAirdrops: React.FC = () => {
+  const { airdrops, userTasks, setUserTasks, userClaims, setUserClaims, addToast, user, toggleTrackProject, t, inbox } = useApp();
+  const [activeTab, setActiveTab] = useState<'tasks' | 'airdrops' | 'infofi' | 'completed' | 'claimed'>('tasks');
+  const [showAdd, setShowAdd] = useState(false);
+  const [showClaimAdd, setShowClaimAdd] = useState(false);
+  const [isMonthDropOpen, setMonthDropOpen] = useState(false);
+  const monthDropRef = useRef<HTMLDivElement>(null);
+  
+  const [newTask, setNewTask] = useState({ note: '', airdropId: 'custom', reminder: 'none' as any, deadline: '' });
+  const [newClaim, setNewClaim] = useState({ projectName: '', expense: 0, claimedToken: '', tokenCount: 0, earning: 0, claimedDate: new Date().toISOString().split('T')[0] });
+  const [claimMonthFilter, setClaimMonthFilter] = useState('all');
+
+  // Newest to Oldest sorting for tasks
+  const manualTasks = useMemo(() => {
+    return userTasks.filter(t => !t.completed && t.airdropId === 'custom')
+      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  }, [userTasks]);
+
+  const completedTasks = useMemo(() => {
+    return userTasks.filter(t => t.completed)
+      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  }, [userTasks]);
+
+  // Effect to automatically clear old completed tasks if > 20
+  useEffect(() => {
+    const allCompleted = userTasks.filter(t => t.completed).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    if (allCompleted.length > 20) {
+       const keptIds = allCompleted.slice(0, 20).map(t => t.id);
+       setUserTasks(prev => prev.filter(t => !t.completed || keptIds.includes(t.id)));
+       console.log("Protocol cleanup: 20 most recent completed tasks retained.");
+    }
+  }, [userTasks.length, setUserTasks]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (monthDropRef.current && !monthDropRef.current.contains(event.target as Node)) setMonthDropOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const trackedProjectIds = user?.trackedProjectIds || [];
+  const trackedAirdrops = airdrops.filter(a => trackedProjectIds.includes(a.id) && !a.hasInfoFi);
+  const trackedInfoFi = airdrops.filter(a => trackedProjectIds.includes(a.id) && a.hasInfoFi);
+  
+  const unreadAirdropMessages = inbox.filter(m => !m.isRead && trackedAirdrops.some(a => a.id === m.relatedAirdropId)).length;
+  const unreadInfoFiMessages = inbox.filter(m => !m.isRead && trackedInfoFi.some(a => a.id === m.relatedAirdropId)).length;
+
+  const activeTasksCount = userTasks.filter(t => !t.completed).length;
+
+  const filteredClaims = useMemo(() => {
+    if (claimMonthFilter === 'all') return userClaims;
+    return userClaims.filter(c => c.claimedDate?.startsWith(claimMonthFilter));
+  }, [userClaims, claimMonthFilter]);
+
+  const totalEarning = filteredClaims.reduce((acc, c) => acc + c.earning, 0);
+  const totalExpense = filteredClaims.reduce((acc, c) => acc + c.expense, 0);
+  const totalProfit = totalEarning - totalExpense;
+
+  const [taskPage, setTaskPage] = useState(1);
+  const tasksPerPage = 10;
+  const paginatedTasks = manualTasks.slice((taskPage - 1) * tasksPerPage, taskPage * tasksPerPage);
+  const totalTaskPages = Math.ceil(manualTasks.length / tasksPerPage);
+
+  const availableMonths = useMemo(() => {
+    const months = new Set<string>();
+    userClaims.forEach(c => {
+       if(c.claimedDate) months.add(c.claimedDate.substring(0, 7));
+    });
+    return Array.from(months).sort().reverse();
+  }, [userClaims]);
+
+  const addTask = () => {
+    if (!newTask.note) return;
+    setUserTasks(prev => [{
+      id: Date.now().toString(),
+      airdropId: newTask.airdropId,
+      note: newTask.note,
+      completed: false,
+      createdAt: Date.now(),
+      reminder: newTask.reminder,
+      deadline: newTask.deadline || undefined
+    }, ...prev]);
+    setShowAdd(false);
+    setNewTask({ note: '', airdropId: 'custom', reminder: 'none', deadline: '' });
+    addToast(t('taskAdded'));
+  };
+
+  const addClaimEntry = () => {
+    if (!newClaim.projectName) return addToast("Project name required", "error");
+    setUserClaims(prev => [...prev, { ...newClaim, id: Date.now().toString(), createdAt: Date.now() }]);
+    setShowClaimAdd(false);
+    setNewClaim({ projectName: '', expense: 0, claimedToken: '', tokenCount: 0, earning: 0, claimedDate: new Date().toISOString().split('T')[0] });
+    addToast(t('claimAdded'));
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto pb-20 px-4">
+      {/* User Hub Dashboard */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+         <DashboardStat label="Tracked Airdrops" val={trackedAirdrops.length} icon={<Target size={20}/>} color="bg-primary-600" />
+         <DashboardStat label="Tracked InfoFi" val={trackedInfoFi.length} icon={<Zap size={20}/>} color="bg-primary-600" />
+         <DashboardStat label="Pending Tasks" val={activeTasksCount} icon={<ListChecks size={20}/>} color="bg-rose-600" />
+         <DashboardStat label="Total Earning" val={`$${totalEarning.toLocaleString()}`} icon={<DollarSign size={20}/>} color="bg-emerald-600" />
+      </div>
+
+      <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-12">
+        <div><h1 className="text-4xl font-black tracking-tighter mb-2">{t('operationCenter')}</h1><p className="text-slate-500 font-medium tracking-wide">{t('operationSub')}</p></div>
+        <div className="flex gap-2 w-full md:w-auto">
+          {activeTab === 'tasks' && (
+            <button onClick={() => setShowAdd(true)} className="flex-1 md:flex-none px-6 py-3.5 bg-primary-600 text-white rounded-xl font-black text-sm flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-transform uppercase tracking-widest"><Plus size={18}/> {t('newTask')}</button>
+          )}
+        </div>
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-8">
+        <div className="lg:w-72 flex lg:flex-col gap-2 overflow-x-auto pb-4 shrink-0">
+          <NavBtn icon={<ListChecks size={18}/>} label={t('tasks').toUpperCase()} active={activeTab === 'tasks'} onClick={() => setActiveTab('tasks')} count={manualTasks.length} />
+          <NavBtn icon={<Target size={18}/>} label={`${t('airdrops').toUpperCase()} (${trackedAirdrops.length})`} active={activeTab === 'airdrops'} onClick={() => setActiveTab('airdrops')} notificationCount={unreadAirdropMessages} colorClass="bg-primary-600" />
+          <NavBtn icon={<Zap size={18}/>} label={`${t('infofi').toUpperCase()} (${trackedInfoFi.length})`} active={activeTab === 'infofi'} onClick={() => setActiveTab('infofi')} notificationCount={unreadInfoFiMessages} colorClass="bg-primary-600" />
+          <NavBtn icon={<CheckCircle2 size={18}/>} label={t('completed').toUpperCase()} active={activeTab === 'completed'} onClick={() => setActiveTab('completed')} count={completedTasks.length} />
+          <NavBtn icon={<PieChart size={18}/>} label={t('claimed').toUpperCase()} active={activeTab === 'claimed'} onClick={() => setActiveTab('claimed')} />
+        </div>
+
+        <div className="flex-1">
+          {activeTab === 'claimed' && (
+            <div className="mb-6 flex justify-end">
+               <div className="relative" ref={monthDropRef}>
+                  <button onClick={() => setMonthDropOpen(!isMonthDropOpen)} className="flex items-center gap-3 bg-white dark:bg-slate-900 px-5 py-3 rounded-2xl border dark:border-slate-800 shadow-sm hover:border-primary-500 transition-all">
+                     <Calendar size={16} className="text-slate-400" />
+                     <div className="text-left">
+                        <p className="text-[8px] font-black uppercase text-slate-400 leading-none mb-0.5">Filter Period</p>
+                        <p className="text-xs font-black uppercase">{claimMonthFilter === 'all' ? t('allMonths') : claimMonthFilter}</p>
+                     </div>
+                     <ChevronDown size={14} className={`text-slate-400 transition-transform ${isMonthDropOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {isMonthDropOpen && (
+                     <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl shadow-2xl z-50 p-1.5 animate-in fade-in slide-in-from-top-2">
+                        <button onClick={() => { setClaimMonthFilter('all'); setMonthDropOpen(false); }} className={`w-full text-left px-4 py-2.5 rounded-xl text-[10px] font-black uppercase flex items-center justify-between ${claimMonthFilter === 'all' ? 'bg-primary-600 text-white' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>{t('allMonths')} {claimMonthFilter === 'all' && <Check size={12}/>}</button>
+                        {availableMonths.map(m => (
+                           <button key={m} onClick={() => { setClaimMonthFilter(m); setMonthDropOpen(false); }} className={`w-full text-left px-4 py-2.5 rounded-xl text-[10px] font-black uppercase flex items-center justify-between ${claimMonthFilter === m ? 'bg-primary-600 text-white' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>{m} {claimMonthFilter === m && <Check size={12}/>}</button>
+                        ))}
+                     </div>
+                  )}
+               </div>
+            </div>
+          )}
+
+          {(activeTab === 'airdrops' || activeTab === 'infofi') && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {(activeTab === 'airdrops' ? trackedAirdrops : trackedInfoFi).map(a => {
+                const unreadMsg = inbox.find(m => m.relatedAirdropId === a.id && !m.isRead);
+                return (
+                  <ProjectCard 
+                    key={a.id} 
+                    project={a} 
+                    onUntrack={() => toggleTrackProject(a.id)} 
+                    t_func={t} 
+                    unreadMessage={unreadMsg} 
+                  />
+                );
+              })}
+              {(activeTab === 'airdrops' ? trackedAirdrops : trackedInfoFi).length === 0 && (
+                <div className="col-span-full p-24 text-center bg-white dark:bg-slate-900 rounded-[3rem] border-4 border-dashed border-slate-100 dark:border-slate-800">
+                  <Target size={48} className="mx-auto text-slate-200 mb-4"/>
+                  <p className="text-slate-400 font-black uppercase text-xs tracking-widest">
+                    {activeTab === 'airdrops' ? t('noTrackedAirdrops') : t('noTrackedInfoFi')}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'tasks' && (
+            <div className="space-y-4">
+              {paginatedTasks.map(t_obj => (
+                <TaskCard 
+                  key={t_obj.id} 
+                  task={t_obj} 
+                  project={null} 
+                  onToggle={() => setUserTasks(prev => prev.map(x => x.id === t_obj.id ? {...x, completed: !x.completed} : x))}
+                  onDelete={() => setUserTasks(prev => prev.filter(x => x.id !== t_obj.id))}
+                  t_func={t}
+                />
+              ))}
+              {manualTasks.length === 0 && <div className="p-24 text-center bg-white dark:bg-slate-900 rounded-[3rem] border-4 border-dashed border-slate-100 dark:border-slate-800"><ListChecks size={48} className="mx-auto text-slate-200 mb-4"/><p className="text-slate-400 font-black uppercase text-xs tracking-widest">{t('noActiveTasks')}</p></div>}
+              {totalTaskPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-8">
+                   <button onClick={() => setTaskPage(p => Math.max(1, p - 1))} className="p-3 rounded-xl bg-white dark:bg-slate-900 border dark:border-slate-800 text-slate-400 hover:text-primary-600 shadow-sm transition-all"><ChevronLeft size={20}/></button>
+                   <div className="flex gap-1">
+                      {Array.from({ length: totalTaskPages }, (_, i) => (
+                         <button key={i} onClick={() => setTaskPage(i + 1)} className={`w-10 h-10 rounded-xl font-black text-xs transition-all ${taskPage === i + 1 ? 'bg-primary-600 text-white shadow-lg' : 'bg-white dark:bg-slate-900 border dark:border-slate-800 text-slate-400'}`}>{i + 1}</button>
+                      ))}
+                   </div>
+                   <button onClick={() => setTaskPage(p => Math.min(totalTaskPages, p + 1))} className="p-3 rounded-xl bg-white dark:bg-slate-900 border dark:border-slate-800 text-slate-400 hover:text-primary-600 shadow-sm transition-all"><ChevronRight size={20}/></button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'completed' && (
+             <div className="space-y-4 opacity-75">
+                {completedTasks.map(t_obj => (
+                   <TaskCard 
+                     key={t_obj.id} 
+                     task={t_obj} 
+                     project={airdrops.find(a => a.id === t_obj.airdropId)} 
+                     onToggle={() => setUserTasks(prev => prev.map(x => x.id === t_obj.id ? {...x, completed: !x.completed} : x))}
+                     onDelete={() => setUserTasks(prev => prev.filter(x => x.id !== t_obj.id))}
+                     t_func={t}
+                   />
+                ))}
+                {completedTasks.length === 0 && <div className="p-24 text-center text-slate-400 font-black uppercase text-xs tracking-widest border-4 border-dashed border-slate-100 dark:border-slate-800 rounded-[3rem]">{t('archiveClear')}</div>}
+                {completedTasks.length >= 20 && <p className="text-center text-[9px] font-black uppercase text-slate-400 opacity-50 tracking-widest">Protocol limit reached. Old completed units will be purged.</p>}
+             </div>
+          )}
+
+          {activeTab === 'claimed' && (
+            <div className="space-y-6">
+               <div className="flex flex-col sm:flex-row items-center justify-between gap-6 bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
+                  <div className="flex gap-12 relative z-10">
+                     <Stat label={t('totalCost')} val={`$${totalExpense.toLocaleString()}`} color="text-red-500"/>
+                     <Stat label={t('totalEarning')} val={`$${totalEarning.toLocaleString()}`} color="text-emerald-500"/>
+                     <Stat label={t('netYield')} val={`$${totalProfit.toLocaleString()}`} color={totalProfit >= 0 ? "text-primary-600" : "text-red-500"}/>
+                  </div>
+                  <button onClick={() => setShowClaimAdd(true)} className="px-6 py-3.5 bg-emerald-600 text-white rounded-xl font-black text-xs flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-transform uppercase tracking-widest relative z-10"><Plus size={16}/> {t('recordClaim')}</button>
+               </div>
+               
+               <div className="bg-white dark:bg-slate-900 rounded-[2rem] border dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto">
+                  <table className="w-full text-left text-sm">
+                    <thead className="bg-slate-50 dark:bg-slate-800/50 text-[10px] font-black uppercase text-slate-400 tracking-widest">
+                      <tr><th className="p-6">{t('origin')}</th><th className="p-6">Claimed Date</th><th className="p-6">{t('expense')}</th><th className="p-6">{t('allocation')}</th><th className="p-6">{t('reward')}</th><th className="p-6">{t('yield')}</th></tr>
+                    </thead>
+                    <tbody className="divide-y dark:divide-slate-800 font-medium">
+                      {filteredClaims.map(c => (
+                        <tr key={c.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                          <td className="p-6 font-bold">{c.projectName}</td>
+                          <td className="p-6 font-bold text-slate-400">{c.claimedDate || 'N/A'}</td>
+                          <td className="p-6 text-red-500">-${c.expense.toLocaleString()}</td>
+                          <td className="p-6 font-bold text-slate-500">{c.tokenCount?.toLocaleString() || '0'} {c.claimedToken}</td>
+                          <td className="p-6 text-emerald-500 font-black">+${c.earning.toLocaleString()}</td>
+                          <td className={`p-6 font-black ${c.earning - c.expense >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>${(c.earning - c.expense).toLocaleString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+               </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {showAdd && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md">
+           <div className="bg-white dark:bg-slate-900 w-full max-lg rounded-[2.5rem] p-10 shadow-2xl relative animate-in zoom-in-95">
+              <h3 className="text-2xl font-black mb-8 tracking-tighter">{t('newObjective')}</h3>
+              <div className="space-y-4">
+                 <div>
+                    <label className="text-[10px] font-black text-slate-400 mb-1 block uppercase tracking-widest ml-1">Task Name</label>
+                    <input type="text" placeholder={t('taskDetails')} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl font-bold outline-none shadow-inner" value={newTask.note} onChange={e => setNewTask({...newTask, note: e.target.value})} />
+                 </div>
+                 <div className="grid grid-cols-2 gap-4">
+                   <div>
+                      <label className="text-[10px] font-black text-slate-400 mb-1 block uppercase tracking-widest ml-1">{t('cycleFreq')}</label>
+                      <select className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl font-bold outline-none shadow-inner" value={newTask.reminder} onChange={e => setNewTask({...newTask, reminder: e.target.value as any})}>
+                         <option value="none">{t('once')}</option>
+                         <option value="daily">{t('dailyReset')}</option>
+                         <option value="weekly">{t('weeklyReset')}</option>
+                         <option value="monthly">{t('monthlyReset')}</option>
+                      </select>
+                   </div>
+                   <div>
+                      <label className="text-[10px] font-black text-slate-400 mb-1 block uppercase tracking-widest ml-1">Deadline</label>
+                      <input type="date" className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl font-bold outline-none shadow-inner" value={newTask.deadline} onChange={e => setNewTask({...newTask, deadline: e.target.value})} />
+                   </div>
+                 </div>
+              </div>
+              <div className="flex gap-4 mt-10">
+                 <button onClick={() => setShowAdd(false)} className="flex-1 font-black text-slate-400 uppercase text-xs tracking-widest">{t('abort')}</button>
+                 <button onClick={addTask} className="flex-1 py-4 bg-primary-600 text-white rounded-xl font-black shadow-xl active:scale-95 transition-transform uppercase text-xs tracking-widest">{t('deploy')}</button>
+              </div>
+           </div>
+        </div>
+      )}
+
+      {showClaimAdd && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md">
+           <div className="bg-white dark:bg-slate-900 w-full max-lg rounded-[2.5rem] p-10 shadow-2xl animate-in zoom-in-95">
+              <h3 className="text-2xl font-black mb-8 tracking-tighter text-emerald-600">{t('archiveClaim')}</h3>
+              <div className="space-y-4">
+                 <div>
+                    <label className="text-[10px] font-black text-slate-400 mb-1 block uppercase tracking-widest ml-1">{t('projectIdent')}</label>
+                    <input type="text" placeholder={t('projectIdent')} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl font-bold outline-none border-none shadow-inner" value={newClaim.projectName} onChange={e => setNewClaim({...newClaim, projectName: e.target.value})} />
+                 </div>
+                 <div className="grid grid-cols-2 gap-4">
+                    <div><label className="text-[10px] font-black text-slate-400 mb-1 block uppercase tracking-widest ml-1">Claim Date</label><input type="date" className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl font-bold" value={newClaim.claimedDate} onChange={e => setNewClaim({...newClaim, claimedDate: e.target.value})} /></div>
+                    <div><label className="text-[10px] font-black text-slate-400 mb-1 block uppercase tracking-widest ml-1">{t('expense')} ($)</label><input type="number" className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl font-bold" value={newClaim.expense || ''} onChange={e => setNewClaim({...newClaim, expense: Number(e.target.value)})} /></div>
+                 </div>
+                 <div className="grid grid-cols-2 gap-4">
+                    <div><label className="text-[10px] font-black text-slate-400 mb-1 block uppercase tracking-widest ml-1">{t('reward')} ($)</label><input type="number" className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl font-bold" value={newClaim.earning || ''} onChange={e => setNewClaim({...newClaim, earning: Number(e.target.value)})} /></div>
+                    <div><label className="text-[10px] font-black text-slate-400 mb-1 block uppercase tracking-widest ml-1">{t('assetTicker')}</label><input type="text" className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl font-bold" placeholder="e.g. BTC" value={newClaim.claimedToken} onChange={e => setNewClaim({...newClaim, claimedToken: e.target.value.toUpperCase()})} /></div>
+                 </div>
+                 <div><label className="text-[10px] font-black uppercase text-slate-400 mb-1 block uppercase tracking-widest ml-1">Token Allocation</label><input type="number" className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl font-bold" value={newClaim.tokenCount || ''} onChange={e => setNewClaim({...newClaim, tokenCount: Number(e.target.value)})} /></div>
+              </div>
+              <div className="flex gap-4 mt-10">
+                 <button onClick={() => setShowClaimAdd(false)} className="flex-1 font-black text-slate-400 uppercase text-xs tracking-widest">{t('abort')}</button>
+                 <button onClick={addClaimEntry} className="flex-1 py-4 bg-emerald-600 text-white rounded-xl font-black shadow-xl active:scale-95 transition-transform text-xs tracking-widest">{t('archive')}</button>
+              </div>
+           </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const DashboardStat: React.FC<{ label: string, val: string | number, icon: any, color: string }> = ({ label, val, icon, color }) => (
+  <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
+     <div className={`p-3 rounded-2xl text-white ${color} shadow-lg shadow-current/20`}>{icon}</div>
+     <div>
+        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">{label}</p>
+        <p className="text-lg font-black tracking-tight">{val}</p>
+     </div>
+  </div>
+);
+
+const ProjectCard: React.FC<{ project: any, onUntrack: () => void, t_func: any, unreadMessage?: any }> = ({ project, onUntrack, t_func, unreadMessage }) => (
+  <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 p-5 flex flex-col group hover:shadow-xl hover:border-primary-500 transition-all relative">
+    {unreadMessage && (
+      <Link to="/inbox" className="absolute -top-2 -right-2 bg-red-500 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-xl flex items-center gap-1 animate-bounce z-10 border-2 border-white dark:border-slate-900">
+        <Mail size={10}/> Mission Intel
+      </Link>
+    )}
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-3 min-w-0">
+        <img src={project.icon} className="w-12 h-12 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform" />
+        <div className="min-w-0">
+          <h4 className="font-black text-sm uppercase truncate">{project.name}</h4>
+          {project.hasInfoFi && (
+             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest truncate">{project.platform}</p>
+          )}
+        </div>
+      </div>
+      <button onClick={onUntrack} className="p-2 text-slate-300 hover:text-red-500 transition-colors bg-slate-50 dark:bg-slate-800 rounded-lg"><Trash2 size={14}/></button>
+    </div>
+    <div className="flex items-center justify-between mt-auto pt-4 border-t dark:border-slate-800">
+      <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-50 dark:bg-slate-800/80 text-primary-600 dark:text-primary-400 rounded-xl font-black font-mono text-[10px] border border-slate-100 dark:border-slate-700 shadow-sm transition-all group-hover:bg-primary-600 group-hover:text-white group-hover:border-primary-500">
+         <DollarSign size={10} />
+         {project.investment}
+      </div>
+      <Link to={`/project/${project.id}`} className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 hover:text-primary-600 transition-colors uppercase tracking-widest">{t_func('projectDetails')} <ArrowUpRight size={12}/></Link>
+    </div>
+  </div>
+);
+
+const TaskCard: React.FC<{ task: any, project?: any, onToggle: () => void, onDelete: () => void, t_func: any }> = ({ task, project, onToggle, onDelete, t_func }) => (
+  <div className={`bg-white dark:bg-slate-900 rounded-2xl border dark:border-slate-800 shadow-sm p-4 flex items-center justify-between group transition-all hover:border-primary-500/50 ${task.completed ? 'opacity-50 grayscale' : ''}`}>
+    <div className="flex items-center gap-4 min-w-0">
+      <button onClick={onToggle} className={`p-1 rounded-lg transition-all ${task.completed ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'text-slate-300 hover:text-primary-600 bg-slate-50 dark:bg-slate-800'}`}>
+        <CheckCircle2 size={24} />
+      </button>
+      <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center shrink-0 shadow-inner">
+         {project ? <img src={project.icon} className="w-full h-full rounded-xl object-cover shadow-sm" /> : <ListChecks size={20} className="text-primary-600"/>}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-0.5">
+           <h4 className={`font-black text-sm truncate ${task.completed ? 'line-through' : ''}`}>{task.note}</h4>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="flex items-center gap-1 text-[8px] font-black text-slate-400 uppercase tracking-widest"><Clock size={10}/> {new Date(task.createdAt).toLocaleString()}</span>
+          {task.deadline && (
+            <span className="flex items-center gap-1 text-[8px] font-black text-red-500 uppercase tracking-widest"><Calendar size={10}/> Deadline: {task.deadline}</span>
+          )}
+          {task.reminder && task.reminder !== 'none' && (
+            <span className="flex items-center gap-1 text-[8px] font-black text-primary-600 uppercase tracking-tighter bg-primary-50 dark:bg-primary-900/40 px-1.5 py-0.5 rounded shadow-sm">
+               <RefreshCw size={10} className="animate-spin-slow"/> {task.reminder} cycle
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+    <button onClick={onDelete} className="p-2 text-slate-200 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={16}/></button>
+  </div>
+);
+
+const NavBtn: React.FC<{ icon: any, label: string, active: boolean, count?: number, onClick: () => void, notificationCount?: number, colorClass?: string }> = ({ icon, label, active, count, onClick, notificationCount, colorClass }) => (
+  <button onClick={onClick} className={`px-6 py-4 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-between transition-all relative ${active ? (colorClass || 'bg-primary-600') + ' text-white shadow-xl shadow-primary-500/20' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+    <div className="flex items-center gap-3">{icon} <span>{label}</span></div>
+    <div className="flex items-center gap-2">
+      {count !== undefined && count > 0 && <span className={`text-[9px] px-2 py-0.5 rounded-full ${active ? 'bg-white text-primary-600' : 'bg-slate-200 dark:bg-slate-700 text-slate-600'}`}>{count}</span>}
+      {notificationCount !== undefined && notificationCount > 0 && <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.5)]"></span>}
+    </div>
+  </button>
+);
+
+const Stat: React.FC<{ label: string, val: string, color: string }> = ({ label, val, color }) => (
+  <div className="min-w-0"><p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 truncate">{label}</p><p className={`text-2xl font-black ${color} truncate`}>{val}</p></div>
+);

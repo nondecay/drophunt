@@ -1,0 +1,312 @@
+
+import React, { useState, useRef, useEffect } from 'react';
+import { Outlet, Link, useLocation } from 'react-router-dom';
+import { useApp } from '../AppContext';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { 
+  LayoutDashboard, Calendar as CalendarIcon, Bell, Moon, Sun, 
+  User as UserIcon, Globe, Menu, X, ShieldAlert, ChevronDown, Zap, 
+  Ticket, CheckCircle, AlertCircle, Mail, Sun as SunIcon, 
+  Sparkles, ArrowUpCircle, Sword, LogOut, Target, UserPlus, Users, Lock, Wrench, Droplets, ShieldCheck, Twitter
+} from 'lucide-react';
+
+const DiscordIcon = ({ size = 18, className = "" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107-.892.077.077 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+  </svg>
+);
+
+const ToastItem: React.FC<{ toast: any, onRemove: (id: string) => void }> = ({ toast, onRemove }) => {
+  const [timeLeft, setTimeLeft] = useState(5);
+  const [progress, setProgress] = useState(100);
+  const duration = 5000; 
+  const step = 50;
+
+  useEffect(() => {
+    const totalSteps = duration / step;
+    let currentStep = 0;
+    
+    const interval = setInterval(() => {
+      currentStep++;
+      const nextProgress = 100 - (currentStep / totalSteps) * 100;
+      const nextTime = Math.floor(5 - (currentStep * step) / 1000);
+      
+      setProgress(nextProgress);
+      setTimeLeft(nextTime >= 0 ? nextTime : 0);
+
+      if (currentStep >= totalSteps) {
+        clearInterval(interval);
+      }
+    }, step);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const color = toast.type === 'error' ? 'rgb(239, 68, 68)' : toast.type === 'warning' ? 'rgb(245, 158, 11)' : 'rgb(16, 185, 129)';
+  const radius = 18;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (progress / 100) * circumference;
+
+  return (
+    <div className={`flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border bg-white dark:bg-slate-900 animate-in slide-in-from-right duration-300 max-w-sm`} 
+         style={{ borderColor: color }}>
+      <div className="relative w-10 h-10 flex items-center justify-center shrink-0">
+        <svg className="w-10 h-10 -rotate-90">
+          <circle cx="20" cy="20" r={radius} fill="transparent" stroke="currentColor" strokeWidth="3" className="text-slate-100 dark:text-slate-800" />
+          <circle cx="20" cy="20" r={radius} fill="transparent" stroke={color} strokeWidth="3" strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" className="transition-all duration-[50ms]" />
+        </svg>
+        <span className="absolute font-black text-xs" style={{ color }}>{timeLeft}</span>
+      </div>
+      <div className="flex-1">
+        <span className="font-bold text-sm line-clamp-2">{toast.message}</span>
+      </div>
+      <button onClick={() => onRemove(toast.id)} className="ml-2 text-slate-400 hover:text-slate-600 transition-colors">
+        <X size={16} />
+      </button>
+    </div>
+  );
+};
+
+const SidebarLink: React.FC<{ to: string, icon: React.ReactNode, label: string, active: boolean, onClick?: () => void, badge?: number }> = ({ to, icon, label, active, onClick, badge }) => (
+  <Link 
+    to={to} 
+    onClick={onClick}
+    className={`flex items-center justify-between px-4 py-2.5 rounded-xl transition-all ${
+    active 
+    ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30' 
+    : 'text-slate-500 hover:bg-primary-50 dark:hover:bg-slate-800 hover:text-primary-600'
+  }`}>
+    <div className="flex items-center gap-3">
+      {icon}
+      <span className="font-black text-xs uppercase tracking-wider">{label}</span>
+    </div>
+    {badge !== undefined && badge > 0 && (
+      <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-full ${active ? 'bg-white text-primary-600' : 'bg-red-500 text-white'}`}>
+        {badge}
+      </span>
+    )}
+  </Link>
+);
+
+export const Layout: React.FC = () => {
+  const { theme, toggleTheme, lang, setLang, t, user, isVerified, verifyWallet, logout, setUsername, toasts, removeToast, inbox } = useApp();
+  const location = useLocation();
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showLangMenu, setShowLangMenu] = useState(false);
+  const [tempUsername, setTempUsername] = useState('');
+  
+  const langMenuRef = useRef<HTMLDivElement>(null);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  const unreadCount = inbox.filter(m => !m.isRead).length;
+  const needsUsername = user && isVerified && !user.username;
+  const needsVerification = user && !isVerified;
+
+  // Ban check
+  const isBanned = user && (user.isPermaBanned || (user.bannedUntil && user.bannedUntil > Date.now()));
+  const banDaysLeft = user?.bannedUntil ? Math.ceil((user.bannedUntil - Date.now()) / (1000 * 60 * 60 * 24)) : 0;
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (langMenuRef.current && !langMenuRef.current.contains(event.target as Node)) setShowLangMenu(false);
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) setShowProfileMenu(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  if (isBanned) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-8 text-center">
+        <div className="w-24 h-24 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mb-8 animate-pulse shadow-[0_0_50px_rgba(239,68,68,0.3)]">
+          <Lock size={48} />
+        </div>
+        <h1 className="text-4xl font-black text-white uppercase tracking-tighter mb-4">ACCESS DENIED</h1>
+        <p className="text-slate-400 max-w-md font-medium text-lg mb-10">
+          {user?.isPermaBanned 
+            ? "Your identity has been permanently terminated from the protocol." 
+            : `Protocol access suspended for violation. Return in ${banDaysLeft} days.`}
+        </p>
+        <button onClick={logout} className="px-8 py-3 bg-red-600 text-white rounded-xl font-black uppercase text-xs tracking-widest shadow-xl">Disconnect Hub</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300 font-sans">
+      
+      <div className="fixed top-6 right-6 z-[200] flex flex-col gap-3">
+        {toasts.map(toast => (
+          <ToastItem key={toast.id} toast={toast} onRemove={removeToast} />
+        ))}
+      </div>
+
+      <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-transform duration-300 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+        <div className="flex flex-col h-full p-6">
+          <div className="flex items-center justify-between mb-8">
+            <Link to="/" className="flex items-center gap-3">
+              <img src="/logo.png" className="w-10 h-10 object-contain shadow-lg rounded-xl" alt="Logo" />
+              <span className="text-2xl font-black tracking-tight text-primary-600 uppercase">DROPHUNT.IO</span>
+            </Link>
+            <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 text-slate-400 hover:text-primary-600"><X size={24} /></button>
+          </div>
+
+          <nav className="flex-1 flex flex-col gap-1 overflow-y-auto custom-scrollbar">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mb-2 mt-4">DROPHUNT.IO</p>
+            <SidebarLink to="/" icon={<LayoutDashboard size={18} />} label={t('airdrops')} active={location.pathname === '/'} onClick={() => setSidebarOpen(false)} />
+            <SidebarLink to="/infofi" icon={<Zap size={18} />} label={t('infofi')} active={location.pathname === '/infofi'} onClick={() => setSidebarOpen(false)} />
+            <SidebarLink to="/calendar" icon={<CalendarIcon size={18} />} label={t('calendar')} active={location.pathname === '/calendar'} onClick={() => setSidebarOpen(false)} />
+            <SidebarLink to="/claims" icon={<Bell size={18} />} label={t('claims')} active={location.pathname === '/claims'} onClick={() => setSidebarOpen(false)} />
+            <SidebarLink to="/presales" icon={<Ticket size={18} />} label={t('presales')} active={location.pathname === '/presales'} onClick={() => setSidebarOpen(false)} />
+            <SidebarLink to="/investors" icon={<Users size={18} />} label={t('investors')} active={location.pathname === '/investors'} onClick={() => setSidebarOpen(false)} />
+            <SidebarLink to="/tools" icon={<Wrench size={18} />} label={t('tools')} active={location.pathname === '/tools'} onClick={() => setSidebarOpen(false)} />
+            
+            {user && (
+               <>
+                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mb-2 mt-6">{t('myHub')}</p>
+                 <SidebarLink to="/my-airdrops" icon={<Target size={18} />} label={t('myAirdrops')} active={location.pathname === '/my-airdrops'} onClick={() => setSidebarOpen(false)} />
+               </>
+            )}
+
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mb-2 mt-6">{t('onChainActivities')}</p>
+            <SidebarLink to="/daily-gm" icon={<SunIcon size={18} />} label={t('dailyGm')} active={location.pathname === '/daily-gm'} onClick={() => setSidebarOpen(false)} />
+            <SidebarLink to="/daily-mint" icon={<Sparkles size={18} />} label={t('dailyMint')} active={location.pathname === '/daily-mint'} onClick={() => setSidebarOpen(false)} />
+            <SidebarLink to="/deploy" icon={<ArrowUpCircle size={18} />} label={t('deploy')} active={location.pathname === '/deploy'} onClick={() => setSidebarOpen(false)} />
+            <SidebarLink to="/rpg" icon={<Sword size={18} />} label={t('onChainRpg')} active={location.pathname === '/rpg'} onClick={() => setSidebarOpen(false)} />
+            <SidebarLink to="/faucets" icon={<Droplets size={18} />} label={t('faucets')} active={location.pathname === '/faucets'} onClick={() => setSidebarOpen(false)} />
+
+            {user?.isAdmin && (
+               <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                  <SidebarLink to="/admin" icon={<ShieldAlert size={18} />} label={t('adminHq')} active={location.pathname === '/admin'} onClick={() => setSidebarOpen(false)} />
+               </div>
+            )}
+          </nav>
+
+          <footer className="mt-auto pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">DROPHUNT.IO © 2026</p>
+            <div className="flex justify-center gap-4 text-slate-400">
+              <a href="https://x.com/drophunt" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors">
+                <Twitter size={18} />
+              </a>
+              <a href="https://discord.gg/drophunt" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors">
+                <DiscordIcon size={18} />
+              </a>
+            </div>
+          </footer>
+        </div>
+      </aside>
+
+      <main className="flex-1 flex flex-col overflow-hidden">
+        <header className="flex items-center justify-end p-4 lg:px-8 lg:py-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40">
+          <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="lg:hidden p-2 rounded-lg bg-slate-100 dark:bg-slate-800 absolute left-4"><Menu size={24} /></button>
+          
+          <div className="flex items-center gap-3">
+             <button onClick={toggleTheme} className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:text-primary-600 transition-colors shadow-sm">
+                {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+             </button>
+             
+             <div className="relative" ref={langMenuRef}>
+               <button onClick={() => setShowLangMenu(!showLangMenu)} className={`flex items-center gap-2 px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-bold uppercase transition-colors ${showLangMenu ? 'text-primary-600' : ''}`}>
+                  <Globe size={18} />
+                  <span className="hidden sm:inline">{lang}</span>
+               </button>
+               {showLangMenu && (
+                 <div className="absolute right-0 top-full mt-2 w-32 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 p-1 z-[60]">
+                    <button onClick={() => { setLang('en'); setShowLangMenu(false); }} className={`w-full text-left px-4 py-2 hover:bg-primary-50 dark:hover:bg-slate-700 rounded-lg text-sm font-bold ${lang === 'en' ? 'text-primary-600' : ''}`}>English</button>
+                    <button onClick={() => { setLang('tr'); setShowLangMenu(false); }} className={`w-full text-left px-4 py-2 hover:bg-primary-50 dark:hover:bg-slate-700 rounded-lg text-sm font-bold ${lang === 'tr' ? 'text-primary-600' : ''}`}>Türkçe</button>
+                 </div>
+               )}
+             </div>
+
+             <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 mx-1" />
+
+             <ConnectButton accountStatus="address" showBalance={false} chainStatus="icon" />
+
+             {user && isVerified && (
+               <div className="relative ml-2" ref={profileMenuRef}>
+                 <button onClick={() => setShowProfileMenu(!showProfileMenu)} className="flex items-center gap-2 p-1 pl-3 bg-slate-100 dark:bg-slate-800 rounded-full transition-all border border-transparent hover:border-primary-500">
+                   <img src={user.avatar} className="w-8 h-8 rounded-full object-cover" />
+                   <ChevronDown size={14} className="text-slate-400 mr-1" />
+                 </button>
+                 {showProfileMenu && (
+                   <div className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 p-2 z-[60] animate-in slide-in-from-top-2">
+                     <div className="px-4 py-3 border-b dark:border-slate-800 mb-1">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('loggedAs')}</p>
+                        <p className="text-sm font-black text-primary-600 truncate">{user.username || user.address}</p>
+                     </div>
+                     <Link to="/profile" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-3 px-4 py-2.5 hover:bg-primary-50 dark:hover:bg-slate-800 rounded-xl text-sm font-bold transition-colors"><UserIcon size={18} /> {t('profile')}</Link>
+                     <Link to="/my-airdrops" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-3 px-4 py-2.5 hover:bg-primary-50 dark:hover:bg-slate-800 rounded-xl text-sm font-bold transition-colors"><Target size={18} /> {t('myAirdrops')}</Link>
+                     <Link to="/inbox" onClick={() => setShowProfileMenu(false)} className="flex items-center justify-between px-4 py-2.5 hover:bg-primary-50 dark:hover:bg-slate-800 rounded-xl text-sm font-bold transition-colors">
+                        <div className="flex items-center gap-3"><Mail size={18} /> {t('messages')}</div>
+                        {unreadCount > 0 && <span className="bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full">{unreadCount}</span>}
+                     </Link>
+                     <div className="h-px bg-slate-100 dark:border-slate-800 my-1" />
+                     <button onClick={() => { logout(); setShowProfileMenu(false); }} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl text-sm font-bold transition-colors text-red-600">
+                        <LogOut size={18} /> {t('disconnect')}
+                     </button>
+                   </div>
+                 )}
+               </div>
+             )}
+          </div>
+        </header>
+        <div className="flex-1 overflow-y-auto p-4 lg:p-8"><Outlet /></div>
+      </main>
+
+      {needsVerification && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-slate-950/95 backdrop-blur-xl animate-in fade-in duration-500">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[3rem] p-12 shadow-2xl border border-slate-200 dark:border-slate-800 text-center">
+            <div className="w-20 h-20 bg-primary-100 dark:bg-primary-900/30 text-primary-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
+               <ShieldCheck size={40} />
+            </div>
+            <h2 className="text-3xl font-black tracking-tighter uppercase mb-4">Verify Wallet</h2>
+            <p className="text-slate-500 font-medium mb-10 text-sm leading-relaxed">
+              To proceed, please sign a secure message to confirm your identity. 
+              This is gasless and does not initiate a transaction.
+            </p>
+            <button 
+              onClick={verifyWallet}
+              className="w-full py-5 bg-primary-600 text-white rounded-2xl font-black shadow-xl shadow-primary-500/30 uppercase tracking-[0.2em] text-xs transition-all active:scale-95 flex items-center justify-center gap-3"
+            >
+              Sign Verification Message
+            </button>
+            <button 
+              onClick={logout}
+              className="w-full mt-4 py-3 text-slate-400 font-bold uppercase text-[10px] tracking-widest hover:text-red-500 transition-colors"
+            >
+              Cancel & Disconnect
+            </button>
+          </div>
+        </div>
+      )}
+
+      {needsUsername && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-slate-950/95 backdrop-blur-xl animate-in fade-in duration-500">
+          <div className="bg-white dark:bg-slate-900 w-full max-md rounded-[3rem] p-12 shadow-2xl border border-slate-200 dark:border-slate-800 text-center">
+            <img src="/logo.png" className="w-20 h-20 mx-auto mb-8 object-contain drop-shadow-2xl" alt="Logo" />
+            <h2 className="text-3xl font-black tracking-tighter uppercase mb-4">{t('identifyTitle')}</h2>
+            <p className="text-slate-500 font-medium mb-10 text-sm">{t('identifySub')}</p>
+            
+            <input 
+              type="text" 
+              placeholder="Username..." 
+              className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-black text-center text-lg outline-none border-2 border-transparent focus:border-primary-500 transition-all shadow-inner mb-6"
+              value={tempUsername}
+              onChange={(e) => setTempUsername(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && setUsername(tempUsername)}
+            />
+            
+            <button 
+              onClick={() => setUsername(tempUsername)}
+              disabled={!tempUsername.trim()}
+              className="w-full py-5 bg-primary-600 text-white rounded-2xl font-black shadow-xl shadow-primary-500/30 uppercase tracking-[0.2em] text-xs transition-all active:scale-95 disabled:opacity-50"
+            >
+              {t('initIdentity')}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};

@@ -1,0 +1,8 @@
+{
+  "name": "OnchainTrackdropz",
+  "description": "The ultimate web3 dashboard to track, manage, and discover airdrops with wallet integration, personal to-do lists, and claim alerts.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ]
+}
