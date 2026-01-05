@@ -1,6 +1,4 @@
-
-import { Buffer } from 'buffer';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useApp } from '../AppContext';
 import {
    Shield, LayoutDashboard, Users, MessageSquare, Check, Trash2, Edit, Plus, Bell, Zap, X,
