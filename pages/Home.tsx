@@ -22,10 +22,10 @@ const PartialStar: React.FC<{ rating: number }> = ({ rating }) => {
   return <div className="flex gap-0.5">{stars}</div>;
 };
 
-const CustomSelect: React.FC<{ value: string, options: {label: string, value: string, logo?: string}[], onChange: (v: string) => void, icon?: any }> = ({ value, options, onChange, icon }) => {
+const CustomSelect: React.FC<{ value: string, options: { label: string, value: string, logo?: string }[], onChange: (v: string) => void, icon?: any }> = ({ value, options, onChange, icon }) => {
   const [open, setOpen] = useState(false);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
-  
+
   React.useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) setOpen(false);
@@ -40,22 +40,22 @@ const CustomSelect: React.FC<{ value: string, options: {label: string, value: st
     <div className="relative" ref={dropdownRef}>
       <button onClick={() => setOpen(!open)} className="flex items-center justify-between gap-3 px-4 py-3 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl font-bold text-xs shadow-sm hover:border-primary-500 transition-all min-w-[140px]">
         <div className="flex items-center gap-2">
-           {active?.logo ? <img src={active.logo} className="w-4 h-4 object-contain" /> : icon}
-           <span className="truncate">{active?.label || value}</span>
+          {active?.logo ? <img src={active.logo} className="w-4 h-4 object-contain" /> : icon}
+          <span className="truncate">{active?.label || value}</span>
         </div>
         <ChevronDown size={14} className={`text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
         <div className="absolute top-full mt-2 w-full min-w-[180px] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border dark:border-slate-800 p-2 z-[100] animate-in fade-in slide-in-from-top-2">
-           {options.map(opt => (
-             <button key={opt.value} onClick={() => { onChange(opt.value); setOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-xl text-[11px] font-black uppercase transition-all flex items-center justify-between ${value === opt.value ? 'bg-primary-600 text-white shadow-lg' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>
-                <div className="flex items-center gap-2">
-                   {opt.logo && <img src={opt.logo} className="w-4 h-4 object-contain" />}
-                   {opt.label}
-                </div>
-                {value === opt.value && <Check size={12} />}
-             </button>
-           ))}
+          {options.map(opt => (
+            <button key={opt.value} onClick={() => { onChange(opt.value); setOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-xl text-[11px] font-black uppercase transition-all flex items-center justify-between ${value === opt.value ? 'bg-primary-600 text-white shadow-lg' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>
+              <div className="flex items-center gap-2">
+                {opt.logo && <img src={opt.logo} className="w-4 h-4 object-contain" />}
+                {opt.label}
+              </div>
+              {value === opt.value && <Check size={12} />}
+            </button>
+          ))}
         </div>
       )}
     </div>
@@ -78,25 +78,100 @@ const AnnouncementSlider: React.FC = () => {
 
   return (
     <div className="w-full bg-primary-600 text-white py-3 px-6 mb-8 rounded-[1.5rem] shadow-lg shadow-primary-500/20 relative overflow-hidden h-12 flex items-center">
-       <div className="flex items-center gap-3 w-full animate-in slide-in-from-bottom-4 duration-700" key={current.id}>
-          <span className="text-xl">{current.emoji || '📢'}</span>
-          <div className="flex-1 min-w-0">
-             {current.link ? (
-               <a href={current.link} target="_blank" className="font-black text-xs uppercase tracking-widest truncate block hover:underline flex items-center gap-2 transition-all">
-                  {current.text} <ExternalLink size={10} />
-               </a>
-             ) : (
-               <span className="font-black text-xs uppercase tracking-widest truncate block">{current.text}</span>
-             )}
-          </div>
-       </div>
-       <div className="absolute right-4 flex gap-1.5 opacity-40">
-          {announcements.map((_, i) => (
-             <div key={i} className={`w-1.5 h-1.5 rounded-full transition-all ${i === index ? 'bg-white scale-125' : 'bg-white/40'}`} />
-          ))}
-       </div>
+      <div className="flex items-center gap-3 w-full animate-in slide-in-from-bottom-4 duration-700" key={current.id}>
+        <span className="text-xl">{current.emoji || '📢'}</span>
+        <div className="flex-1 min-w-0">
+          {current.link ? (
+            <a href={current.link} target="_blank" className="font-black text-xs uppercase tracking-widest truncate block hover:underline flex items-center gap-2 transition-all">
+              {current.text} <ExternalLink size={10} />
+            </a>
+          ) : (
+            <span className="font-black text-xs uppercase tracking-widest truncate block">{current.text}</span>
+          )}
+        </div>
+      </div>
+      <div className="absolute right-4 flex gap-1.5 opacity-40">
+        {announcements.map((_, i) => (
+          <div key={i} className={`w-1.5 h-1.5 rounded-full transition-all ${i === index ? 'bg-white scale-125' : 'bg-white/40'}`} />
+        ))}
+      </div>
     </div>
   );
+};
+
+const MobileProjectCard: React.FC<{ project: Airdrop, isTracked: boolean, onTrack: () => void, user: any, infofiPlatforms: any[] }> = ({ project, isTracked, onTrack, user, infofiPlatforms }) => {
+  const getTypeStyle = (type: string) => {
+    const tStr = (type || '').toLowerCase();
+    if (tStr === 'free') return 'bg-emerald-500 text-white shadow-sm';
+    if (tStr === 'paid') return 'bg-amber-500 text-white shadow-sm';
+    if (tStr === 'gas only') return 'bg-sky-500 text-white shadow-sm';
+    if (tStr === 'waitlist') return 'bg-primary-600 text-white shadow-sm';
+    if (tStr === 'testnet') return 'bg-rose-500 text-white shadow-sm';
+    return 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500';
+  };
+
+  const getStatusStyle = (status: string) => {
+    const s = (status || '').toLowerCase();
+    if (s === 'potential') return 'bg-purple-600 text-white';
+    if (s.includes('available')) return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
+    return 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500';
+  };
+
+  const platformObj = project.hasInfoFi ? infofiPlatforms.find(p => p.name === project.platform) : null;
+
+  return (
+    <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-5 border border-slate-200 dark:border-slate-800 shadow-lg relative overflow-hidden">
+      <Link to={`/project/${project.id}`} className="flex items-start gap-4 mb-4">
+        <img src={project.icon || 'https://picsum.photos/200'} className="w-16 h-16 rounded-2xl object-cover shadow-md" alt="" />
+        <div className="flex-1 min-w-0">
+          <div className="flex justify-between items-start">
+            <div>
+              <h3 className="font-black text-lg uppercase tracking-tight leading-none mb-1 text-slate-900 dark:text-white truncate">{project.name}</h3>
+              <span className={`inline-block text-[9px] font-black uppercase px-2 py-0.5 rounded-md mb-2 ${getTypeStyle(project.type)}`}>{project.type}</span>
+            </div>
+            {user?.username ? (
+              <button onClick={(e) => { e.preventDefault(); onTrack(); }} className={`p-2 rounded-xl transition-all shadow-sm active:scale-95 ${isTracked ? 'bg-primary-600 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary-600'}`}>
+                <Plus size={16} className={isTracked ? 'rotate-45' : ''} />
+              </button>
+            ) : (
+              <div className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-300 rounded-xl"><Lock size={16} /></div>
+            )}
+          </div>
+        </div>
+      </Link>
+
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl">
+          <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">Raise</p>
+          <p className="font-black text-sm dark:text-white">${project.investment}</p>
+        </div>
+        <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl">
+          <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">Status</p>
+          <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded ${getStatusStyle(project.status)}`}>{project.status}</span>
+        </div>
+        {project.hasInfoFi && (
+          <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl col-span-2 flex items-center justify-between">
+            <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Platform</p>
+            <div className="flex items-center gap-2">
+              {platformObj?.logo && <img src={platformObj.logo} className="w-4 h-4 object-contain" />}
+              <span className="font-bold text-xs uppercase">{project.platform}</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
+        <div className="text-[10px] font-bold text-slate-400">{new Date(project.createdAt || Date.now()).toLocaleDateString()}</div>
+        <div className="flex items-center gap-1"><PartialStar rating={project.rating} /><span className="text-[10px] font-bold text-slate-400">{(project.rating || 0).toFixed(1)}</span></div>
+      </div>
+    </div>
+  );
+};
+
+const ensureHttp = (url: string) => {
+  if (!url) return '#';
+  if (url.startsWith('http')) return url;
+  return `https://${url}`;
 };
 
 export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => {
@@ -107,11 +182,11 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
   const [statusFilter, setStatusFilter] = useState('all');
   const [ratingFilter, setRatingFilter] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
-  
+
   const [currentPage, setCurrentPage] = useState(1);
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [reqData, setReqData] = useState({ name: '', twitter: '' });
-  
+
   const itemsPerPage = 20;
 
   const filtered = airdrops.filter(a => {
@@ -119,7 +194,7 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
     const nameMatch = (a.name || '').toLowerCase().includes(search.toLowerCase());
     const isInfoFiProject = a.hasInfoFi === true;
     const categoryMatch = category === 'infofi' ? isInfoFiProject : !isInfoFiProject;
-    
+
     const platformMatch = category === 'infofi' ? (platformFilter === 'all' || a.platform === platformFilter) : true;
     const typeMatch = typeFilter === 'all' ? true : a.type === typeFilter;
     const statusMatch = statusFilter === 'all' ? true : a.status === statusFilter;
@@ -190,37 +265,37 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
         </div>
         <div className="flex flex-wrap items-center gap-3">
           {category === 'infofi' && (
-            <CustomSelect 
-              value={platformFilter} 
-              options={[{label: t('allPlatforms'), value: 'all'}, ...infofiPlatforms.map(p => ({label: p.name, value: p.name, logo: p.logo}))]}
+            <CustomSelect
+              value={platformFilter}
+              options={[{ label: t('allPlatforms'), value: 'all' }, ...infofiPlatforms.map(p => ({ label: p.name, value: p.name, logo: p.logo }))]}
               onChange={setPlatformFilter}
               icon={<Filter size={14} className="text-slate-400" />}
             />
           )}
-          
-          <CustomSelect 
-            value={typeFilter} 
-            options={[{label: t('allTypes'), value: 'all'}, {label: 'Free', value: 'Free'}, {label: 'Paid', value: 'Paid'}, {label: 'Gas Only', value: 'Gas Only'}, {label: 'Waitlist', value: 'Waitlist'}, {label: 'Testnet', value: 'Testnet'}]}
+
+          <CustomSelect
+            value={typeFilter}
+            options={[{ label: t('allTypes'), value: 'all' }, { label: 'Free', value: 'Free' }, { label: 'Paid', value: 'Paid' }, { label: 'Gas Only', value: 'Gas Only' }, { label: 'Waitlist', value: 'Waitlist' }, { label: 'Testnet', value: 'Testnet' }]}
             onChange={setTypeFilter}
             icon={<Filter size={14} className="text-slate-400" />}
           />
-          <CustomSelect 
-            value={statusFilter} 
-            options={[{label: t('allStatus'), value: 'all'}, {label: 'Potential', value: 'Potential'}, {label: 'Claim Available', value: 'Claim Available'}]}
+          <CustomSelect
+            value={statusFilter}
+            options={[{ label: t('allStatus'), value: 'all' }, { label: 'Potential', value: 'Potential' }, { label: 'Claim Available', value: 'Claim Available' }]}
             onChange={setStatusFilter}
             icon={<Zap size={14} className="text-slate-400" />}
           />
-          <CustomSelect 
-            value={ratingFilter} 
-            options={[{label: t('allRatings'), value: 'all'}, {label: t('ratingHigh'), value: 'high'}, {label: t('ratingLow'), value: 'low'}]}
+          <CustomSelect
+            value={ratingFilter}
+            options={[{ label: t('allRatings'), value: 'all' }, { label: t('ratingHigh'), value: 'high' }, { label: t('ratingLow'), value: 'low' }]}
             onChange={setRatingFilter}
             icon={<Star size={14} className="text-slate-400" />}
           />
-          <CustomSelect 
-            value={sortBy} 
+          <CustomSelect
+            value={sortBy}
             options={[
-              {label: t('newest'), value: 'newest'}, 
-              {label: t('oldest'), value: 'oldest'}
+              { label: t('newest'), value: 'newest' },
+              { label: t('oldest'), value: 'oldest' }
             ]}
             onChange={setSortBy}
             icon={<ArrowUpDown size={14} className="text-slate-400" />}
@@ -228,16 +303,16 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
 
           <div className="relative group min-w-[200px]">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={18} />
-            <input 
-              type="text" 
-              placeholder={t('filterTerminal')} 
+            <input
+              type="text"
+              placeholder={t('filterTerminal')}
               className="pl-12 pr-6 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 dark:bg-slate-900 outline-none w-full font-bold focus:ring-4 focus:ring-primary-500/10 transition-all text-sm"
               value={search}
               onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
             />
           </div>
           <button onClick={() => user ? setShowRequestModal(true) : addToast("Connect wallet to submit projects.", "warning")} className="flex items-center justify-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-2xl font-black hover:bg-primary-700 transition-all shadow-xl shadow-primary-500/20 active:scale-95 text-xs uppercase tracking-widest">
-             <Plus size={18} /> <span>{t('proposeProject')}</span>
+            <Plus size={18} /> <span>{t('proposeProject')}</span>
           </button>
         </div>
       </div>
@@ -248,7 +323,26 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
         <StatCard icon={<Bell size={24} />} label={t('liveClaims')} value={claims.filter(c => c.type === 'claim').length.toString()} color="text-amber-500" />
       </div>
 
-      <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-2xl mb-8">
+      {/* Mobile Card View */}
+      <div className="md:hidden grid grid-cols-1 gap-4 mb-8">
+        {filtered.length === 0 ? (
+          <div className="p-10 text-center text-slate-400 font-black uppercase tracking-widest border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl">No projects found.</div>
+        ) : (
+          currentItems.map(a => a && (
+            <MobileProjectCard
+              key={a.id}
+              project={a}
+              isTracked={isProjectTracked(a.id)}
+              onTrack={() => toggleTrackProject(a.id)}
+              user={user}
+              infofiPlatforms={infofiPlatforms}
+            />
+          ))
+        )}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden md:block bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-2xl mb-8">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse table-auto min-w-[800px]">
             <thead>
@@ -265,7 +359,7 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {filtered.length === 0 ? (
                 <tr>
-                   <td colSpan={category === 'infofi' ? 7 : 6} className="p-20 text-center text-slate-400 font-black uppercase tracking-widest">No projects detected in this sector.</td>
+                  <td colSpan={category === 'infofi' ? 7 : 6} className="p-20 text-center text-slate-400 font-black uppercase tracking-widest">No projects detected in this sector.</td>
                 </tr>
               ) : (
                 currentItems.map((a) => {
@@ -287,8 +381,8 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
                       <td className="px-6 py-5 text-[11px] font-bold text-slate-500 whitespace-nowrap">{new Date(a.createdAt || Date.now()).toLocaleDateString()}</td>
                       <td className="px-6 py-5">
                         <div className="flex items-center text-slate-950 dark:text-white font-black font-mono tracking-tighter gap-0.5">
-                           <span className="text-2xl">$</span>
-                           <span className="text-2xl">{a.investment}</span>
+                          <span className="text-2xl">$</span>
+                          <span className="text-2xl">{a.investment}</span>
                         </div>
                       </td>
                       <td className="px-6 py-5">
@@ -299,8 +393,8 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
                       {category === 'infofi' && <td className="px-6 py-5">
                         <div className="flex items-center gap-2">
                           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 transition-all whitespace-nowrap`}>
-                             {platformObj?.logo && <img src={platformObj.logo} className="w-3 h-3 object-contain" />}
-                             {a.platform || 'N/A'}
+                            {platformObj?.logo && <img src={platformObj.logo} className="w-3 h-3 object-contain" />}
+                            {a.platform || 'N/A'}
                           </span>
                         </div>
                       </td>}
@@ -325,41 +419,41 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
 
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2">
-           <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} className="p-3 rounded-2xl bg-white dark:bg-slate-900 border dark:border-slate-800 text-slate-400 hover:text-primary-600 shadow-sm transition-all"><ChevronLeft size={20}/></button>
-           <div className="flex gap-1.5">
-              {Array.from({ length: totalPages }, (_, i) => (
-                <button 
-                  key={i} 
-                  onClick={() => setCurrentPage(i + 1)} 
-                  className={`w-11 h-11 rounded-2xl font-black text-xs transition-all ${currentPage === i + 1 ? 'bg-primary-600 text-white shadow-xl shadow-primary-500/30 scale-110' : 'bg-white dark:bg-slate-900 border dark:border-slate-800 text-slate-400'}`}
-                >
-                  {i + 1}
-                </button>
-              ))}
-           </div>
-           <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} className="p-3 rounded-2xl bg-white dark:bg-slate-900 border dark:border-slate-800 text-slate-400 hover:text-primary-600 shadow-sm transition-all"><ChevronRight size={20}/></button>
+          <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} className="p-3 rounded-2xl bg-white dark:bg-slate-900 border dark:border-slate-800 text-slate-400 hover:text-primary-600 shadow-sm transition-all"><ChevronLeft size={20} /></button>
+          <div className="flex gap-1.5">
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`w-11 h-11 rounded-2xl font-black text-xs transition-all ${currentPage === i + 1 ? 'bg-primary-600 text-white shadow-xl shadow-primary-500/30 scale-110' : 'bg-white dark:bg-slate-900 border dark:border-slate-800 text-slate-400'}`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+          <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} className="p-3 rounded-2xl bg-white dark:bg-slate-900 border dark:border-slate-800 text-slate-400 hover:text-primary-600 shadow-sm transition-all"><ChevronRight size={20} /></button>
         </div>
       )}
 
       {showRequestModal && (
         <div className="fixed inset-0 z-[500] flex items-center justify-center p-6 bg-slate-950/90 backdrop-blur-md animate-in fade-in duration-300">
-           <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[3rem] p-10 shadow-2xl relative border dark:border-slate-800">
-              <button onClick={() => setShowRequestModal(false)} className="absolute top-8 right-8 text-slate-400 hover:text-red-500 transition-colors"><X size={24}/></button>
-              <h3 className="text-3xl font-black mb-8 tracking-tighter uppercase leading-none">{t('proposeProject')}</h3>
-              <div className="space-y-5">
-                 <div>
-                    <label className="text-[10px] font-black uppercase text-slate-400 block mb-2 ml-1 tracking-widest">{t('projectName')}</label>
-                    <input type="text" className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-sm outline-none border border-transparent focus:border-primary-500 transition-all shadow-inner" placeholder="e.g. Project X" value={reqData.name} onChange={e => setReqData({...reqData, name: e.target.value})} />
-                 </div>
-                 <div>
-                    <label className="text-[10px] font-black uppercase text-slate-400 block mb-2 ml-1 tracking-widest flex items-center gap-2"><Twitter size={10}/> {t('projectTwitter')}</label>
-                    <input type="text" className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-sm outline-none border border-transparent focus:border-primary-500 transition-all shadow-inner" placeholder="@handle" value={reqData.twitter} onChange={e => setReqData({...reqData, twitter: e.target.value})} />
-                 </div>
+          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[3rem] p-10 shadow-2xl relative border dark:border-slate-800">
+            <button onClick={() => setShowRequestModal(false)} className="absolute top-8 right-8 text-slate-400 hover:text-red-500 transition-colors"><X size={24} /></button>
+            <h3 className="text-3xl font-black mb-8 tracking-tighter uppercase leading-none">{t('proposeProject')}</h3>
+            <div className="space-y-5">
+              <div>
+                <label className="text-[10px] font-black uppercase text-slate-400 block mb-2 ml-1 tracking-widest">{t('projectName')}</label>
+                <input type="text" className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-sm outline-none border border-transparent focus:border-primary-500 transition-all shadow-inner" placeholder="e.g. Project X" value={reqData.name} onChange={e => setReqData({ ...reqData, name: e.target.value })} />
               </div>
-              <button onClick={handleRequestSubmit} className="w-full mt-10 py-5 bg-primary-600 text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3">
-                 <Zap size={18}/> {t('submitTransmission')}
-              </button>
-           </div>
+              <div>
+                <label className="text-[10px] font-black uppercase text-slate-400 block mb-2 ml-1 tracking-widest flex items-center gap-2"><Twitter size={10} /> {t('projectTwitter')}</label>
+                <input type="text" className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-sm outline-none border border-transparent focus:border-primary-500 transition-all shadow-inner" placeholder="@handle" value={reqData.twitter} onChange={e => setReqData({ ...reqData, twitter: e.target.value })} />
+              </div>
+            </div>
+            <button onClick={handleRequestSubmit} className="w-full mt-10 py-5 bg-primary-600 text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3">
+              <Zap size={18} /> {t('submitTransmission')}
+            </button>
+          </div>
         </div>
       )}
     </div>

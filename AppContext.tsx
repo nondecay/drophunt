@@ -68,6 +68,8 @@ interface AppContextType {
 
   // Helper to trigger refetch
   refreshData: () => Promise<void>;
+  manageTodo: (action: 'add' | 'remove' | 'toggle', item: any) => Promise<void>;
+  manageUserClaim: (action: 'add' | 'update' | 'remove', item: any) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -174,6 +176,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     if (existing) {
       setUser(existing as any);
+      fetchUserData(existing.id);
       return;
     }
 
@@ -188,8 +191,49 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         registeredAt: Date.now()
       };
       const { data: created, error: insertErr } = await supabase.from('users').insert(newUser).select().single();
-      if (created) setUser(created as any);
+      if (created) {
+        setUser(created as any);
+        fetchUserData(created.id);
+      }
       else console.error("User Creation Failed", insertErr);
+    }
+  };
+
+  const fetchUserData = async (uid: string) => {
+    const [tData, cData] = await Promise.all([
+      supabase.from('todos').select('*').eq('userId', uid),
+      supabase.from('user_claims').select('*').eq('userId', uid)
+    ]);
+    if (tData.data) setUserTasks(tData.data as any);
+    if (cData.data) setUserClaims(cData.data as any);
+  };
+
+  // CRUD Wrappers
+  const manageTodo = async (action: 'add' | 'remove' | 'toggle', item: any) => {
+    if (!user) return;
+    if (action === 'add') {
+      const { data, error } = await supabase.from('todos').insert({ ...item, userId: user.id }).select().single();
+      if (data) setUserTasks(prev => [...prev, data as any]);
+    } else if (action === 'remove') {
+      await supabase.from('todos').delete().eq('id', item.id);
+      setUserTasks(prev => prev.filter(t => t.id !== item.id));
+    } else if (action === 'toggle') {
+      await supabase.from('todos').update({ completed: !item.completed }).eq('id', item.id);
+      setUserTasks(prev => prev.map(t => t.id === item.id ? { ...t, completed: !t.completed } : t));
+    }
+  };
+
+  const manageUserClaim = async (action: 'add' | 'update' | 'remove', item: any) => {
+    if (!user) return;
+    if (action === 'add') {
+      const { data } = await supabase.from('user_claims').insert({ ...item, userId: user.id }).select().single();
+      if (data) setUserClaims(prev => [...prev, data as any]);
+    } else if (action === 'update') {
+      await supabase.from('user_claims').update(item).eq('id', item.id);
+      setUserClaims(prev => prev.map(c => c.id === item.id ? { ...c, ...item } : c));
+    } else if (action === 'remove') {
+      await supabase.from('user_claims').delete().eq('id', item.id);
+      setUserClaims(prev => prev.filter(c => c.id !== item.id));
     }
   };
 
@@ -201,6 +245,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setIsVerified(sessionStorage.getItem(sessionKey) === 'true');
     } else {
       setUser(null);
+      setUserTasks([]);
+      setUserClaims([]);
       setIsVerified(false);
     }
   }, [isConnected, address]);
@@ -273,7 +319,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const logActivity = async (activityId: string) => {
-    // similar logic
+    if (!user) return;
+    const now = Date.now();
+    const updated = { ...user.lastActivities, [activityId]: now };
+    await supabase.from('users').update({ lastActivities: updated }).eq('id', user.id);
+    setUser({ ...user, lastActivities: updated });
   };
 
   const resetAllXPs = async () => {
@@ -287,7 +337,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       theme, toggleTheme: () => setTheme(t => t === 'light' ? 'dark' : 'light'),
       lang, setLang, t,
       user, isVerified, verifyWallet, logout: () => { disconnect(); },
-      setUsername, updateAvatar, banUser, toggleTrackProject, gainXP, logActivity, resetAllXPs, refreshData,
+      setUsername, updateAvatar, banUser, toggleTrackProject, gainXP, logActivity, resetAllXPs, refreshData, manageTodo, manageUserClaim,
 
       // Data Props (Read Only mostly, write via specific actions or direct supabase calls in AdminPanel)
       // We pass the "setters" to maintain compatibility with AdminPanel, 

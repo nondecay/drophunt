@@ -459,6 +459,7 @@ const AdminPanelContent: React.FC = () => {
                               <div>
                                  <h4 className="font-black text-xl uppercase tracking-tighter">{r.name}</h4>
                                  <p className={`text-[10px] font-black uppercase tracking-widest ${r.isInfoFi ? 'text-amber-500' : 'text-primary-600'}`}>Proposal by {r.address}</p>
+                                 {r.twitterLink && <a href={r.twitterLink} target="_blank" rel="noreferrer" className="text-[10px] text-sky-500 font-bold hover:underline flex items-center gap-1 mt-1"><Twitter size={10} /> {r.twitterLink}</a>}
                               </div>
                               <div className="flex gap-2">
                                  <button onClick={() => { setAirdrops(prev => [{ id: Date.now().toString(), name: r.name, icon: '', investment: r.funding, type: 'Free', hasInfoFi: r.isInfoFi, rating: 5, voteCount: 0, status: 'Potential', projectInfo: '', campaignUrl: '', claimUrl: '', createdAt: Date.now(), backerIds: [], socials: { twitter: r.twitterLink } }, ...prev]); setRequests(p => p.filter(x => x.id !== r.id)); addToast("Project indexed."); }} className="p-3.5 bg-emerald-500 text-white rounded-2xl shadow-lg active:scale-90 transition-all"><Check size={24} /></button>
@@ -608,6 +609,23 @@ const AdminPanelContent: React.FC = () => {
                                     </select>
                                  </div>
                               </div>
+                           </div>
+
+                           <div className="col-span-2 grid grid-cols-3 gap-3 border-t dark:border-slate-800 pt-6">
+                              <Fld label="Website" val={formData.socials?.website || ''} onChange={v => setFormData({ ...formData, socials: { ...formData.socials, website: v } })} />
+                              <div className="relative">
+                                 <Fld label="Twitter" val={formData.socials?.twitter || ''} onChange={v => setFormData({ ...formData, socials: { ...formData.socials, twitter: v } })} />
+                                 <button onClick={() => {
+                                    const tw = formData.socials?.twitter;
+                                    if (!tw) return addToast("Enter Twitter URL first", "error");
+                                    const user = tw.split('/').pop();
+                                    if (user) {
+                                       setFormData(prev => ({ ...prev, icon: `https://unavatar.io/twitter/${user}`, logo: `https://unavatar.io/twitter/${user}` }));
+                                       addToast("Profile data fetched from Unavatar");
+                                    }
+                                 }} className="absolute right-2 top-8 p-1.5 bg-sky-500 text-white rounded-lg shadow-sm hover:scale-105 transition-transform" title="Fetch Profile Pic"><Sparkles size={12} /></button>
+                              </div>
+                              <Fld label="Discord" val={formData.socials?.discord || ''} onChange={v => setFormData({ ...formData, socials: { ...formData.socials, discord: v } })} />
                            </div>
 
                            <div className="grid grid-cols-2 gap-4">

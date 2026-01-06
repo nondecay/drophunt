@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider, useApp } from './AppContext';
 import { Layout } from './pages/Layout';
 import { Home } from './pages/Home';
@@ -70,7 +70,7 @@ export const App: React.FC = () => {
       <QueryClientProvider client={queryClient}>
         <AppProvider>
           <RainbowKitProvider theme={darkTheme({ accentColor: '#7c3aed' })}>
-            <HashRouter>
+            <BrowserRouter>
               <Routes>
                 <Route element={<Layout />}>
                   <Route path="/" element={<Home category="all" />} />
@@ -93,7 +93,7 @@ export const App: React.FC = () => {
                   <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
                 </Route>
               </Routes>
-            </HashRouter>
+            </BrowserRouter>
           </RainbowKitProvider>
         </AppProvider>
       </QueryClientProvider>
