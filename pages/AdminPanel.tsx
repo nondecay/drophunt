@@ -319,10 +319,76 @@ const AdminPanelContent: React.FC = () => {
                      </div>
                   </div>
                )}
-               {/* Additional Tabs (Moderation, Requests, Messages etc) suppressed for brevity but logic is identical */}
-               {activeTab === 'moderation' && <div className="p-10 text-center">Moderation Module Active (Refer to full implementation for details)</div>}
-               {activeTab === 'messages' && <div className="p-10 text-center">Comms Module Active</div>}
-               {/* ... Other tabs ... */}
+               {activeTab === 'moderation' && (
+                  <div className="space-y-10">
+                     <SectionWrapper title="Pending Comments">
+                        <div className="space-y-4">
+                           {comments.filter(c => !c.isApproved).map(c => (
+                              <div key={c.id} className="p-5 bg-white dark:bg-slate-800 rounded-3xl flex items-start justify-between border dark:border-slate-700 shadow-sm">
+                                 <div className="flex gap-4">
+                                    <img src={c.avatar} className="w-12 h-12 rounded-xl" />
+                                    <div><p className="font-black text-xs uppercase tracking-tight text-primary-600">{c.username} @ {airdrops.find(a => a.id === c.airdropId)?.name || 'Protocol'}</p><p className="text-sm font-medium mt-1 leading-relaxed">{c.content}</p></div>
+                                 </div>
+                                 <div className="flex gap-2"><button onClick={() => { setComments(p => p.map(x => x.id === c.id ? { ...x, isApproved: true } : x)); addToast("Comment approved."); }} className="p-2.5 bg-emerald-500 text-white rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all"><Check size={18} /></button><button onClick={() => { if (confirm("Reject comment?")) setComments(p => p.filter(x => x.id !== c.id)); }} className="p-2.5 bg-rose-500 text-white rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all"><Trash2 size={18} /></button></div>
+                              </div>
+                           ))}
+                           {comments.filter(c => !c.isApproved).length === 0 && <div className="p-20 text-center text-slate-300 font-black uppercase text-xs tracking-widest border-4 border-dashed rounded-[3rem]">Comment queue is quiet.</div>}
+                        </div>
+                     </SectionWrapper>
+                     <SectionWrapper title="Proposed Guides">
+                        <div className="space-y-4">
+                           {guides.filter(g => !g.isApproved).map(g => (
+                              <div key={g.id} className="p-5 bg-white dark:bg-slate-800 rounded-3xl flex flex-col border dark:border-slate-700 shadow-sm gap-4">
+                                 <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                       <div className={`p-3 rounded-2xl ${g.platform === 'youtube' ? 'bg-red-50 text-red-500' : g.platform === 'twitter' ? 'bg-sky-50 text-sky-500' : 'bg-slate-50 text-slate-900'}`}>{g.platform === 'youtube' ? <Youtube size={24} /> : g.platform === 'twitter' ? <Twitter size={24} /> : <Github size={24} />}</div>
+                                       <div><p className="font-black text-xs uppercase tracking-tight">{g.author} on {airdrops.find(a => a.id === g.airdropId)?.name || 'Protocol'}</p><p className="text-[10px] text-slate-400 font-mono truncate w-64">{g.url}</p></div>
+                                    </div>
+                                    <div className="flex gap-2"><button onClick={() => { setGuides(p => p.map(x => x.id === g.id ? { ...x, isApproved: true } : x)); addToast("Guide approved."); }} className="p-2.5 bg-emerald-500 text-white rounded-xl shadow-lg hover:scale-105 transition-all"><Check size={18} /></button><button onClick={() => { if (confirm("Reject guide?")) setGuides(p => p.filter(x => x.id !== g.id)); }} className="p-2.5 bg-rose-500 text-white rounded-xl shadow-lg hover:scale-105 transition-all"><Trash2 size={18} /></button></div>
+                                 </div>
+                                 <div className="px-1"><label className="text-[9px] font-black text-slate-400 uppercase mb-1 block">Set Guide Title (Optional)</label><input type="text" className="w-full bg-slate-50 dark:bg-slate-900 p-2 rounded-lg text-xs font-bold border dark:border-slate-700 outline-none focus:border-primary-500" placeholder="Enter custom display title..." value={g.title || ''} onChange={e => updateGuideInList(g.id, { title: e.target.value })} /></div>
+                              </div>
+                           ))}
+                           {guides.filter(g => !g.isApproved).length === 0 && <div className="p-20 text-center text-slate-300 font-black uppercase text-xs tracking-widest border-4 border-dashed rounded-[3rem]">Guide queue is quiet.</div>}
+                        </div>
+                     </SectionWrapper>
+                  </div>
+               )}
+               {activeTab === 'requests' && (
+                  <SectionWrapper title="Hunter Project Proposals">
+                     <div className="space-y-4">
+                        {requests.map(r => (
+                           <div key={r.id} className="p-6 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-[2rem] flex items-center justify-between group shadow-sm transition-all hover:border-primary-500">
+                              <div><h4 className="font-black text-xl uppercase tracking-tighter">{r.name}</h4><p className={`text-[10px] font-black uppercase tracking-widest ${r.isInfoFi ? 'text-amber-500' : 'text-primary-600'}`}>Proposal by {r.address}</p><div className="flex items-center gap-1 mt-1 text-[10px] font-bold text-slate-400 lowercase"><Twitter size={12} /> {r.twitterLink || 'No twitter provided'}</div></div>
+                              <div className="flex gap-2"><button onClick={() => { setAirdrops(prev => [{ id: Date.now().toString(), name: r.name, icon: '', investment: r.funding, type: 'Free', hasInfoFi: r.isInfoFi, rating: 5, voteCount: 0, status: 'Potential', projectInfo: '', campaignUrl: '', claimUrl: '', createdAt: Date.now(), backerIds: [], socials: { twitter: r.twitterLink } }, ...prev]); setRequests(p => p.filter(x => x.id !== r.id)); addToast("Project indexed."); }} className="p-3.5 bg-emerald-500 text-white rounded-2xl shadow-lg active:scale-90 transition-all"><Check size={24} /></button><button onClick={() => { if (confirm("Discard proposal?")) setRequests(p => p.filter(x => x.id !== r.id)); }} className="p-3.5 bg-rose-500 text-white rounded-2xl shadow-lg active:scale-90 transition-all"><Trash2 size={24} /></button></div>
+                           </div>
+                        ))}
+                        {requests.length === 0 && <div className="p-24 text-center text-slate-300 font-black uppercase text-xs tracking-widest border-4 border-dashed rounded-[3rem]">No pending proposals.</div>}
+                     </div>
+                  </SectionWrapper>
+               )}
+               {activeTab === 'messages' && (
+                  <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-10 border dark:border-slate-800 shadow-xl max-w-2xl mx-auto">
+                     <h2 className="text-3xl font-black mb-8 tracking-tighter uppercase flex items-center gap-4"><Send className="text-primary-600" /> {t('globalComms')}</h2>
+                     <div className="space-y-6">
+                        <div><label className="text-[10px] font-black uppercase text-slate-400 block mb-2 tracking-widest ml-1">Title</label><input type="text" className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-primary-500 transition-all" value={msgData.title} onChange={e => setMsgData({ ...msgData, title: e.target.value })} /></div>
+                        <div><label className="text-[10px] font-black uppercase text-slate-400 block mb-2 tracking-widest ml-1">Content</label><textarea className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-sm h-32 outline-none border-2 border-transparent focus:border-primary-500 transition-all" value={msgData.content} onChange={e => setMsgData({ ...msgData, content: e.target.value })} /></div>
+                        <div className="grid grid-cols-2 gap-4">
+                           <div><label className="text-[10px] font-black uppercase text-slate-400 block mb-2 tracking-widest ml-1">Target</label><select className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-black text-xs outline-none" value={msgData.target} onChange={e => setMsgData({ ...msgData, target: e.target.value as any })}><option value="all">All Hunters</option><option value="project">Project Followers</option></select></div>
+                           {msgData.target === 'project' && (
+                              <div className="relative">
+                                 <label className="text-[10px] font-black uppercase text-slate-400 block mb-2 tracking-widest ml-1">Search Project</label>
+                                 <div className="relative"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={14} /><input type="text" className="w-full pl-10 pr-4 py-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-black text-xs outline-none" placeholder="Filter projects..." value={commsSearch} onChange={e => setCommsSearch(e.target.value)} /></div>
+                                 {commsSearch && commsProjectResults.length > 0 && (
+                                    <div className="absolute top-full mt-2 w-full bg-white dark:bg-slate-800 rounded-xl shadow-2xl border dark:border-slate-700 z-50 p-1">{commsProjectResults.map(p => (<button key={p.id} onClick={() => { setMsgData({ ...msgData, projectId: p.id }); setCommsSearch(''); }} className={`w-full text-left px-4 py-3 rounded-lg text-[10px] font-black uppercase flex items-center gap-3 ${msgData.projectId === p.id ? 'bg-primary-600 text-white' : 'hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-500'}`}><img src={p.icon} className="w-6 h-6 rounded-md object-cover" />{p.name}</button>))}</div>
+                                 )}
+                              </div>
+                           )}
+                        </div>
+                        <button onClick={sendBroadcast} className="w-full py-5 bg-primary-600 text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3"><Send size={18} /> Broadcast Payload</button>
+                     </div>
+                  </div>
+               )}
                {(activeTab === 'airdrops' || activeTab === 'infofi') && (
                   <SectionWrapper title={activeTab === 'infofi' ? t('infofi') : t('airdrops')} onAdd={() => openModal(activeTab === 'infofi' ? 'infofi' : 'airdrop')}>
                      <div className="mb-6 relative"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input type="text" placeholder="Search projects..." className="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800 font-bold outline-none border-2 border-transparent focus:border-primary-500 transition-all" value={projectSearch} onChange={e => { setProjectSearch(e.target.value); setProjectPage(1); }} /></div>
