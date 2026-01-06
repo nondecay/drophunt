@@ -83,7 +83,19 @@ export const AdminPanel: React.FC = () => {
          };
       } catch (e) {
          console.error("Stats Error", e);
-         return null;
+         return {
+            totalUsers: 0,
+            totalAirdrops: 0,
+            totalInfoFi: 0,
+            totalComments: 0,
+            totalChains: 0,
+            history: [],
+            months: [],
+            maxUser: 1,
+            maxComm: 1,
+            maxGuide: 1,
+            maxProj: 1
+         };
       }
    }, [usersList, airdrops, comments, guides, chains]);
 
