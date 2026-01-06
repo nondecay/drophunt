@@ -97,7 +97,7 @@ export const ProjectDetails: React.FC = () => {
       rating: userRating,
       createdAt: new Date().toLocaleString(),
       createdAtTimestamp: now,
-      isApproved: true // Auto-approve for now, or false if stricter
+      isApproved: false // User requested admin approval requirement
     };
 
     const { data: savedComment, error } = await supabase.from('comments').insert(newComment).select().single();
