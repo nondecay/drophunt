@@ -1,20 +1,13 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
 
-# Run and deploy your AI Studio app
+# Trackdropz Protocol
 
-This contains everything you need to run your app locally.
+## Supabase Integration (Live v2.5)
 
-View your app in AI Studio: https://ai.studio/apps/temp/1
+This project is now fully integrated with Supabase.
 
-## Run Locally
+- **Frontend**: Vite + React
+- **Backend**: Supabase (PostgreSQL + RLS)
+- **Admin**: Secure Password Protection (No Wallet Auth)
+- **Repo**: https://github.com/nondecay/drophunt
 
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Last Update: 2026-01-06 (Forced Deploy)
