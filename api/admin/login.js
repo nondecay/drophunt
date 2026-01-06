@@ -42,15 +42,17 @@ export default async function handler(req, res) {
         // Given the user said "Cüzdan adresiyle direkt admin oldum", they want to be admin via wallet, but PROVE it with password.
 
         // Let's fetch ALL secrets (should be few) and check.
-        const { data: secrets, error } = await supabase.from('admin_secrets').select('secret');
+        // Fetch ALL secrets and check (password_hash is the column name)
+        const { data: secrets, error } = await supabase.from('admin_secrets').select('password_hash');
 
         if (error || !secrets) {
+            console.error('DB Error:', error);
             return res.status(500).json({ error: 'Database Error' });
         }
 
         let isValid = false;
         for (const s of secrets) {
-            if (bcrypt.compareSync(password, s.secret)) {
+            if (bcrypt.compareSync(password, s.password_hash)) {
                 isValid = true;
                 break;
             }
