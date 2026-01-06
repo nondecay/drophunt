@@ -246,7 +246,7 @@ const AdminPanelContent: React.FC = () => {
 
    // --- MAIN RENDER ---
    return (
-      <div className="max-w-[1600px] mx-auto pb-24 px-4">
+      <div className="max-w-[1600px] mx-auto pb-24 px-4 relative">
          <div className="flex items-center gap-6 mb-12">
             <div className="w-16 h-16 bg-primary-600 text-white rounded-[2rem] flex items-center justify-center shadow-2xl border-4 border-white dark:border-slate-800"><Shield size={32} /></div>
             <div><h1 className="text-4xl font-black tracking-tighter uppercase leading-none">{t('adminHq')}</h1><p className="text-slate-500 font-bold uppercase text-[10px] tracking-[0.3em] mt-1">{t('masterAuth')}</p></div>
@@ -400,6 +400,75 @@ const AdminPanelContent: React.FC = () => {
                )}
             </main>
          </div>
+
+         {/* --- MODAL SYSTEM (RESTORED) --- */}
+         {showModal && (
+            <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+               <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[3rem] p-8 border dark:border-slate-800 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+                  <div className="flex justify-between items-center mb-8">
+                     <h3 className="text-2xl font-black uppercase tracking-tighter">
+                        {editingItem ? `Edit ${showModal}` : `New ${showModal}`}
+                     </h3>
+                     <button onClick={() => setShowModal(null)} className="cp-12 text-slate-400 hover:text-white bg-slate-100 dark:bg-slate-800 p-2 rounded-full transition-colors"><X size={24} /></button>
+                  </div>
+                  <div className="space-y-6">
+                     {/* Common Uploads */}
+                     {(['airdrop', 'infofi', 'platform', 'investor', 'claim', 'presale', 'tool', 'gm', 'mint', 'deploy', 'rpg', 'chain'].includes(showModal || '')) && (
+                        <div className="flex justify-center mb-6">
+                           <label className="relative group cursor-pointer">
+                              {formData.icon || formData.logo || formData.avatar ? <img src={formData.icon || formData.logo || formData.avatar} className="w-24 h-24 rounded-3xl object-cover border-4 border-slate-100 dark:border-slate-800 shadow-xl" /> : <div className="w-24 h-24 rounded-3xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-700"><Plus size={32} className="text-slate-400" /></div>}
+                              <input type="file" className="hidden" onChange={(e) => handleFile(e, (showModal === 'platform' || showModal === 'investor' || showModal === 'tool' || showModal === 'chain' || ['gm', 'mint', 'deploy', 'rpg'].includes(showModal || '')) ? 'logo' : 'icon')} />
+                           </label>
+                        </div>
+                     )}
+
+                     {/* Dynamic Fields based on Type */}
+                     {(showModal === 'airdrop' || showModal === 'infofi') && (
+                        <>
+                           <Fld label="Project Name" val={formData.name} onChange={v => setFormData({ ...formData, name: v })} />
+                           <div className="grid grid-cols-2 gap-4">
+                              <Fld label="Status" val={formData.status} onChange={v => setFormData({ ...formData, status: v })} />
+                              <Fld label="Investment" val={formData.investment} onChange={v => setFormData({ ...formData, investment: v })} />
+                           </div>
+                           <Fld label="Project Description" val={formData.projectInfo} type="textarea" onChange={v => setFormData({ ...formData, projectInfo: v })} />
+                           <h4 className="font-black text-xs uppercase text-slate-400 mt-4">Socials</h4>
+                           <div className="grid grid-cols-3 gap-4">
+                              <Fld label="Website" val={formData.socials?.website} onChange={v => setFormData({ ...formData, socials: { ...formData.socials, website: v } })} />
+                              <Fld label="Twitter" val={formData.socials?.twitter} onChange={v => setFormData({ ...formData, socials: { ...formData.socials, twitter: v } })} />
+                              <Fld label="Discord" val={formData.socials?.discord} onChange={v => setFormData({ ...formData, socials: { ...formData.socials, discord: v } })} />
+                           </div>
+                           {(showModal === 'infofi' || formData.hasInfoFi) && (
+                              <div className="bg-slate-50 dark:bg-slate-950 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 mt-4">
+                                 <h4 className="font-black uppercase text-amber-500 mb-4 flex items-center gap-2"><Zap size={16} /> InfoFi Module</h4>
+                                 <Fld label="Potential Reward" val={formData.potentialReward} onChange={v => setFormData({ ...formData, potentialReward: v })} />
+                                 <div className="mt-4"><label className="text-[9px] font-black uppercase text-slate-400 block mb-2">Backers</label><div className="flex flex-wrap gap-2">{investors.map(inv => (<button key={inv.id} onClick={() => toggleBackerSelection(inv.id)} className={`px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-all ${formData.backerIds?.includes(inv.id) ? 'bg-primary-600 border-primary-600 text-white' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500'}`}>{inv.name}</button>))}</div></div>
+                                 <div className="mt-6"><label className="text-[9px] font-black uppercase text-slate-400 block mb-2">Top 10 Users (Twitter Links)</label><div className="space-y-2">{formData.topUsers?.map((u: any, i: number) => (<div key={i} className="flex items-center gap-2"><span className="text-xs font-mono text-slate-400 w-6">#{i + 1}</span><input type="text" className="flex-1 bg-white dark:bg-slate-900 p-2 rounded-lg text-xs font-bold outline-none border border-transparent focus:border-amber-500" placeholder="https://twitter.com/..." value={u.twitterUrl} onChange={(e) => updateInfoFiSlot(i, e.target.value)} /></div>))}</div></div>
+                              </div>
+                           )}
+                        </>
+                     )}
+
+                     {showModal === 'claim' && (
+                        <>
+                           <Fld label="Project Name" val={formData.projectName} onChange={v => setFormData({ ...formData, projectName: v })} />
+                           <Fld label="Claim Link" val={formData.link} onChange={v => setFormData({ ...formData, link: v })} />
+                           <Fld label="Deadline" val={formData.deadline} type="date" onChange={v => setFormData({ ...formData, deadline: v })} />
+                        </>
+                     )}
+
+                     {/* Generic fallback for other types */}
+                     {!['airdrop', 'infofi', 'claim'].includes(showModal || '') && Object.keys(formData).filter(k => k !== 'id' && k !== 'icon' && k !== 'logo').map(key => (
+                        <div key={key} className="mb-2">
+                           {typeof formData[key] === 'string' && <Fld label={key} val={formData[key]} onChange={v => setFormData({ ...formData, [key]: v })} />}
+                        </div>
+                     ))}
+
+                     <button onClick={handleSave} className="w-full py-5 bg-primary-600 text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs shadow-xl active:scale-95 transition-all mt-8">Save Database</button>
+                  </div>
+               </div>
+            </div>
+         )}
+
       </div>
    );
 };
@@ -435,7 +504,10 @@ const ChartBox: React.FC<{ title: string, data: any[], valKey: string, labelKey:
 );
 
 const Fld: React.FC<{ label: string, val: string, type?: string, onChange: (v: string) => void }> = ({ label, val, type = "text", onChange }) => (
-   <div className="mb-4 w-full"><label className="text-[9px] font-black uppercase text-slate-400 block mb-1 ml-1 tracking-widest">{label}</label><input type={type} className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-xs outline-none border-2 border-transparent focus:border-primary-500 transition-all shadow-inner" value={val || ''} onChange={e => onChange(e.target.value)} /></div>
+   <div className="mb-4 w-full"><label className="text-[9px] font-black uppercase text-slate-400 block mb-1 ml-1 tracking-widest">{label}</label>
+      {type === 'textarea' ? <textarea className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-xs outline-none border-2 border-transparent focus:border-primary-500 transition-all shadow-inner h-24 max-h-48 min-h-[3rem]" value={val || ''} onChange={e => onChange(e.target.value)} /> :
+         <input type={type} className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-xs outline-none border-2 border-transparent focus:border-primary-500 transition-all shadow-inner" value={val || ''} onChange={e => onChange(e.target.value)} />}
+   </div>
 );
 
 export const AdminPanel: React.FC = () => <ErrorBoundary><AdminPanelContent /></ErrorBoundary>;
