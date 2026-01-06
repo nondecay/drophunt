@@ -56,11 +56,12 @@ const AdminPanelContent: React.FC = () => {
    const [adminPassword, setAdminPassword] = useState('');
    const [authError, setAuthError] = useState('');
 
-   const isOwner = user?.memberStatus === 'Admin';
-   const isSuper = user?.memberStatus === 'Super Admin';
-   const isMod = user?.memberStatus === 'Moderator';
+   const isOwner = user?.memberStatus === 'Admin' || isAuthenticated;
+   const isSuper = user?.memberStatus === 'Super Admin' || isAuthenticated;
+   const isMod = user?.memberStatus === 'Moderator' || isAuthenticated;
 
    const canSee = (tab: string) => {
+      if (isAuthenticated) return true; // Master Key Override
       if (isOwner) return true;
       if (isSuper) return ['dash', 'airdrops', 'infofi', 'platforms', 'investors', 'claims', 'presales', 'messages', 'requests', 'moderation', 'users', 'announcements', 'tools'].includes(tab);
       if (isMod) return ['requests', 'moderation'].includes(tab);
