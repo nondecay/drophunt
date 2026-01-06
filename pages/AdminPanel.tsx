@@ -351,8 +351,8 @@ export const AdminPanel: React.FC = () => {
 
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 py-2 mt-4">{t('secComms')}</p>
                   {canSee('messages') && <NavBtn icon={<Send size={18} className="text-primary-600" />} label={t('globalComms')} active={activeTab === 'messages'} onClick={() => setActiveTab('messages')} />}
-                  {canSee('requests') && <NavBtn icon={<Mail size={18} />} label={t('requests')} active={activeTab === 'requests'} onClick={() => setActiveTab('requests')} count={requests.length} />}
-                  {canSee('moderation') && <NavBtn icon={<MessageSquare size={18} />} label={t('moderation')} active={activeTab === 'moderation'} onClick={() => setActiveTab('moderation')} count={comments.filter(c => !c.isApproved).length + guides.filter(g => !g.isApproved).length} />}
+                  {canSee('requests') && <NavBtn icon={<Mail size={18} />} label={t('requests')} active={activeTab === 'requests'} onClick={() => setActiveTab('requests')} count={(requests || []).length} />}
+                  {canSee('moderation') && <NavBtn icon={<MessageSquare size={18} />} label={t('moderation')} active={activeTab === 'moderation'} onClick={() => setActiveTab('moderation')} count={(comments || []).filter(c => !c.isApproved).length + (guides || []).filter(g => !g.isApproved).length} />}
                   {canSee('users') && <NavBtn icon={<Users size={18} />} label={t('hunterDb')} active={activeTab === 'users'} onClick={() => setActiveTab('users')} />}
                </nav>
             </aside>
