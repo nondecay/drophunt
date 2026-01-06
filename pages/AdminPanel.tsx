@@ -39,42 +39,52 @@ export const AdminPanel: React.FC = () => {
       return false;
    };
 
+   const isActive = useMemo(() => user?.role === 'admin' || user?.memberStatus === 'Admin', [user]);
+
    const stats = useMemo(() => {
-      const last7Days = Array.from({ length: 7 }, (_, i) => {
-         const d = new Date();
-         d.setDate(d.getDate() - i);
-         const dayStr = d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' });
-         const userCount = usersList.filter(u => new Date(u.registeredAt).toLocaleDateString() === d.toLocaleDateString()).length;
-         const commCount = comments.filter(c => new Date(c.createdAtTimestamp || 0).toLocaleDateString() === d.toLocaleDateString()).length;
-         const guideCount = guides.filter(g => new Date(g.createdAt || 0).toLocaleDateString() === d.toLocaleDateString()).length;
+      if (!usersList || !airdrops || !comments) return null;
 
-         return { day: dayStr, userCount, commCount, guideCount };
-      }).reverse();
+      try {
+         const last7Days = Array.from({ length: 7 }, (_, i) => {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const dayStr = d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' });
+            const userCount = usersList.filter(u => u.registeredAt && new Date(u.registeredAt).toLocaleDateString() === d.toLocaleDateString()).length;
+            const commCount = comments.filter(c => c.createdAtTimestamp && new Date(c.createdAtTimestamp).toLocaleDateString() === d.toLocaleDateString()).length;
+            const guideCount = guides.filter(g => g.createdAt && new Date(g.createdAt).toLocaleDateString() === d.toLocaleDateString()).length;
 
-      const last6Months = Array.from({ length: 6 }, (_, i) => {
-         const d = new Date();
-         d.setMonth(d.getMonth() - i);
-         const monthStr = d.toLocaleString('default', { month: 'short' });
-         const projCount = airdrops.filter(a => {
-            const adate = new Date(a.createdAt || 0);
-            return adate.getMonth() === d.getMonth() && adate.getFullYear() === d.getFullYear();
-         }).length;
-         return { month: monthStr, projCount };
-      }).reverse();
+            return { day: dayStr, userCount, commCount, guideCount };
+         }).reverse();
 
-      return {
-         totalUsers: usersList.length,
-         totalAirdrops: airdrops.filter(a => !a.hasInfoFi).length,
-         totalInfoFi: airdrops.filter(a => a.hasInfoFi).length,
-         totalComments: comments.length,
-         totalChains: chains.length,
-         history: last7Days,
-         months: last6Months,
-         maxUser: Math.max(...last7Days.map(h => h.userCount), 1),
-         maxComm: Math.max(...last7Days.map(h => h.commCount), 1),
-         maxGuide: Math.max(...last7Days.map(h => h.guideCount), 1),
-         maxProj: Math.max(...last6Months.map(m => m.projCount), 1),
-      };
+         const last6Months = Array.from({ length: 6 }, (_, i) => {
+            const d = new Date();
+            d.setMonth(d.getMonth() - i);
+            const monthStr = d.toLocaleString('default', { month: 'short' });
+            const projCount = airdrops.filter(a => {
+               if (!a.createdAt) return false;
+               const adate = new Date(a.createdAt);
+               return adate.getMonth() === d.getMonth() && adate.getFullYear() === d.getFullYear();
+            }).length;
+            return { month: monthStr, projCount };
+         }).reverse();
+
+         return {
+            totalUsers: usersList.length,
+            totalAirdrops: airdrops.filter(a => !a.hasInfoFi).length,
+            totalInfoFi: airdrops.filter(a => a.hasInfoFi).length,
+            totalComments: comments.length,
+            totalChains: chains.length,
+            history: last7Days,
+            months: last6Months,
+            maxUser: Math.max(...last7Days.map(h => h.userCount), 1),
+            maxComm: Math.max(...last7Days.map(h => h.commCount), 1),
+            maxGuide: Math.max(...last7Days.map(h => h.guideCount), 1),
+            maxProj: Math.max(...last6Months.map(m => m.projCount), 1),
+         };
+      } catch (e) {
+         console.error("Stats Error", e);
+         return null;
+      }
    }, [usersList, airdrops, comments, guides, chains]);
 
    const [msgData, setMsgData] = useState({ title: '', content: '', target: 'all', projectId: '' });
