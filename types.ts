@@ -28,7 +28,6 @@ export interface User {
   address: string;
   username?: string;
   avatar: string;
-  isAdmin: boolean;
   memberStatus: 'Admin' | 'Super Admin' | 'Moderator' | 'Hunter';
   registeredAt: number;
   trackedProjectIds?: string[];
@@ -39,7 +38,7 @@ export interface User {
   mp: number;
   strength: number;
   defense: number;
-  lastActivities?: Record<string, number>; 
+  lastActivities?: Record<string, number>;
   lastUsernameChange?: number;
   lastCommentTimestamps?: Record<string, number>; // ProjectID -> Timestamp
   // Ban Info
@@ -58,15 +57,15 @@ export interface OnChainActivity {
   id: string;
   type: 'gm' | 'mint' | 'deploy' | 'rpg';
   name: string;
-  logo: string; 
+  logo: string;
   chainId: number;
   contractAddress: string;
   color?: string;
   extraXP?: number;
   isTestnet: boolean;
-  nftImage?: string; 
+  nftImage?: string;
   abi?: any[];
-  mintFee?: string; 
+  mintFee?: string;
   functionName?: string;
   badge?: 'Popular' | 'NEW' | 'none';
 }
@@ -107,11 +106,11 @@ export interface Airdrop {
   backerIds?: string[]; // New field for formal Investor IDs
   type: 'Gas Only' | 'Waitlist' | 'Free' | 'Paid' | 'Testnet';
   hasInfoFi: boolean;
-  rating: number; 
+  rating: number;
   voteCount: number;
   status: 'Potential' | 'Claim Available';
   socials: SocialLinks;
-  topUsers?: TopUser[]; 
+  topUsers?: TopUser[];
   createdAt: number;
   platform?: string;
   projectInfo?: string;
@@ -123,7 +122,7 @@ export interface Airdrop {
 export interface Guide {
   id: string;
   platform: 'youtube' | 'twitter' | 'github';
-  author: string; 
+  author: string;
   url: string;
   lang: string;
   countryCode: 'tr' | 'us';

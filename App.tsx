@@ -45,8 +45,8 @@ const config = getDefaultConfig({
   appName: 'Trackdropz',
   projectId: '8a31ea9e4745b61f8bf4895a45894f98',
   chains: [
-    mainnet, polygon, optimism, arbitrum, base, 
-    sepolia, baseSepolia, optimismSepolia, arbitrumSepolia, polygonAmoy, 
+    mainnet, polygon, optimism, arbitrum, base,
+    sepolia, baseSepolia, optimismSepolia, arbitrumSepolia, polygonAmoy,
     berachainTestnet as any
   ],
   ssr: false,
@@ -61,7 +61,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
 const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useApp();
-  return user?.isAdmin ? <>{children}</> : <Navigate to="/" />;
+  return (user?.role === 'admin' || user?.memberStatus === 'Admin') ? <>{children}</> : <Navigate to="/" />;
 };
 
 export const App: React.FC = () => {

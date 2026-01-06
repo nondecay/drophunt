@@ -3,34 +3,34 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useApp } from '../AppContext';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { 
-  LayoutDashboard, Calendar as CalendarIcon, Bell, Moon, Sun, 
-  User as UserIcon, Globe, Menu, X, ShieldAlert, ChevronDown, Zap, 
-  Ticket, CheckCircle, AlertCircle, Mail, Sun as SunIcon, 
+import {
+  LayoutDashboard, Calendar as CalendarIcon, Bell, Moon, Sun,
+  User as UserIcon, Globe, Menu, X, ShieldAlert, ChevronDown, Zap,
+  Ticket, CheckCircle, AlertCircle, Mail, Sun as SunIcon,
   Sparkles, ArrowUpCircle, Sword, LogOut, Target, UserPlus, Users, Lock, Wrench, Droplets, ShieldCheck, Twitter
 } from 'lucide-react';
 
 const DiscordIcon = ({ size = 18, className = "" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
-    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107-.892.077.077 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107-.892.077.077 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
   </svg>
 );
 
 const ToastItem: React.FC<{ toast: any, onRemove: (id: string) => void }> = ({ toast, onRemove }) => {
   const [timeLeft, setTimeLeft] = useState(5);
   const [progress, setProgress] = useState(100);
-  const duration = 5000; 
+  const duration = 5000;
   const step = 50;
 
   useEffect(() => {
     const totalSteps = duration / step;
     let currentStep = 0;
-    
+
     const interval = setInterval(() => {
       currentStep++;
       const nextProgress = 100 - (currentStep / totalSteps) * 100;
       const nextTime = Math.floor(5 - (currentStep * step) / 1000);
-      
+
       setProgress(nextProgress);
       setTimeLeft(nextTime >= 0 ? nextTime : 0);
 
@@ -48,8 +48,8 @@ const ToastItem: React.FC<{ toast: any, onRemove: (id: string) => void }> = ({ t
   const offset = circumference - (progress / 100) * circumference;
 
   return (
-    <div className={`flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border bg-white dark:bg-slate-900 animate-in slide-in-from-right duration-300 max-w-sm`} 
-         style={{ borderColor: color }}>
+    <div className={`flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border bg-white dark:bg-slate-900 animate-in slide-in-from-right duration-300 max-w-sm`}
+      style={{ borderColor: color }}>
       <div className="relative w-10 h-10 flex items-center justify-center shrink-0">
         <svg className="w-10 h-10 -rotate-90">
           <circle cx="20" cy="20" r={radius} fill="transparent" stroke="currentColor" strokeWidth="3" className="text-slate-100 dark:text-slate-800" />
@@ -68,14 +68,13 @@ const ToastItem: React.FC<{ toast: any, onRemove: (id: string) => void }> = ({ t
 };
 
 const SidebarLink: React.FC<{ to: string, icon: React.ReactNode, label: string, active: boolean, onClick?: () => void, badge?: number }> = ({ to, icon, label, active, onClick, badge }) => (
-  <Link 
-    to={to} 
+  <Link
+    to={to}
     onClick={onClick}
-    className={`flex items-center justify-between px-4 py-2.5 rounded-xl transition-all ${
-    active 
-    ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30' 
-    : 'text-slate-500 hover:bg-primary-50 dark:hover:bg-slate-800 hover:text-primary-600'
-  }`}>
+    className={`flex items-center justify-between px-4 py-2.5 rounded-xl transition-all ${active
+        ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
+        : 'text-slate-500 hover:bg-primary-50 dark:hover:bg-slate-800 hover:text-primary-600'
+      }`}>
     <div className="flex items-center gap-3">
       {icon}
       <span className="font-black text-xs uppercase tracking-wider">{label}</span>
@@ -95,7 +94,7 @@ export const Layout: React.FC = () => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [tempUsername, setTempUsername] = useState('');
-  
+
   const langMenuRef = useRef<HTMLDivElement>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
@@ -124,8 +123,8 @@ export const Layout: React.FC = () => {
         </div>
         <h1 className="text-4xl font-black text-white uppercase tracking-tighter mb-4">ACCESS DENIED</h1>
         <p className="text-slate-400 max-w-md font-medium text-lg mb-10">
-          {user?.isPermaBanned 
-            ? "Your identity has been permanently terminated from the protocol." 
+          {user?.isPermaBanned
+            ? "Your identity has been permanently terminated from the protocol."
             : `Protocol access suspended for violation. Return in ${banDaysLeft} days.`}
         </p>
         <button onClick={logout} className="px-8 py-3 bg-red-600 text-white rounded-xl font-black uppercase text-xs tracking-widest shadow-xl">Disconnect Hub</button>
@@ -135,7 +134,7 @@ export const Layout: React.FC = () => {
 
   return (
     <div className="min-h-screen flex bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300 font-sans">
-      
+
       <div className="fixed top-6 right-6 z-[200] flex flex-col gap-3">
         {toasts.map(toast => (
           <ToastItem key={toast.id} toast={toast} onRemove={removeToast} />
@@ -161,12 +160,12 @@ export const Layout: React.FC = () => {
             <SidebarLink to="/presales" icon={<Ticket size={18} />} label={t('presales')} active={location.pathname === '/presales'} onClick={() => setSidebarOpen(false)} />
             <SidebarLink to="/investors" icon={<Users size={18} />} label={t('investors')} active={location.pathname === '/investors'} onClick={() => setSidebarOpen(false)} />
             <SidebarLink to="/tools" icon={<Wrench size={18} />} label={t('tools')} active={location.pathname === '/tools'} onClick={() => setSidebarOpen(false)} />
-            
+
             {user && (
-               <>
-                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mb-2 mt-6">{t('myHub')}</p>
-                 <SidebarLink to="/my-airdrops" icon={<Target size={18} />} label={t('myAirdrops')} active={location.pathname === '/my-airdrops'} onClick={() => setSidebarOpen(false)} />
-               </>
+              <>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mb-2 mt-6">{t('myHub')}</p>
+                <SidebarLink to="/my-airdrops" icon={<Target size={18} />} label={t('myAirdrops')} active={location.pathname === '/my-airdrops'} onClick={() => setSidebarOpen(false)} />
+              </>
             )}
 
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mb-2 mt-6">{t('onChainActivities')}</p>
@@ -176,10 +175,10 @@ export const Layout: React.FC = () => {
             <SidebarLink to="/rpg" icon={<Sword size={18} />} label={t('onChainRpg')} active={location.pathname === '/rpg'} onClick={() => setSidebarOpen(false)} />
             <SidebarLink to="/faucets" icon={<Droplets size={18} />} label={t('faucets')} active={location.pathname === '/faucets'} onClick={() => setSidebarOpen(false)} />
 
-            {user?.isAdmin && (
-               <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                  <SidebarLink to="/admin" icon={<ShieldAlert size={18} />} label={t('adminHq')} active={location.pathname === '/admin'} onClick={() => setSidebarOpen(false)} />
-               </div>
+            {(user?.role === 'admin' || user?.memberStatus === 'Admin') && (
+              <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <SidebarLink to="/admin" icon={<ShieldAlert size={18} />} label={t('adminHq')} active={location.pathname === '/admin'} onClick={() => setSidebarOpen(false)} />
+              </div>
             )}
           </nav>
 
@@ -200,55 +199,55 @@ export const Layout: React.FC = () => {
       <main className="flex-1 flex flex-col overflow-hidden">
         <header className="flex items-center justify-end p-4 lg:px-8 lg:py-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40">
           <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="lg:hidden p-2 rounded-lg bg-slate-100 dark:bg-slate-800 absolute left-4"><Menu size={24} /></button>
-          
+
           <div className="flex items-center gap-3">
-             <button onClick={toggleTheme} className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:text-primary-600 transition-colors shadow-sm">
-                {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-             </button>
-             
-             <div className="relative" ref={langMenuRef}>
-               <button onClick={() => setShowLangMenu(!showLangMenu)} className={`flex items-center gap-2 px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-bold uppercase transition-colors ${showLangMenu ? 'text-primary-600' : ''}`}>
-                  <Globe size={18} />
-                  <span className="hidden sm:inline">{lang}</span>
-               </button>
-               {showLangMenu && (
-                 <div className="absolute right-0 top-full mt-2 w-32 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 p-1 z-[60]">
-                    <button onClick={() => { setLang('en'); setShowLangMenu(false); }} className={`w-full text-left px-4 py-2 hover:bg-primary-50 dark:hover:bg-slate-700 rounded-lg text-sm font-bold ${lang === 'en' ? 'text-primary-600' : ''}`}>English</button>
-                    <button onClick={() => { setLang('tr'); setShowLangMenu(false); }} className={`w-full text-left px-4 py-2 hover:bg-primary-50 dark:hover:bg-slate-700 rounded-lg text-sm font-bold ${lang === 'tr' ? 'text-primary-600' : ''}`}>Türkçe</button>
-                 </div>
-               )}
-             </div>
+            <button onClick={toggleTheme} className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:text-primary-600 transition-colors shadow-sm">
+              {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+            </button>
 
-             <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 mx-1" />
+            <div className="relative" ref={langMenuRef}>
+              <button onClick={() => setShowLangMenu(!showLangMenu)} className={`flex items-center gap-2 px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-bold uppercase transition-colors ${showLangMenu ? 'text-primary-600' : ''}`}>
+                <Globe size={18} />
+                <span className="hidden sm:inline">{lang}</span>
+              </button>
+              {showLangMenu && (
+                <div className="absolute right-0 top-full mt-2 w-32 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 p-1 z-[60]">
+                  <button onClick={() => { setLang('en'); setShowLangMenu(false); }} className={`w-full text-left px-4 py-2 hover:bg-primary-50 dark:hover:bg-slate-700 rounded-lg text-sm font-bold ${lang === 'en' ? 'text-primary-600' : ''}`}>English</button>
+                  <button onClick={() => { setLang('tr'); setShowLangMenu(false); }} className={`w-full text-left px-4 py-2 hover:bg-primary-50 dark:hover:bg-slate-700 rounded-lg text-sm font-bold ${lang === 'tr' ? 'text-primary-600' : ''}`}>Türkçe</button>
+                </div>
+              )}
+            </div>
 
-             <ConnectButton accountStatus="address" showBalance={false} chainStatus="icon" />
+            <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 mx-1" />
 
-             {user && isVerified && (
-               <div className="relative ml-2" ref={profileMenuRef}>
-                 <button onClick={() => setShowProfileMenu(!showProfileMenu)} className="flex items-center gap-2 p-1 pl-3 bg-slate-100 dark:bg-slate-800 rounded-full transition-all border border-transparent hover:border-primary-500">
-                   <img src={user.avatar} className="w-8 h-8 rounded-full object-cover" />
-                   <ChevronDown size={14} className="text-slate-400 mr-1" />
-                 </button>
-                 {showProfileMenu && (
-                   <div className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 p-2 z-[60] animate-in slide-in-from-top-2">
-                     <div className="px-4 py-3 border-b dark:border-slate-800 mb-1">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('loggedAs')}</p>
-                        <p className="text-sm font-black text-primary-600 truncate">{user.username || user.address}</p>
-                     </div>
-                     <Link to="/profile" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-3 px-4 py-2.5 hover:bg-primary-50 dark:hover:bg-slate-800 rounded-xl text-sm font-bold transition-colors"><UserIcon size={18} /> {t('profile')}</Link>
-                     <Link to="/my-airdrops" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-3 px-4 py-2.5 hover:bg-primary-50 dark:hover:bg-slate-800 rounded-xl text-sm font-bold transition-colors"><Target size={18} /> {t('myAirdrops')}</Link>
-                     <Link to="/inbox" onClick={() => setShowProfileMenu(false)} className="flex items-center justify-between px-4 py-2.5 hover:bg-primary-50 dark:hover:bg-slate-800 rounded-xl text-sm font-bold transition-colors">
-                        <div className="flex items-center gap-3"><Mail size={18} /> {t('messages')}</div>
-                        {unreadCount > 0 && <span className="bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full">{unreadCount}</span>}
-                     </Link>
-                     <div className="h-px bg-slate-100 dark:border-slate-800 my-1" />
-                     <button onClick={() => { logout(); setShowProfileMenu(false); }} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl text-sm font-bold transition-colors text-red-600">
-                        <LogOut size={18} /> {t('disconnect')}
-                     </button>
-                   </div>
-                 )}
-               </div>
-             )}
+            <ConnectButton accountStatus="address" showBalance={false} chainStatus="icon" />
+
+            {user && isVerified && (
+              <div className="relative ml-2" ref={profileMenuRef}>
+                <button onClick={() => setShowProfileMenu(!showProfileMenu)} className="flex items-center gap-2 p-1 pl-3 bg-slate-100 dark:bg-slate-800 rounded-full transition-all border border-transparent hover:border-primary-500">
+                  <img src={user.avatar} className="w-8 h-8 rounded-full object-cover" />
+                  <ChevronDown size={14} className="text-slate-400 mr-1" />
+                </button>
+                {showProfileMenu && (
+                  <div className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 p-2 z-[60] animate-in slide-in-from-top-2">
+                    <div className="px-4 py-3 border-b dark:border-slate-800 mb-1">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('loggedAs')}</p>
+                      <p className="text-sm font-black text-primary-600 truncate">{user.username || user.address}</p>
+                    </div>
+                    <Link to="/profile" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-3 px-4 py-2.5 hover:bg-primary-50 dark:hover:bg-slate-800 rounded-xl text-sm font-bold transition-colors"><UserIcon size={18} /> {t('profile')}</Link>
+                    <Link to="/my-airdrops" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-3 px-4 py-2.5 hover:bg-primary-50 dark:hover:bg-slate-800 rounded-xl text-sm font-bold transition-colors"><Target size={18} /> {t('myAirdrops')}</Link>
+                    <Link to="/inbox" onClick={() => setShowProfileMenu(false)} className="flex items-center justify-between px-4 py-2.5 hover:bg-primary-50 dark:hover:bg-slate-800 rounded-xl text-sm font-bold transition-colors">
+                      <div className="flex items-center gap-3"><Mail size={18} /> {t('messages')}</div>
+                      {unreadCount > 0 && <span className="bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full">{unreadCount}</span>}
+                    </Link>
+                    <div className="h-px bg-slate-100 dark:border-slate-800 my-1" />
+                    <button onClick={() => { logout(); setShowProfileMenu(false); }} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl text-sm font-bold transition-colors text-red-600">
+                      <LogOut size={18} /> {t('disconnect')}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </header>
         <div className="flex-1 overflow-y-auto p-4 lg:p-8"><Outlet /></div>
@@ -258,20 +257,20 @@ export const Layout: React.FC = () => {
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-slate-950/95 backdrop-blur-xl animate-in fade-in duration-500">
           <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[3rem] p-12 shadow-2xl border border-slate-200 dark:border-slate-800 text-center">
             <div className="w-20 h-20 bg-primary-100 dark:bg-primary-900/30 text-primary-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
-               <ShieldCheck size={40} />
+              <ShieldCheck size={40} />
             </div>
             <h2 className="text-3xl font-black tracking-tighter uppercase mb-4">Verify Wallet</h2>
             <p className="text-slate-500 font-medium mb-10 text-sm leading-relaxed">
-              To proceed, please sign a secure message to confirm your identity. 
+              To proceed, please sign a secure message to confirm your identity.
               This is gasless and does not initiate a transaction.
             </p>
-            <button 
+            <button
               onClick={verifyWallet}
               className="w-full py-5 bg-primary-600 text-white rounded-2xl font-black shadow-xl shadow-primary-500/30 uppercase tracking-[0.2em] text-xs transition-all active:scale-95 flex items-center justify-center gap-3"
             >
               Sign Verification Message
             </button>
-            <button 
+            <button
               onClick={logout}
               className="w-full mt-4 py-3 text-slate-400 font-bold uppercase text-[10px] tracking-widest hover:text-red-500 transition-colors"
             >
@@ -287,17 +286,17 @@ export const Layout: React.FC = () => {
             <img src="/logo.png" className="w-20 h-20 mx-auto mb-8 object-contain drop-shadow-2xl" alt="Logo" />
             <h2 className="text-3xl font-black tracking-tighter uppercase mb-4">{t('identifyTitle')}</h2>
             <p className="text-slate-500 font-medium mb-10 text-sm">{t('identifySub')}</p>
-            
-            <input 
-              type="text" 
-              placeholder="Username..." 
+
+            <input
+              type="text"
+              placeholder="Username..."
               className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-black text-center text-lg outline-none border-2 border-transparent focus:border-primary-500 transition-all shadow-inner mb-6"
               value={tempUsername}
               onChange={(e) => setTempUsername(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && setUsername(tempUsername)}
             />
-            
-            <button 
+
+            <button
               onClick={() => setUsername(tempUsername)}
               disabled={!tempUsername.trim()}
               className="w-full py-5 bg-primary-600 text-white rounded-2xl font-black shadow-xl shadow-primary-500/30 uppercase tracking-[0.2em] text-xs transition-all active:scale-95 disabled:opacity-50"
