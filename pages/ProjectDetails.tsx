@@ -50,12 +50,33 @@ export const ProjectDetails: React.FC = () => {
     setCaptchaChallenge({ a: Math.floor(Math.random() * 10), b: Math.floor(Math.random() * 10) });
   };
 
+  // Enhanced Loading & Not Found Logic
+  const isLoading = !airdrops || airdrops.length === 0;
   const project = airdrops.find(a => a.id === id);
-  if (!project) return <div className="p-20 text-center font-black uppercase text-slate-500 tracking-widest">Loading...</div>;
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 mb-4"></div>
+        <p className="text-slate-500 font-bold animate-pulse">Establishing Secure Uplink...</p>
+      </div>
+    );
+  }
+
+  if (!project) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] text-center p-8">
+        <AlertCircle size={48} className="text-slate-400 mb-4" />
+        <h2 className="text-xl font-black uppercase text-slate-500">Project Not Found</h2>
+        <p className="text-slate-400 text-sm mt-2">The requested protocol signal was lost.</p>
+        <Link to="/" className="mt-6 px-6 py-3 bg-primary-600 text-white rounded-xl font-bold text-xs uppercase hover:bg-primary-700 transition-colors">Return to Dashboard</Link>
+      </div>
+    );
+  }
 
   const projectComments = useMemo(() => {
     return comments
-      .filter(c => c.airdropId === id && (c.isApproved || user?.isAdmin))
+      .filter(c => c.airdropId === id && (c.isApproved || user?.role === 'admin' || user?.memberStatus === 'Admin')) // Show approved OR if user is admin
       .sort((a, b) => (b.createdAtTimestamp || 0) - (a.createdAtTimestamp || 0));
   }, [comments, id, user]);
 

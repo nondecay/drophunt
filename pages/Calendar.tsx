@@ -1,6 +1,30 @@
+import { supabase } from '../supabaseClient';
+// ... inside component ...
+const handleAddEvent = async () => {
+  if (!newEvent.title || !newEvent.date) return;
 
-import React, { useState } from 'react';
+  const eventObj = {
+    ...newEvent,
+    // id: Date.now().toString(), // Let DB assign ID or use UUID if table expects it. 
+    // But our table might expect string ID. Let's use string for now.
+    id: Date.now().toString(),
+    type: 'admin',
+    description: newEvent.description || 'Protocol Event'
+  };
+
+  const { error } = await supabase.from('events').insert(eventObj);
+
+  if (error) {
+    addToast("Failed to index event: " + error.message, "error");
+  } else {
+    setEvents(prev => [...prev, eventObj]);
+    setShowAdd(false);
+    setNewEvent({ title: '', date: '', description: '', url: '' });
+    addToast("Event indexed.");
+  }
+};
 import { useApp } from '../AppContext';
+import { supabase } from '../supabaseClient';
 import { ChevronLeft, ChevronRight, Plus, X, ExternalLink } from 'lucide-react';
 
 export const Calendar: React.FC = () => {
@@ -13,7 +37,7 @@ export const Calendar: React.FC = () => {
   const month = currentDate.getMonth();
 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const firstDay = new Date(year, month, 1).getDay(); 
+  const firstDay = new Date(year, month, 1).getDay();
 
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
   const prefixDays = Array.from({ length: (firstDay + 6) % 7 }, (_, i) => null);
@@ -21,12 +45,26 @@ export const Calendar: React.FC = () => {
   const handlePrevMonth = () => setCurrentDate(new Date(year, month - 1));
   const handleNextMonth = () => setCurrentDate(new Date(year, month + 1));
 
-  const handleAddEvent = () => {
+  const handleAddEvent = async () => {
     if (!newEvent.title || !newEvent.date) return;
-    setEvents(prev => [...prev, { ...newEvent, id: Date.now().toString(), type: 'admin', description: newEvent.description || 'Protocol Event' }]);
-    setShowAdd(false);
-    setNewEvent({ title: '', date: '', description: '', url: '' });
-    addToast("Event indexed.");
+
+    const eventObj = {
+      ...newEvent,
+      id: Date.now().toString(),
+      type: 'admin',
+      description: newEvent.description || 'Protocol Event'
+    };
+
+    const { error } = await supabase.from('events').insert(eventObj);
+
+    if (error) {
+      addToast("Failed to index: " + error.message, "error");
+    } else {
+      setEvents(prev => [...prev, eventObj]);
+      setShowAdd(false);
+      setNewEvent({ title: '', date: '', description: '', url: '' });
+      addToast("Event indexed.");
+    }
   };
 
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -35,15 +73,15 @@ export const Calendar: React.FC = () => {
     <div className="max-w-5xl mx-auto px-4">
       <div className="flex items-center justify-between gap-4 mb-8">
         <div>
-           <h1 className="text-3xl font-black tracking-tighter uppercase">{t('calendarMainTitle')}</h1>
-           <p className="text-slate-500 font-medium text-xs">{t('calendarMainSub')}</p>
+          <h1 className="text-3xl font-black tracking-tighter uppercase">{t('calendarMainTitle')}</h1>
+          <p className="text-slate-500 font-medium text-xs">{t('calendarMainSub')}</p>
         </div>
         <div className="flex items-center gap-3">
-           <div className="flex gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl">
-             <button onClick={handlePrevMonth} className="p-2 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors"><ChevronLeft size={18}/></button>
-             <button onClick={handleNextMonth} className="p-2 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors"><ChevronRight size={18}/></button>
-           </div>
-           {user?.isAdmin && <button onClick={() => setShowAdd(true)} className="p-3 bg-primary-600 text-white rounded-xl shadow-md"><Plus size={18} /></button>}
+          <div className="flex gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl">
+            <button onClick={handlePrevMonth} className="p-2 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors"><ChevronLeft size={18} /></button>
+            <button onClick={handleNextMonth} className="p-2 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors"><ChevronRight size={18} /></button>
+          </div>
+          {user?.isAdmin && <button onClick={() => setShowAdd(true)} className="p-3 bg-primary-600 text-white rounded-xl shadow-md"><Plus size={18} /></button>}
         </div>
       </div>
 
@@ -62,11 +100,11 @@ export const Calendar: React.FC = () => {
               <div key={day} className="min-h-[100px] p-1.5 bg-white dark:bg-slate-900 flex flex-col gap-1 border-t border-slate-50 dark:border-slate-800">
                 <span className={`text-[10px] font-black w-6 h-6 flex items-center justify-center rounded-lg ${isToday ? 'bg-primary-600 text-white shadow-sm' : 'text-slate-400'}`}>{day}</span>
                 <div className="flex flex-col gap-1 overflow-y-auto max-h-[60px]">
-                   {dayEvents.map((ev) => (
-                     <div key={ev.id} className="px-1.5 py-1 bg-primary-50 dark:bg-primary-900/40 rounded-md text-[8px] font-black text-primary-600 truncate border border-primary-100 dark:border-primary-800/50">
-                       {ev.url ? <a href={ev.url} target="_blank" className="flex items-center justify-between"><span>{ev.title}</span><ExternalLink size={6}/></a> : ev.title}
-                     </div>
-                   ))}
+                  {dayEvents.map((ev) => (
+                    <div key={ev.id} className="px-1.5 py-1 bg-primary-50 dark:bg-primary-900/40 rounded-md text-[8px] font-black text-primary-600 truncate border border-primary-100 dark:border-primary-800/50">
+                      {ev.url ? <a href={ev.url} target="_blank" className="flex items-center justify-between"><span>{ev.title}</span><ExternalLink size={6} /></a> : ev.title}
+                    </div>
+                  ))}
                 </div>
               </div>
             );
@@ -75,21 +113,21 @@ export const Calendar: React.FC = () => {
       </div>
 
       {showAdd && (
-         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-950/90 backdrop-blur-md">
-            <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl relative">
-               <button onClick={() => setShowAdd(false)} className="absolute top-8 right-8 text-slate-400"><X size={20}/></button>
-               <h3 className="text-2xl font-black mb-6 uppercase tracking-tighter">{t('newEventTitle')}</h3>
-               <div className="space-y-4">
-                  <FldInpt label="Title" val={newEvent.title} onChange={v => setNewEvent({...newEvent, title: v})} />
-                  <div className="grid grid-cols-2 gap-3">
-                    <FldInpt label="Date" type="date" val={newEvent.date} onChange={v => setNewEvent({...newEvent, date: v})} />
-                    <FldInpt label="Link" val={newEvent.url} onChange={v => setNewEvent({...newEvent, url: v})} />
-                  </div>
-                  <FldInpt label="Details" val={newEvent.description} onChange={v => setNewEvent({...newEvent, description: v})} />
-               </div>
-               <button onClick={handleAddEvent} className="w-full mt-8 py-4 bg-primary-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg">Index Event</button>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-950/90 backdrop-blur-md">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl relative">
+            <button onClick={() => setShowAdd(false)} className="absolute top-8 right-8 text-slate-400"><X size={20} /></button>
+            <h3 className="text-2xl font-black mb-6 uppercase tracking-tighter">{t('newEventTitle')}</h3>
+            <div className="space-y-4">
+              <FldInpt label="Title" val={newEvent.title} onChange={v => setNewEvent({ ...newEvent, title: v })} />
+              <div className="grid grid-cols-2 gap-3">
+                <FldInpt label="Date" type="date" val={newEvent.date} onChange={v => setNewEvent({ ...newEvent, date: v })} />
+                <FldInpt label="Link" val={newEvent.url} onChange={v => setNewEvent({ ...newEvent, url: v })} />
+              </div>
+              <FldInpt label="Details" val={newEvent.description} onChange={v => setNewEvent({ ...newEvent, description: v })} />
             </div>
-         </div>
+            <button onClick={handleAddEvent} className="w-full mt-8 py-4 bg-primary-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg">Index Event</button>
+          </div>
+        </div>
       )}
     </div>
   );

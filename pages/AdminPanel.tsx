@@ -73,9 +73,44 @@ const AdminPanelContent: React.FC = () => {
       try {
          const res = await fetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: adminPassword }) });
          const data = await res.json();
-         if (res.ok && data.success) { setIsAuthenticated(true); setAuthError(''); } else { setAuthError(data.error || 'Access Denied'); }
+         if (res.ok && data.success) {
+            setIsAuthenticated(true);
+            setAuthError('');
+            localStorage.setItem('admin_login_ts', Date.now().toString());
+         } else { setAuthError(data.error || 'Access Denied'); }
       } catch (e) { setAuthError('Connection Error'); }
    };
+
+   // Session Timeout (15 mins)
+   React.useEffect(() => {
+      if (isAuthenticated) {
+         const ts = localStorage.getItem('admin_login_ts');
+         if (ts) {
+            const diff = Date.now() - parseInt(ts);
+            if (diff > 15 * 60 * 1000) {
+               setIsAuthenticated(false);
+               localStorage.removeItem('admin_login_ts');
+               addToast("Session expired", "warning");
+            }
+         } else {
+            // If authenticated but no TS (legacy or manual set), set it now or logout? 
+            // Better to logout to be safe or set new TS. Let's logout.
+            setIsAuthenticated(false);
+         }
+      }
+
+      const interval = setInterval(() => {
+         if (isAuthenticated) {
+            const ts = localStorage.getItem('admin_login_ts');
+            if (ts && (Date.now() - parseInt(ts) > 15 * 60 * 1000)) {
+               setIsAuthenticated(false);
+               localStorage.removeItem('admin_login_ts');
+               addToast("Session expired", "warning");
+            }
+         }
+      }, 60000); // Check every minute
+      return () => clearInterval(interval);
+   }, [isAuthenticated]);
 
    const syncToDb = async (table: string, data: any) => {
       const { error } = await supabase.from(table).upsert(data);
@@ -697,14 +732,38 @@ const AdminPanelContent: React.FC = () => {
                                     {formData.topUsers?.map((u: any, idx: number) => (
                                        <div key={idx} className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl">
                                           <span className="w-8 font-black text-xs text-slate-400 text-center">#{idx + 1}</span>
-                                          <input type="text" className="flex-1 bg-white dark:bg-slate-900 p-2 rounded-lg text-[10px] font-bold outline-none" placeholder="Twitter Handle / URL" value={u.twitterUrl || ''} onChange={e => updateInfoFiSlot(idx, e.target.value)} />
+                                          <input
+                                             type="text"
+                                             className="flex-1 bg-white dark:bg-slate-900 p-2 rounded-lg text-[10px] font-bold outline-none"
+                                             placeholder="Twitter Handle / URL"
+                                             value={u.twitterUrl || ''}
+                                             onChange={e => {
+                                                const val = e.target.value;
+                                                // Auto-update avatar if URL is pasted
+                                                const newUsers = [...(formData.topUsers || [])];
+                                                newUsers[idx] = {
+                                                   ...u,
+                                                   twitterUrl: val
+                                                };
+
+                                                if (val.includes('twitter.com') || val.includes('x.com')) {
+                                                   const clean = val.split('?')[0];
+                                                   const username = clean.split('/').pop();
+                                                   if (username) {
+                                                      newUsers[idx].avatar = `https://unavatar.io/twitter/${username}`;
+                                                      newUsers[idx].name = `@${username}`;
+                                                   }
+                                                }
+                                                setFormData({ ...formData, topUsers: newUsers });
+                                             }}
+                                          />
                                           <button onClick={() => {
                                              const tw = u.twitterUrl;
                                              if (!tw) return addToast("Enter Twitter URL", "error");
-                                             const username = tw.split('/').pop();
+                                             const username = tw.split('/').pop()?.split('?')[0];
                                              if (username) {
                                                 const newUsers = [...(formData.topUsers || [])];
-                                                newUsers[idx] = { ...u, avatar: `https://unavatar.io/twitter/${username}` };
+                                                newUsers[idx] = { ...newUsers[idx], avatar: `https://unavatar.io/twitter/${username}` };
                                                 setFormData({ ...formData, topUsers: newUsers });
                                                 addToast("Fetched avatar");
                                              }
