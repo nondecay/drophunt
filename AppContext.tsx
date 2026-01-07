@@ -216,8 +216,44 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       supabase.from('todos').select('*').eq('user_id', uid),
       supabase.from('user_claims').select('*').eq('user_id', uid)
     ]);
-    if (tData.data) setUserTasks(tData.data as any);
+    if (tData.data) {
+      setUserTasks(tData.data as any);
+      checkRecurringTasks(tData.data, uData.data.id);
+    }
     if (cData.data) setUserClaims(cData.data as any);
+  };
+
+  // CRUD Wrappers
+  const checkRecurringTasks = async (tasks: any[], userId: string) => {
+    const now = Date.now();
+    const updates: any[] = [];
+
+    tasks.forEach(t => {
+      if (t.completed && t.reminder && t.reminder !== 'none') {
+        const completedAt = t.createdAt; // Assuming createdAt was updated on completion or we use a separate field. 
+        // Logic: if completed, we check if enough time passed to reset.
+        // Simplified: We rely on 'createdAt' as the last interaction or add a new 'lastCompletedAt' field.
+        // For this fix, let's assume 'createdAt' tracks the cycle.
+
+        let reset = false;
+        if (t.reminder === 'daily' && (now - completedAt) > 86400000) reset = true;
+        if (t.reminder === 'weekly' && (now - completedAt) > 604800000) reset = true;
+        if (t.reminder === 'monthly' && (now - completedAt) > 2592000000) reset = true;
+
+        if (reset) {
+          updates.push({ ...t, completed: false, createdAt: now });
+        }
+      }
+    });
+
+    if (updates.length > 0) {
+      for (const up of updates) {
+        await supabase.from('todos').update({ completed: false, createdAt: up.createdAt }).eq('id', up.id);
+      }
+      // Refresh local state
+      const { data } = await supabase.from('todos').select('*').eq('user_id', userId);
+      if (data) setUserTasks(data as any);
+    }
   };
 
   // CRUD Wrappers
@@ -234,13 +270,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addToast("Failed to add task: " + (error.message || "Unknown error"), "error");
       }
     } else if (action === 'remove') {
+      // payload is expected to be ID string
       await supabase.from('todos').delete().eq('id', payload);
       setUserTasks(prev => prev.filter(t => t.id !== payload));
     } else if (action === 'toggle') {
-      const task = userTasks.find(t => t.id === payload);
+      // payload is expected to be full task object or ID? 
+      // The calling code passes the object usually. Let's handle both or standardized.
+      // Current MyAirdrops passes the OBJECT.
+      const task = userTasks.find(t => t.id === payload.id);
       if (task) {
-        await supabase.from('todos').update({ completed: !task.completed }).eq('id', payload);
-        setUserTasks(prev => prev.map(t => t.id === payload ? { ...t, completed: !t.completed } : t));
+        // Update DB
+        // If completing, we might update createdAt to track the cycle start for recurring?
+        // Let's just update 'completed'.
+        await supabase.from('todos').update({ completed: !task.completed }).eq('id', task.id);
+        setUserTasks(prev => prev.map(t => t.id === task.id ? { ...t, completed: !t.completed } : t));
       }
     }
   };

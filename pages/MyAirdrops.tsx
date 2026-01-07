@@ -28,81 +28,66 @@ export const MyAirdrops: React.FC = () => {
       .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
   }, [userTasks]);
 
-  // Effect to automatically clear old completed tasks if > 20
+  // Auto-Cleanup Effect: Keep only 20 completed non-recurring tasks
   useEffect(() => {
-    const allCompleted = userTasks.filter(t => t.completed).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-    if (allCompleted.length > 20) {
-      // Ideally this logic should be handled by DB queries/pagination or a background job, 
-      // but for now we keep local clean up or rely on backend.
-      // We won't delete from DB automatically here to preserve history unless explicitly requested.
-      // setUserTasks(prev => prev.filter(t => !t.completed || keptIds.includes(t.id)));
-    }
+    const cleanupOldTasks = async () => {
+      const completed = userTasks.filter(t => t.completed && (!t.reminder || t.reminder === 'none'))
+        .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0)); // Oldest first
+
+      if (completed.length > 20) {
+        const toDelete = completed.slice(0, completed.length - 20);
+        for (const t of toDelete) {
+          await manageTodo('remove', t.id);
+        }
+      }
+    };
+    if (userTasks.length > 0) cleanupOldTasks();
   }, [userTasks.length]);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (monthDropRef.current && !monthDropRef.current.contains(event.target as Node)) setMonthDropOpen(false);
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8 animate-in fade-in zoom-in duration-500">
+        <div className="w-24 h-24 bg-primary-500/10 rounded-full flex items-center justify-center mb-6 ring-4 ring-primary-500/20">
+          <Target size={48} className="text-primary-500" />
+        </div>
+        <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-4">Track Your Airdrop Journey</h2>
+        <p className="text-slate-500 dark:text-slate-400 max-w-md mb-8 text-lg font-medium">
+          Connect your wallet to track airdrops, receive notifications, and manage your daily tasks.
+        </p>
+        <ConnectButton label="Connect Wallet" />
+      </div>
+    );
+  }
 
-  const trackedProjectIds = user?.trackedProjectIds || [];
-  const trackedAirdrops = airdrops.filter(a => trackedProjectIds.includes(a.id) && !a.hasInfoFi);
-  const trackedInfoFi = airdrops.filter(a => trackedProjectIds.includes(a.id) && a.hasInfoFi);
+  // Not Verified Gating
+  // Note: user.username check is a proxy for strictly needing the modal, but 'isVerified' is the key.
+  // We check global 'isVerified' from context.
+  // The user requested: "Verify your wallet ownership to use this feature."
+  const needsVerification = !useApp().isVerified;
 
-  const unreadAirdropMessages = inbox.filter(m => !m.isRead && trackedAirdrops.some(a => a.id === m.relatedAirdropId)).length;
-  const unreadInfoFiMessages = inbox.filter(m => !m.isRead && trackedInfoFi.some(a => a.id === m.relatedAirdropId)).length;
+  if (needsVerification) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8 animate-in fade-in zoom-in duration-500">
+        <div className="w-24 h-24 bg-yellow-500/10 rounded-full flex items-center justify-center mb-6 ring-4 ring-yellow-500/20">
+          <ShieldAlert size={48} className="text-yellow-500" />
+        </div>
+        <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-4">Verification Required</h2>
+        <p className="text-slate-500 dark:text-slate-400 max-w-md mb-8 text-lg font-medium">
+          Verify your wallet ownership to access your personal dashboard.
+        </p>
+        <button
+          onClick={useApp().verifyWallet}
+          className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-xl shadow-primary-600/20 transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
+        >
+          Sign and Verify
+        </button>
+      </div>
+    );
+  }
 
-  const activeTasksCount = userTasks.filter(t => !t.completed).length;
-
-  const filteredClaims = useMemo(() => {
-    if (claimMonthFilter === 'all') return userClaims;
-    return userClaims.filter(c => c.claimedDate?.startsWith(claimMonthFilter));
-  }, [userClaims, claimMonthFilter]);
-
-  const totalEarning = filteredClaims.reduce((acc, c) => acc + c.earning, 0);
-  const totalExpense = filteredClaims.reduce((acc, c) => acc + c.expense, 0);
-  const totalProfit = totalEarning - totalExpense;
-
-  const [taskPage, setTaskPage] = useState(1);
-  const tasksPerPage = 10;
-  const paginatedTasks = manualTasks.slice((taskPage - 1) * tasksPerPage, taskPage * tasksPerPage);
-  const totalTaskPages = Math.ceil(manualTasks.length / tasksPerPage);
-
-  const availableMonths = useMemo(() => {
-    const months = new Set<string>();
-    userClaims.forEach(c => {
-      if (c.claimedDate) months.add(c.claimedDate.substring(0, 7));
-    });
-    return Array.from(months).sort().reverse();
-  }, [userClaims]);
-
-  const addTask = async () => {
-    if (!newTask.note) return;
-    await manageTodo('add', {
-      airdropId: newTask.airdropId,
-      note: newTask.note,
-      completed: false,
-      createdAt: Date.now(),
-      reminder: newTask.reminder,
-      deadline: newTask.deadline || undefined
-    });
-    setShowAdd(false);
-    setNewTask({ note: '', airdropId: 'custom', reminder: 'none', deadline: '' });
-    addToast(t('taskAdded'));
-  };
-
-  const addClaimEntry = async () => {
-    if (!newClaim.projectName) return addToast("Project name required", "error");
-    await manageUserClaim('add', { ...newClaim, createdAt: Date.now() });
-    setShowClaimAdd(false);
-    setNewClaim({ projectName: '', expense: 0, claimedToken: '', tokenCount: 0, earning: 0, claimedDate: new Date().toISOString().split('T')[0] });
-    addToast(t('claimAdded'));
-  };
 
   return (
-    <div className="max-w-6xl mx-auto pb-20 px-4">
+    <div className="max-w-6xl mx-auto pb-20 px-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* User Hub Dashboard */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
         <DashboardStat label="Tracked Airdrops" val={trackedAirdrops.length} icon={<Target size={20} />} color="bg-primary-600" />
@@ -119,6 +104,68 @@ export const MyAirdrops: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Add Task Modal - Redesigned */}
+      {showAdd && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md border border-slate-100 dark:border-slate-800 p-6 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-black">{t('addNewTask')}</h3>
+              <button onClick={() => setShowAdd(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"><X size={20} /></button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-400 mb-1.5">{t('taskNote')}</label>
+                <input
+                  type="text"
+                  value={newTask.note}
+                  onChange={e => setNewTask({ ...newTask, note: e.target.value })}
+                  className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl px-4 py-3 font-bold focus:ring-2 focus:ring-primary-500 outline-none"
+                  placeholder="e.g. Claim daily faucet"
+                  autoFocus
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase text-slate-400 mb-1.5">{t('recurrence')}</label>
+                  <select
+                    value={newTask.reminder}
+                    onChange={e => setNewTask({ ...newTask, reminder: e.target.value as any })}
+                    className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl px-4 py-3 font-bold text-sm outline-none cursor-pointer"
+                  >
+                    <option value="none">{t('none')}</option>
+                    <option value="daily">{t('daily')}</option>
+                    <option value="weekly">{t('weekly')}</option>
+                    <option value="monthly">{t('monthly')}</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase text-slate-400 mb-1.5">{t('linkAirdrop')}</label>
+                  <select
+                    value={newTask.airdropId}
+                    onChange={e => setNewTask({ ...newTask, airdropId: e.target.value })}
+                    className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl px-4 py-3 font-bold text-sm outline-none cursor-pointer"
+                  >
+                    <option value="custom">{t('customTask')}</option>
+                    {trackedAirdrops.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <button
+                onClick={addTask}
+                disabled={!newTask.note}
+                className="w-full mt-2 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed text-white py-4 rounded-xl font-black text-sm uppercase tracking-widest shadow-lg shadow-primary-600/20 active:scale-95 transition-all"
+              >
+                Add Task
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
 
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="lg:w-72 flex lg:flex-col gap-2 overflow-x-auto pb-4 shrink-0">
@@ -187,7 +234,7 @@ export const MyAirdrops: React.FC = () => {
                   task={t_obj}
                   project={null}
                   onToggle={() => manageTodo('toggle', t_obj)}
-                  onDelete={() => manageTodo('remove', t_obj)}
+                  onDelete={() => manageTodo('remove', t_obj.id)}
                   t_func={t}
                 />
               ))}
@@ -205,6 +252,7 @@ export const MyAirdrops: React.FC = () => {
               )}
             </div>
           )}
+
 
           {activeTab === 'completed' && (
             <div className="space-y-4 opacity-75">
