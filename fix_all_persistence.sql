@@ -1,12 +1,16 @@
--- MASTER PERSISTENCE FIX SCRIPT
+-- MASTER PERSISTENCE FIX SCRIPT (FINAL)
 -- RUN THIS IN SUPABASE SQL EDITOR
 
--- 1. Create Tables if they don't exist
+-- 1. Create Tables (Using standard snake_case user_id)
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Drop tables if they exist with wrong schema to force recreation (Optional, but safer for dev)
+-- DROP TABLE IF EXISTS todos;
+-- DROP TABLE IF EXISTS user_claims;
 
 CREATE TABLE IF NOT EXISTS public.todos (
   id TEXT PRIMARY KEY DEFAULT uuid_generate_v4()::text,
-  "userId" UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   "airdropId" TEXT,
   note TEXT,
   completed BOOLEAN DEFAULT FALSE,
@@ -17,7 +21,7 @@ CREATE TABLE IF NOT EXISTS public.todos (
 
 CREATE TABLE IF NOT EXISTS public.user_claims (
   id TEXT PRIMARY KEY DEFAULT uuid_generate_v4()::text,
-  "userId" UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   "projectName" TEXT,
   expense NUMERIC DEFAULT 0,
   "claimedToken" TEXT,
@@ -36,7 +40,7 @@ ALTER TABLE events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE todos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_claims ENABLE ROW LEVEL SECURITY;
 
--- 3. PERMISSIVE POLICIES (Development Mode - Fixes "Not Saving" Issues)
+-- 3. PERMISSIVE POLICIES (Fixing "Not Saving" Issues)
 
 -- USERS
 DROP POLICY IF EXISTS "Public Users Access" ON users;

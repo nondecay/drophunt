@@ -443,8 +443,22 @@ const AdminPanelContent: React.FC = () => {
                                     </div>
                                  </div>
                                  <div className="flex gap-2">
-                                    <button onClick={() => { setComments(p => p.map(x => x.id === c.id ? { ...x, isApproved: true } : x)); addToast("Comment approved."); }} className="p-2.5 bg-emerald-500 text-white rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all"><Check size={18} /></button>
-                                    <button onClick={() => { if (confirm("Reject comment?")) setComments(p => p.filter(x => x.id !== c.id)); }} className="p-2.5 bg-rose-500 text-white rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all"><Trash2 size={18} /></button>
+                                    <button onClick={async () => {
+                                       const { error } = await supabase.from('comments').update({ isApproved: true }).eq('id', c.id);
+                                       if (!error) {
+                                          setComments(p => p.map(x => x.id === c.id ? { ...x, isApproved: true } : x));
+                                          addToast("Comment approved (Saved).");
+                                       } else {
+                                          addToast("Approval Failed", "error");
+                                       }
+                                    }} className="p-2.5 bg-emerald-500 text-white rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all"><Check size={18} /></button>
+                                    <button onClick={async () => {
+                                       const { error } = await supabase.from('comments').delete().eq('id', c.id);
+                                       if (!error) {
+                                          setComments(p => p.filter(x => x.id !== c.id));
+                                          addToast("Comment deleted.");
+                                       }
+                                    }} className="p-2.5 bg-rose-500 text-white rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all"><Trash2 size={18} /></button>
                                  </div>
                               </div>
                            ))}
@@ -464,8 +478,20 @@ const AdminPanelContent: React.FC = () => {
                                        </div>
                                     </div>
                                     <div className="flex gap-2">
-                                       <button onClick={() => { setGuides(p => p.map(x => x.id === g.id ? { ...x, isApproved: true } : x)); addToast("Guide approved."); }} className="p-2.5 bg-emerald-500 text-white rounded-xl shadow-lg hover:scale-105 transition-all"><Check size={18} /></button>
-                                       <button onClick={() => { if (confirm("Reject guide?")) setGuides(p => p.filter(x => x.id !== g.id)); }} className="p-2.5 bg-rose-500 text-white rounded-xl shadow-lg hover:scale-105 transition-all"><Trash2 size={18} /></button>
+                                       <button onClick={async () => {
+                                          const { error } = await supabase.from('guides').update({ isApproved: true }).eq('id', g.id);
+                                          if (!error) {
+                                             setGuides(p => p.map(x => x.id === g.id ? { ...x, isApproved: true } : x));
+                                             addToast("Guide approved (Saved).");
+                                          } else addToast("Failed", "error");
+                                       }} className="p-2.5 bg-emerald-500 text-white rounded-xl shadow-lg hover:scale-105 transition-all"><Check size={18} /></button>
+                                       <button onClick={async () => {
+                                          const { error } = await supabase.from('guides').delete().eq('id', g.id);
+                                          if (!error) {
+                                             setGuides(p => p.filter(x => x.id !== g.id));
+                                             addToast("Guide deleted.");
+                                          }
+                                       }} className="p-2.5 bg-rose-500 text-white rounded-xl shadow-lg hover:scale-105 transition-all"><Trash2 size={18} /></button>
                                     </div>
                                  </div>
                                  <div className="px-1">

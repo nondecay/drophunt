@@ -213,39 +213,51 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const fetchUserData = async (uid: string) => {
     const [tData, cData] = await Promise.all([
-      supabase.from('todos').select('*').eq('userId', uid),
-      supabase.from('user_claims').select('*').eq('userId', uid)
+      supabase.from('todos').select('*').eq('user_id', uid),
+      supabase.from('user_claims').select('*').eq('user_id', uid)
     ]);
     if (tData.data) setUserTasks(tData.data as any);
     if (cData.data) setUserClaims(cData.data as any);
   };
 
   // CRUD Wrappers
-  const manageTodo = async (action: 'add' | 'remove' | 'toggle', item: any) => {
+  const manageTodo = async (action: 'add' | 'remove' | 'toggle', payload: any) => {
     if (!user) return;
+
     if (action === 'add') {
-      const { data, error } = await supabase.from('todos').insert({ ...item, userId: user.id }).select().single();
-      if (data) setUserTasks(prev => [...prev, data as any]);
+      const newTodo = { ...payload, user_id: user.id };
+      const { data, error } = await supabase.from('todos').insert(newTodo).select().single();
+      if (!error && data) {
+        setUserTasks(prev => [data as any, ...prev]);
+      } else {
+        console.error("Add Task Error", error);
+      }
     } else if (action === 'remove') {
-      await supabase.from('todos').delete().eq('id', item.id);
-      setUserTasks(prev => prev.filter(t => t.id !== item.id));
+      await supabase.from('todos').delete().eq('id', payload);
+      setUserTasks(prev => prev.filter(t => t.id !== payload));
     } else if (action === 'toggle') {
-      await supabase.from('todos').update({ completed: !item.completed }).eq('id', item.id);
-      setUserTasks(prev => prev.map(t => t.id === item.id ? { ...t, completed: !t.completed } : t));
+      const task = userTasks.find(t => t.id === payload);
+      if (task) {
+        await supabase.from('todos').update({ completed: !task.completed }).eq('id', payload);
+        setUserTasks(prev => prev.map(t => t.id === payload ? { ...t, completed: !t.completed } : t));
+      }
     }
   };
 
-  const manageUserClaim = async (action: 'add' | 'update' | 'remove', item: any) => {
+  const manageUserClaim = async (action: 'add' | 'remove', payload: any) => {
     if (!user) return;
+
     if (action === 'add') {
-      const { data } = await supabase.from('user_claims').insert({ ...item, userId: user.id }).select().single();
-      if (data) setUserClaims(prev => [...prev, data as any]);
-    } else if (action === 'update') {
-      await supabase.from('user_claims').update(item).eq('id', item.id);
-      setUserClaims(prev => prev.map(c => c.id === item.id ? { ...c, ...item } : c));
+      const newClaim = { ...payload, user_id: user.id };
+      const { data, error } = await supabase.from('user_claims').insert(newClaim).select().single();
+      if (!error && data) {
+        setUserClaims(prev => [data as any, ...prev]);
+      } else {
+        console.error("Add Claim Error", error);
+      }
     } else if (action === 'remove') {
-      await supabase.from('user_claims').delete().eq('id', item.id);
-      setUserClaims(prev => prev.filter(c => c.id !== item.id));
+      await supabase.from('user_claims').delete().eq('id', payload);
+      setUserClaims(prev => prev.filter(c => c.id !== payload));
     }
   };
 
