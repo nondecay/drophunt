@@ -12,11 +12,10 @@ interface AppContextType {
   toggleTheme: () => void;
   lang: Language;
   setLang: (l: Language) => void;
-  t: (key: TranslationKey) => string;
   user: User | null;
   isVerified: boolean;
   verifyWallet: () => Promise<void>;
-  username: string; // Add explicit username to user type if needed, or rely on User type
+  // username: string; // REMOVED: relied on user.username
   updateAvatar: (url: string) => Promise<void>;
   showUsernameModal: boolean;
 

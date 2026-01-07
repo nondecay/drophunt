@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { useApp } from '../AppContext';
 
 export const UsernameModal: React.FC = () => {
-    const { user, isVerified, setUsername, showUsernameModal, disconnected } = useApp();
+    const { user, isVerified, setUsername, showUsernameModal } = useApp();
     const [name, setName] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    if (!user || disconnected || !isVerified || !showUsernameModal) return null;
+    if (!user || !isVerified || !showUsernameModal) return null;
 
     // Don't show if username is already set custom (not Hunter_...)
     // But showUsernameModal global state controls this mostly.
