@@ -94,6 +94,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [usersList, setUsersList] = useState<User[]>([]);
   const [user, setUser] = useState<User | null>(null);
   const [isVerified, setIsVerified] = useState(false);
+  const [showUsernameModal, setShowUsernameModal] = useState(false);
 
   const [airdrops, setAirdrops] = useState<Airdrop[]>([]);
   const [activities, setActivities] = useState<OnChainActivity[]>([]);
