@@ -28,6 +28,31 @@ export const ProjectDetails: React.FC = () => {
   const { user, airdrops = [], comments = [], setComments, guides = [], setGuides, investors = [], addToast, toggleTrackProject, logActivity, setUsersList, t, refreshData, isDataLoaded } = useApp();
   const [guideFilter, setGuideFilter] = useState<'tr' | 'us'>('us');
 
+  // Missing State Definitions
+  const [commentPage, setCommentPage] = useState(1);
+  const commentsPerPage = 5;
+  const [commentText, setCommentText] = useState("");
+  const [userRating, setUserRating] = useState(5);
+  const [captchaChallenge, setCaptchaChallenge] = useState({ a: 1, b: 1 });
+  const [captchaAnswer, setCaptchaAnswer] = useState("");
+
+  const [showGuideModal, setShowGuideModal] = useState(false);
+  const [guideData, setGuideData] = useState({ author: '', url: '', platform: 'youtube', countryCode: 'us' });
+
+  const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
+
+  const [editingGuide, setEditingGuide] = useState<Guide | null>(null);
+  const [editGuideData, setEditGuideData] = useState<Partial<Guide>>({});
+
+  const generateCaptcha = () => {
+    setCaptchaChallenge({ a: Math.floor(Math.random() * 10) + 1, b: Math.floor(Math.random() * 10) + 1 });
+    setCaptchaAnswer("");
+  };
+
+  useEffect(() => {
+    generateCaptcha();
+  }, []);
+
   // HOOKS MUST BE DECLARED BEFORE CONDITIONS
   const projectComments = useMemo(() => {
     return comments
