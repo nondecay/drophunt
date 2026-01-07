@@ -25,39 +25,19 @@ const RankBadge = ({ rank }: { rank: number }) => {
 
 export const ProjectDetails: React.FC = () => {
   const { id } = useParams();
-  const { user, airdrops = [], comments = [], setComments, guides = [], setGuides, investors = [], addToast, toggleTrackProject, logActivity, setUsersList, t, refreshData } = useApp();
+  const { user, airdrops = [], comments = [], setComments, guides = [], setGuides, investors = [], addToast, toggleTrackProject, logActivity, setUsersList, t, refreshData, isDataLoaded } = useApp();
   const [guideFilter, setGuideFilter] = useState<'tr' | 'us'>('us');
-  const [commentText, setCommentText] = useState('');
-  const [userRating, setUserRating] = useState(5);
-  const [captchaAnswer, setCaptchaAnswer] = useState('');
-  const [captchaChallenge, setCaptchaChallenge] = useState({ a: 0, b: 0 });
-  const [showGuideModal, setShowGuideModal] = useState(false);
-  const [guideData, setGuideData] = useState({ author: '', url: '', platform: 'youtube' as any, countryCode: 'us' as any });
-
-  const [editingGuide, setEditingGuide] = useState<Guide | null>(null);
-  const [editGuideData, setEditGuideData] = useState({ title: '', author: '', url: '', platform: 'youtube' as any });
-
-  const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
-
-  const [commentPage, setCommentPage] = useState(1);
-  const commentsPerPage = 10;
-
-  useEffect(() => {
-    generateCaptcha();
-  }, []);
-
-  const generateCaptcha = () => {
-    setCaptchaChallenge({ a: Math.floor(Math.random() * 10), b: Math.floor(Math.random() * 10) });
-  };
+  // ... (lines 30-52 unchanged)
 
   // Enhanced Loading & Not Found Logic
-  const isLoading = !airdrops || airdrops.length === 0;
+  const isLoading = !isDataLoaded;
   const project = airdrops.find(a => a.id === id);
 
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 mb-4"></div>
+
         <p className="text-slate-500 font-bold animate-pulse">Establishing Secure Uplink...</p>
       </div>
     );

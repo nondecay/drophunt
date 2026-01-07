@@ -1,30 +1,4 @@
-import { supabase } from '../supabaseClient';
-// ... inside component ...
-const handleAddEvent = async () => {
-  if (!newEvent.title || !newEvent.date) return;
-
-  const eventObj = {
-    ...newEvent,
-    // id: Date.now().toString(), // Let DB assign ID or use UUID if table expects it. 
-    // But our table might expect string ID. Let's use string for now.
-    id: Date.now().toString(),
-    type: 'admin',
-    description: newEvent.description || 'Protocol Event'
-  };
-
-  const { error } = await supabase.from('events').insert(eventObj);
-
-  if (error) {
-    addToast("Failed to index event: " + error.message, "error");
-  } else {
-    setEvents(prev => [...prev, eventObj]);
-    setShowAdd(false);
-    setNewEvent({ title: '', date: '', description: '', url: '' });
-    addToast("Event indexed.");
-  }
-};
 import { useApp } from '../AppContext';
-import { supabase } from '../supabaseClient';
 import { ChevronLeft, ChevronRight, Plus, X, ExternalLink } from 'lucide-react';
 
 export const Calendar: React.FC = () => {

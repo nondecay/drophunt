@@ -732,31 +732,36 @@ const AdminPanelContent: React.FC = () => {
                                     {formData.topUsers?.map((u: any, idx: number) => (
                                        <div key={idx} className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl">
                                           <span className="w-8 font-black text-xs text-slate-400 text-center">#{idx + 1}</span>
-                                          <input
-                                             type="text"
-                                             className="flex-1 bg-white dark:bg-slate-900 p-2 rounded-lg text-[10px] font-bold outline-none"
-                                             placeholder="Twitter Handle / URL"
-                                             value={u.twitterUrl || ''}
-                                             onChange={e => {
-                                                const val = e.target.value;
-                                                // Auto-update avatar if URL is pasted
-                                                const newUsers = [...(formData.topUsers || [])];
-                                                newUsers[idx] = {
-                                                   ...u,
-                                                   twitterUrl: val
-                                                };
+                                          {u.avatar && <img src={u.avatar} className="w-8 h-8 rounded-full object-cover border border-slate-200" />}
+                                          <div className="flex-1 min-w-0 flex flex-col gap-1">
+                                             <input
+                                                type="text"
+                                                className="w-full bg-white dark:bg-slate-900 p-2 rounded-lg text-[10px] font-bold outline-none"
+                                                placeholder="Twitter Handle / URL"
+                                                value={u.twitterUrl || ''}
+                                                onChange={e => {
+                                                   const val = e.target.value;
+                                                   // Auto-update avatar if URL is pasted
+                                                   const newUsers = [...(formData.topUsers || [])];
+                                                   newUsers[idx] = {
+                                                      ...u,
+                                                      twitterUrl: val
+                                                   };
 
-                                                if (val.includes('twitter.com') || val.includes('x.com')) {
-                                                   const clean = val.split('?')[0];
-                                                   const username = clean.split('/').pop();
-                                                   if (username) {
-                                                      newUsers[idx].avatar = `https://unavatar.io/twitter/${username}`;
-                                                      newUsers[idx].name = `@${username}`;
+                                                   if (val.includes('twitter.com') || val.includes('x.com')) {
+                                                      const clean = val.split('?')[0];
+                                                      const parts = clean.split('/');
+                                                      const username = parts[parts.length - 1] || parts[parts.length - 2];
+                                                      if (username) {
+                                                         newUsers[idx].avatar = `https://unavatar.io/twitter/${username}`;
+                                                         newUsers[idx].name = `@${username}`;
+                                                      }
                                                    }
-                                                }
-                                                setFormData({ ...formData, topUsers: newUsers });
-                                             }}
-                                          />
+                                                   setFormData({ ...formData, topUsers: newUsers });
+                                                }}
+                                             />
+                                             {u.name && <span className="text-[9px] font-black text-primary-600 pl-1">{u.name}</span>}
+                                          </div>
                                           <button onClick={() => {
                                              const tw = u.twitterUrl;
                                              if (!tw) return addToast("Enter Twitter URL", "error");

@@ -318,7 +318,7 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
-        <StatCard icon={<TrendingUp size={24} />} label={t('liveNodes')} value={filtered.length.toString()} color="text-primary-600" />
+        <StatCard icon={<TrendingUp size={24} />} label={category === 'infofi' ? t('infofiTerminal') : t('liveNodes')} value={filtered.length.toString()} color="text-primary-600" />
         <StatCard icon={<Users size={24} />} label={t('activeHunters')} value={usersList.length.toLocaleString()} color="text-emerald-500" />
         <StatCard icon={<Bell size={24} />} label={t('liveClaims')} value={claims.filter(c => c.type === 'claim').length.toString()} color="text-amber-500" />
       </div>

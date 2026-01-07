@@ -20,6 +20,8 @@ interface AppContextType {
   setUsername: (name: string) => Promise<boolean>; // Async now
   updateAvatar: (url: string) => Promise<void>; // Async now
 
+  isDataLoaded: boolean;
+
   // Data States
   airdrops: Airdrop[];
   setAirdrops: React.Dispatch<React.SetStateAction<Airdrop[]>>;
@@ -130,6 +132,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 5100);
   };
 
+  // Data States
+  isDataLoaded: boolean;
+  airdrops: Airdrop[];
+  // ... (rest of interface)
+
+  // Inside AppProvider
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+
   // 2. Fetch All Data from Supabase
   const refreshData = async () => {
     try {
@@ -144,7 +154,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         supabase.from('investors').select('*'),
         supabase.from('announcements').select('*'),
         supabase.from('tools').select('*'),
-        supabase.from('users').select('*') // Only partial list if huge, but fine for now
+        supabase.from('users').select('*')
       ]);
 
       if (results[0].data) setAirdrops(results[0].data as any);
@@ -159,9 +169,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (results[9].data) setTools(results[9].data as any);
       if (results[10].data) setUsersList(results[10].data as any);
 
+      setIsDataLoaded(true);
+
     } catch (e) {
       console.error("Data Sync Error", e);
       addToast("Failed to sync with Supabase Protocol", "error");
+      setIsDataLoaded(true); // Stop spinner even on error
     }
   };
 
@@ -335,7 +348,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   return (
     <AppContext.Provider value={{
       theme, toggleTheme: () => setTheme(t => t === 'light' ? 'dark' : 'light'),
-      lang, setLang, t,
+      lang, setLang, t, isDataLoaded,
       user, isVerified, verifyWallet, logout: () => { disconnect(); },
       setUsername, updateAvatar, banUser, toggleTrackProject, gainXP, logActivity, resetAllXPs, refreshData, manageTodo, manageUserClaim,
 

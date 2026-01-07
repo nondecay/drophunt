@@ -1,5 +1,80 @@
--- COMPREHENSIVE FIX FOR PERSISTENCE & ADMIN (V4)
+-- COMPREHENSIVE FIX FOR PERSISTENCE & ADMIN (V4 - FIXED)
 -- Run this script in Supabase SQL Editor to resolve all persistence issues.
+
+-- 0. CREATE MISSING TABLES (Prevents "relation does not exist" errors)
+
+-- EVENTS (Calendar)
+CREATE TABLE IF NOT EXISTS public.events (
+    "id" TEXT PRIMARY KEY DEFAULT extensions.uuid_generate_v4()::text,
+    "title" TEXT,
+    "date" TEXT,
+    "description" TEXT,
+    "url" TEXT,
+    "type" TEXT,
+    "created_at" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+-- USERS (Core)
+CREATE TABLE IF NOT EXISTS public.users (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "address" TEXT UNIQUE,
+    "username" TEXT,
+    "avatar" TEXT,
+    "role" TEXT DEFAULT 'user',
+    "memberStatus" TEXT DEFAULT 'Hunter',
+    "xp" INTEGER DEFAULT 0,
+    "level" INTEGER DEFAULT 1,
+    "registeredAt" BIGINT,
+    "lastActivities" JSONB DEFAULT '{}'::jsonb,
+    "lastCommentTimestamps" JSONB DEFAULT '{}'::jsonb,
+    "isAdmin" BOOLEAN DEFAULT false
+);
+
+-- TODOS
+CREATE TABLE IF NOT EXISTS public.todos (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "userId" UUID REFERENCES public.users(id),
+    "text" TEXT,
+    "completed" BOOLEAN DEFAULT false,
+    "airdropId" TEXT
+);
+
+-- USER_CLAIMS
+CREATE TABLE IF NOT EXISTS public.user_claims (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "userId" UUID REFERENCES public.users(id),
+    "airdropId" TEXT,
+    "amount" TEXT,
+    "date" BIGINT,
+    "claimedAt" BIGINT
+);
+
+-- COMMENTS
+CREATE TABLE IF NOT EXISTS public.comments (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "userId" UUID REFERENCES public.users(id),
+    "airdropId" TEXT,
+    "text" TEXT,
+    "userName" TEXT,
+    "userAvatar" TEXT,
+    "createdAt" TEXT,
+    "createdAtTimestamp" BIGINT,
+    "isApproved" BOOLEAN DEFAULT false,
+    "likes" INTEGER DEFAULT 0
+);
+
+-- GUIDES
+CREATE TABLE IF NOT EXISTS public.guides (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "userId" UUID REFERENCES public.users(id),
+    "airdropId" TEXT,
+    "title" TEXT,
+    "url" TEXT,
+    "platform" TEXT,
+    "author" TEXT,
+    "isApproved" BOOLEAN DEFAULT false,
+    "createdAt" BIGINT
+);
 
 -- 1. DROP RESTRICTIVE POLICIES (Start Fresh for affected tables)
 DROP POLICY IF EXISTS "Users manage own todos" ON public.todos;
@@ -25,26 +100,32 @@ ALTER TABLE public.guides DROP CONSTRAINT IF EXISTS guides_userId_fkey;
 
 -- A. USERS TABLE
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public users access" ON public.users;
 CREATE POLICY "Public users access" ON public.users FOR ALL USING (true) WITH CHECK (true);
 
 -- B. TODOS
 ALTER TABLE public.todos ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public todos access" ON public.todos;
 CREATE POLICY "Public todos access" ON public.todos FOR ALL USING (true) WITH CHECK (true);
 
 -- C. USER_CLAIMS
 ALTER TABLE public.user_claims ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public claims access" ON public.user_claims;
 CREATE POLICY "Public claims access" ON public.user_claims FOR ALL USING (true) WITH CHECK (true);
 
 -- D. COMMENTS
 ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public comments access" ON public.comments;
 CREATE POLICY "Public comments access" ON public.comments FOR ALL USING (true) WITH CHECK (true);
 
 -- E. GUIDES
 ALTER TABLE public.guides ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public guides access" ON public.guides;
 CREATE POLICY "Public guides access" ON public.guides FOR ALL USING (true) WITH CHECK (true);
 
 -- F. EVENTS (Calendar)
 ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public events access" ON public.events;
 CREATE POLICY "Public events access" ON public.events FOR ALL USING (true) WITH CHECK (true);
 
 -- 4. ENSURE NECESSARY COLUMNS
@@ -55,6 +136,5 @@ ALTER TABLE public.airdrops ADD COLUMN IF NOT EXISTS "topUsers" JSONB DEFAULT '[
 ALTER TABLE public.airdrops ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Public view airdrops" ON public.airdrops;
 CREATE POLICY "Public view airdrops" ON public.airdrops FOR SELECT USING (true);
-CREATE POLICY "Admins manage airdrops" ON public.airdrops FOR ALL USING (true) WITH CHECK (true); 
--- Note: 'Admins manage airdrops' above is technically open to all for now to ensure Admin Panel works without complex Auth setup. 
--- You might want to restrict this later.
+DROP POLICY IF EXISTS "Admins manage airdrops" ON public.airdrops;
+CREATE POLICY "Admins manage airdrops" ON public.airdrops FOR ALL USING (true) WITH CHECK (true);
