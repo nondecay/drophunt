@@ -31,6 +31,10 @@ export const ProjectDetails: React.FC = () => {
 
   // Enhanced Loading & Not Found Logic
   const isLoading = !isDataLoaded;
+
+  // Safety check needed if context is partial
+  if (!airdrops) return null;
+
   const project = airdrops.find(a => a.id === id);
 
   if (isLoading) {

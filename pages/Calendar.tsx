@@ -8,6 +8,9 @@ export const Calendar: React.FC = () => {
   const [newEvent, setNewEvent] = useState({ title: '', date: '', description: '', url: '' });
   const [currentDate, setCurrentDate] = useState(new Date());
 
+  // Safety check to prevent blank page crash
+  if (!events) return <div className="p-10 text-center">Loading Calendar...</div>;
+
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
