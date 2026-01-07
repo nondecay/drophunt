@@ -151,6 +151,21 @@ export const Layout: React.FC = () => {
             <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 text-slate-400 hover:text-primary-600"><X size={24} /></button>
           </div>
 
+
+          <style>{`
+            @keyframes shake-rare {
+              0%, 90% { transform: rotate(0deg); }
+              91% { transform: rotate(-5deg); }
+              93% { transform: rotate(5deg); }
+              95% { transform: rotate(-5deg); }
+              97% { transform: rotate(5deg); }
+              100% { transform: rotate(0deg); }
+            }
+            .animate-shake-rare {
+              animation: shake-rare 12s infinite;
+              display: inline-block;
+            }
+          `}</style>
           <nav className="flex-1 flex flex-col gap-1 overflow-y-auto custom-scrollbar">
             <div className="flex items-center gap-1.5 px-4 mb-2 mt-4 select-none group">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">DROPHUNT.IO</p>
