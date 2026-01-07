@@ -86,14 +86,18 @@ export const MyAirdrops: React.FC = () => {
   }
 
 
+  // Ensure we have a user and verification before showing dashboard
+  // Redundant check but ensures type safety for 'user' usage below
+  if (!user) return null;
+
   return (
     <div className="max-w-6xl mx-auto pb-20 px-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* User Hub Dashboard */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-        <DashboardStat label="Tracked Airdrops" val={trackedAirdrops.length} icon={<Target size={20} />} color="bg-primary-600" />
-        <DashboardStat label="Tracked InfoFi" val={trackedInfoFi.length} icon={<Zap size={20} />} color="bg-primary-600" />
-        <DashboardStat label="Pending Tasks" val={activeTasksCount} icon={<ListChecks size={20} />} color="bg-rose-600" />
-        <DashboardStat label="Total Earning" val={`$${totalEarning.toLocaleString()}`} icon={<DollarSign size={20} />} color="bg-emerald-600" />
+        <DashboardStat label="Tracked Airdrops" val={trackedAirdrops?.length || 0} icon={<Target size={20} />} color="bg-primary-600" />
+        <DashboardStat label="Tracked InfoFi" val={trackedInfoFi?.length || 0} icon={<Zap size={20} />} color="bg-primary-600" />
+        <DashboardStat label="Pending Tasks" val={activeTasksCount || 0} icon={<ListChecks size={20} />} color="bg-rose-600" />
+        <DashboardStat label="Total Earning" val={`$${(totalEarning || 0).toLocaleString()}`} icon={<DollarSign size={20} />} color="bg-emerald-600" />
       </div>
 
       <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-12">

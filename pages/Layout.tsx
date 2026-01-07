@@ -152,7 +152,10 @@ export const Layout: React.FC = () => {
           </div>
 
           <nav className="flex-1 flex flex-col gap-1 overflow-y-auto custom-scrollbar">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mb-2 mt-4">DROPHUNT.IO</p>
+            <div className="flex items-center gap-1.5 px-4 mb-2 mt-4 select-none group">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">DROPHUNT.IO</p>
+              <span className="bg-primary-500/10 text-primary-600 dark:text-primary-400 border border-primary-500/20 text-[6px] font-black px-1 py-0.5 rounded animate-shake-rare">BETA</span>
+            </div>
             <SidebarLink to="/" icon={<LayoutDashboard size={18} />} label={t('airdrops')} active={location.pathname === '/'} onClick={() => setSidebarOpen(false)} />
             <SidebarLink to="/infofi" icon={<Zap size={18} />} label={t('infofi')} active={location.pathname === '/infofi'} onClick={() => setSidebarOpen(false)} />
             <SidebarLink to="/calendar" icon={<CalendarIcon size={18} />} label={t('calendar')} active={location.pathname === '/calendar'} onClick={() => setSidebarOpen(false)} />
