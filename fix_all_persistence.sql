@@ -1,4 +1,9 @@
--- 1. Create Missing Tables (Critical for Tasks & Claims)
+-- MASTER PERSISTENCE FIX SCRIPT
+-- RUN THIS IN SUPABASE SQL EDITOR
+
+-- 1. Create Tables if they don't exist
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 CREATE TABLE IF NOT EXISTS public.todos (
   id TEXT PRIMARY KEY DEFAULT uuid_generate_v4()::text,
   "userId" UUID REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -22,7 +27,7 @@ CREATE TABLE IF NOT EXISTS public.user_claims (
   "claimedDate" TEXT
 );
 
--- 2. Enable RLS
+-- 2. Enable RLS on ALL tables
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE airdrops ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
@@ -31,7 +36,7 @@ ALTER TABLE events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE todos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_claims ENABLE ROW LEVEL SECURITY;
 
--- 3. PERMISSIVE POLICIES (Fixing "Not Saving" Issues)
+-- 3. PERMISSIVE POLICIES (Development Mode - Fixes "Not Saving" Issues)
 
 -- USERS
 DROP POLICY IF EXISTS "Public Users Access" ON users;
@@ -77,8 +82,11 @@ CREATE POLICY "User Manage Own Todos" ON todos FOR ALL USING (true);
 DROP POLICY IF EXISTS "User Manage Own Claims" ON user_claims;
 CREATE POLICY "User Manage Own Claims" ON user_claims FOR ALL USING (true);
 
--- 4. Grant Access
+-- 4. Grant Permissions to authenticated users
 GRANT ALL ON public.todos TO authenticated;
-GRANT ALL ON public.todos TO service_role;
 GRANT ALL ON public.user_claims TO authenticated;
-GRANT ALL ON public.user_claims TO service_role;
+GRANT ALL ON public.comments TO authenticated;
+GRANT ALL ON public.guides TO authenticated;
+GRANT ALL ON public.users TO authenticated;
+GRANT USAGE ON SCHEMA public TO authenticated;
+GRANT USAGE ON SCHEMA public TO anon;
