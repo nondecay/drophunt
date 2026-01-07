@@ -180,19 +180,21 @@ export const Layout: React.FC = () => {
                     <SidebarLink to="/admin" icon={<ShieldAlert size={18} />} label={t('adminHq')} active={location.pathname === '/admin'} onClick={() => setSidebarOpen(false)} />
                   </div>
                 )}
-              </nav>
+              </>
+            )}
+          </nav>
 
-            <footer className="mt-auto pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">DROPHUNT.IO © 2026</p>
-              <div className="flex justify-center gap-4 text-slate-400">
-                <a href="https://x.com/drophunt" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors">
-                  <Twitter size={18} />
-                </a>
-                <a href="https://discord.gg/drophunt" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors">
-                  <DiscordIcon size={18} />
-                </a>
-              </div>
-            </footer>
+          <footer className="mt-auto pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">DROPHUNT.IO © 2026</p>
+            <div className="flex justify-center gap-4 text-slate-400">
+              <a href="https://x.com/drophunt" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors">
+                <Twitter size={18} />
+              </a>
+              <a href="https://discord.gg/drophunt" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors">
+                <DiscordIcon size={18} />
+              </a>
+            </div>
+          </footer>
         </div>
       </aside>
 
