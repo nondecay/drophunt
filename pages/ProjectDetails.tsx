@@ -33,7 +33,14 @@ export const ProjectDetails: React.FC = () => {
   const isLoading = !isDataLoaded;
 
   // Safety check needed if context is partial
-  if (!airdrops) return null;
+  if (!airdrops) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 mb-4"></div>
+        <p className="text-slate-500 font-bold">Initializing Data...</p>
+      </div>
+    );
+  }
 
   const project = airdrops.find(a => a.id === id);
 
