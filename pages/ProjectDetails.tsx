@@ -27,12 +27,21 @@ export const ProjectDetails: React.FC = () => {
   const { id } = useParams();
   const { user, airdrops = [], comments = [], setComments, guides = [], setGuides, investors = [], addToast, toggleTrackProject, logActivity, setUsersList, t, refreshData, isDataLoaded } = useApp();
   const [guideFilter, setGuideFilter] = useState<'tr' | 'us'>('us');
-  // ... (lines 30-52 unchanged)
+
+  // HOOKS MUST BE DECLARED BEFORE CONDITIONS
+  const projectComments = useMemo(() => {
+    return comments
+      .filter(c => c && (c.airdropId === id && (c.isApproved || user?.role === 'admin' || user?.memberStatus === 'Admin')))
+      .sort((a, b) => (b.createdAtTimestamp || 0) - (a.createdAtTimestamp || 0));
+  }, [comments, id, user]);
+
+  // Derived Project State
+  const project = airdrops?.find(a => a.id === id);
 
   // Enhanced Loading & Not Found Logic
   const isLoading = !isDataLoaded;
 
-  // Safety check needed if context is partial
+  // SAFETY CHECKS (Must be AFTER hooks)
   if (!airdrops) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh]">
@@ -42,13 +51,10 @@ export const ProjectDetails: React.FC = () => {
     );
   }
 
-  const project = airdrops.find(a => a.id === id);
-
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 mb-4"></div>
-
         <p className="text-slate-500 font-bold animate-pulse">Establishing Secure Uplink...</p>
       </div>
     );
@@ -64,12 +70,6 @@ export const ProjectDetails: React.FC = () => {
       </div>
     );
   }
-
-  const projectComments = useMemo(() => {
-    return comments
-      .filter(c => c.airdropId === id && (c.isApproved || user?.role === 'admin' || user?.memberStatus === 'Admin')) // Show approved OR if user is admin
-      .sort((a, b) => (b.createdAtTimestamp || 0) - (a.createdAtTimestamp || 0));
-  }, [comments, id, user]);
 
   const totalCommentPages = Math.ceil(projectComments.length / commentsPerPage);
   const paginatedComments = projectComments.slice((commentPage - 1) * commentsPerPage, commentPage * commentsPerPage);
