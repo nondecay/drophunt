@@ -16,9 +16,9 @@ interface AppContextType {
   user: User | null;
   isVerified: boolean;
   verifyWallet: () => Promise<void>;
-  logout: () => void;
-  setUsername: (name: string) => Promise<boolean>; // Async now
-  updateAvatar: (url: string) => Promise<void>; // Async now
+  username: string; // Add explicit username to user type if needed, or rely on User type
+  updateAvatar: (url: string) => Promise<void>;
+  showUsernameModal: boolean;
 
   isDataLoaded: boolean;
 
