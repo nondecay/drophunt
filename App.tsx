@@ -74,6 +74,10 @@ const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (user?.role === 'admin' || user?.memberStatus === 'Admin') ? <>{children}</> : <Navigate to="/" />;
 };
 
+import { UsernameModal } from './components/UsernameModal';
+
+// ... (imports remain)
+
 export const App: React.FC = () => {
   return (
     <WagmiProvider config={config}>
@@ -81,6 +85,7 @@ export const App: React.FC = () => {
         <AppProvider>
           <RainbowKitProvider theme={darkTheme({ accentColor: '#7c3aed' })}>
             <BrowserRouter>
+              <UsernameModal />
               <Routes>
                 <Route element={<Layout />}>
                   <Route path="/" element={<Home category="all" />} />

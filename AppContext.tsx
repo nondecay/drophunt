@@ -361,7 +361,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       theme, toggleTheme: () => setTheme(t => t === 'light' ? 'dark' : 'light'),
       lang, setLang, t, isDataLoaded,
       user, isVerified, verifyWallet, logout: () => { disconnect(); },
-      setUsername, updateAvatar, banUser, toggleTrackProject, gainXP, logActivity, resetAllXPs, refreshData, manageTodo, manageUserClaim,
+      setUsername, updateAvatar, banUser, toggleTrackProject, gainXP, logActivity, resetAllXPs, refreshData, manageTodo, manageUserClaim, showUsernameModal,
 
       // Data Props (Read Only mostly, write via specific actions or direct supabase calls in AdminPanel)
       // We pass the "setters" to maintain compatibility with AdminPanel, 
