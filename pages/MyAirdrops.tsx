@@ -17,6 +17,27 @@ export const MyAirdrops: React.FC = () => {
   const [newClaim, setNewClaim] = useState({ projectName: '', expense: 0, claimedToken: '', tokenCount: 0, earning: 0, claimedDate: new Date().toISOString().split('T')[0] });
   const [claimMonthFilter, setClaimMonthFilter] = useState('all');
 
+  // Derived State Definitions
+  const trackedAirdrops = useMemo(() => airdrops.filter(p => userClaims.some(c => c.projectName === p.name) || userTasks.some(t => t.airdropId === p.id) || p.is_tracked), [airdrops, userClaims, userTasks]);
+  const trackedInfoFi = useMemo(() => [], []); // Placeholder or filter from infofi list if available in context
+  const activeTasksCount = useMemo(() => userTasks.filter(t => !t.completed).length, [userTasks]);
+
+  // Calculate Earnings
+  const totalEarning = useMemo(() => userClaims.reduce((acc, curr) => acc + (Number(curr.earning) || 0), 0), [userClaims]);
+
+  // Dummy values for missing context data to prevent crash
+  const unreadAirdropMessages = 0;
+  const unreadInfoFiMessages = 0;
+
+  // Available months calculation
+  const availableMonths = useMemo(() => {
+    const months = new Set<string>();
+    userClaims.forEach(c => {
+      if (c.claimedDate) months.add(c.claimedDate.substring(0, 7)); // YYYY-MM
+    });
+    return Array.from(months).sort().reverse();
+  }, [userClaims]);
+
   // Newest to Oldest sorting for tasks
   const manualTasks = useMemo(() => {
     return userTasks.filter(t => !t.completed && t.airdropId === 'custom')
@@ -27,6 +48,61 @@ export const MyAirdrops: React.FC = () => {
     return userTasks.filter(t => t.completed)
       .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
   }, [userTasks]);
+
+  const [taskPage, setTaskPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
+
+  const paginatedTasks = useMemo(() => {
+    const start = (taskPage - 1) * ITEMS_PER_PAGE;
+    return manualTasks.slice(start, start + ITEMS_PER_PAGE);
+  }, [manualTasks, taskPage]);
+
+  const totalTaskPages = Math.ceil(manualTasks.length / ITEMS_PER_PAGE);
+
+  // Claim Filtering & Calculations
+  const filteredClaims = useMemo(() => {
+    if (claimMonthFilter === 'all') return userClaims;
+    return userClaims.filter(c => c.claimedDate?.startsWith(claimMonthFilter));
+  }, [userClaims, claimMonthFilter]);
+
+  const totalExpense = useMemo(() => filteredClaims.reduce((acc, curr) => acc + (Number(curr.expense) || 0), 0), [filteredClaims]);
+  // Re-calculate totalEarning based on filter if needed, but usually Total Earning is Global. 
+  // However, the requested UI implies totals for the view. Let's keep Total Earning global as per dashboard, 
+  // but for the Claims tab, users might expect filtered totals?
+  // The UI shows "Net Yield" which implies filtered.
+  // Let's calculate filtered earning/profit for the Claims tab stat cards.
+  const filteredEarning = useMemo(() => filteredClaims.reduce((acc, curr) => acc + (Number(curr.earning) || 0), 0), [filteredClaims]);
+  const totalProfit = filteredEarning - totalExpense;
+
+  const addTask = async () => {
+    if (!newTask.note) return;
+    await manageTodo('add', {
+      note: newTask.note,
+      airdropId: newTask.airdropId, // 'custom' or ID
+      deadline: newTask.deadline || null,
+      reminder: newTask.reminder, // 'none', 'daily', etc.
+      completed: false,
+      createdAt: Date.now()
+    });
+    setNewTask({ note: '', airdropId: 'custom', reminder: 'none', deadline: '' });
+    setShowAdd(false);
+    addToast(t('taskAdded'), 'success');
+  };
+
+  const addClaimEntry = async () => {
+    if (!newClaim.projectName) return;
+    await manageUserClaim('add', {
+      projectName: newClaim.projectName,
+      expense: newClaim.expense || 0,
+      claimedToken: newClaim.claimedToken || '',
+      tokenCount: newClaim.tokenCount || 0,
+      earning: newClaim.earning || 0,
+      claimedDate: newClaim.claimedDate || new Date().toISOString().split('T')[0]
+    });
+    setNewClaim({ projectName: '', expense: 0, claimedToken: '', tokenCount: 0, earning: 0, claimedDate: new Date().toISOString().split('T')[0] });
+    setShowClaimAdd(false);
+    addToast('Claim recorded successfully!', 'success');
+  };
 
   // Auto-Cleanup Effect: Keep only 20 completed non-recurring tasks
   useEffect(() => {
@@ -271,7 +347,7 @@ export const MyAirdrops: React.FC = () => {
                   task={t_obj}
                   project={airdrops.find(a => a.id === t_obj.airdropId)}
                   onToggle={() => manageTodo('toggle', t_obj)}
-                  onDelete={() => manageTodo('remove', t_obj)}
+                  onDelete={() => manageTodo('remove', t_obj.id)}
                   t_func={t}
                 />
               ))}
