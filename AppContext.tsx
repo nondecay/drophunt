@@ -304,7 +304,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return false;
     }
     setUser({ ...user, username: name });
-    addToast("Username updated.");
+    addToast("Identity established.");
+    setShowUsernameModal(false);
     return true;
   };
 
