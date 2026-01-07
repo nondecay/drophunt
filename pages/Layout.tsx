@@ -252,60 +252,6 @@ export const Layout: React.FC = () => {
         </header>
         <div className="flex-1 overflow-y-auto p-4 lg:p-8"><Outlet /></div>
       </main>
-
-      {needsVerification && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-slate-950/95 backdrop-blur-xl animate-in fade-in duration-500">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[3rem] p-12 shadow-2xl border border-slate-200 dark:border-slate-800 text-center">
-            <div className="w-20 h-20 bg-primary-100 dark:bg-primary-900/30 text-primary-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
-              <ShieldCheck size={40} />
-            </div>
-            <h2 className="text-3xl font-black tracking-tighter uppercase mb-4">Verify Wallet</h2>
-            <p className="text-slate-500 font-medium mb-10 text-sm leading-relaxed">
-              To proceed, please sign a secure message to confirm your identity.
-              This is gasless and does not initiate a transaction.
-            </p>
-            <button
-              onClick={verifyWallet}
-              className="w-full py-5 bg-primary-600 text-white rounded-2xl font-black shadow-xl shadow-primary-500/30 uppercase tracking-[0.2em] text-xs transition-all active:scale-95 flex items-center justify-center gap-3"
-            >
-              Sign Verification Message
-            </button>
-            <button
-              onClick={logout}
-              className="w-full mt-4 py-3 text-slate-400 font-bold uppercase text-[10px] tracking-widest hover:text-red-500 transition-colors"
-            >
-              Cancel & Disconnect
-            </button>
-          </div>
-        </div>
-      )}
-
-      {needsUsername && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-slate-950/95 backdrop-blur-xl animate-in fade-in duration-500">
-          <div className="bg-white dark:bg-slate-900 w-full max-md rounded-[3rem] p-12 shadow-2xl border border-slate-200 dark:border-slate-800 text-center">
-            <img src="/logo.png" className="w-20 h-20 mx-auto mb-8 object-contain drop-shadow-2xl" alt="Logo" />
-            <h2 className="text-3xl font-black tracking-tighter uppercase mb-4">{t('identifyTitle')}</h2>
-            <p className="text-slate-500 font-medium mb-10 text-sm">{t('identifySub')}</p>
-
-            <input
-              type="text"
-              placeholder="Username..."
-              className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-black text-center text-lg outline-none border-2 border-transparent focus:border-primary-500 transition-all shadow-inner mb-6"
-              value={tempUsername}
-              onChange={(e) => setTempUsername(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && setUsername(tempUsername)}
-            />
-
-            <button
-              onClick={() => setUsername(tempUsername)}
-              disabled={!tempUsername.trim()}
-              className="w-full py-5 bg-primary-600 text-white rounded-2xl font-black shadow-xl shadow-primary-500/30 uppercase tracking-[0.2em] text-xs transition-all active:scale-95 disabled:opacity-50"
-            >
-              {t('initIdentity')}
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

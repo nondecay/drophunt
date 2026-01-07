@@ -231,6 +231,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setUserTasks(prev => [data as any, ...prev]);
       } else {
         console.error("Add Task Error", error);
+        addToast("Failed to add task: " + (error.message || "Unknown error"), "error");
       }
     } else if (action === 'remove') {
       await supabase.from('todos').delete().eq('id', payload);
@@ -282,7 +283,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!address) return;
     try {
       const nonce = Math.random().toString(36).substring(2, 15);
-      const message = `Sign to verify ownership.\nNonce: ${nonce}`;
+      const now = new Date();
+      const isoNow = now.toISOString();
+      const expires = new Date(now.getTime() + 5 * 60000).toISOString();
+
+      const message = `Welcome to drophunt.io!
+
+Please sign this message to verify that you are the owner of this wallet.
+This signature does not initiate any blockchain transaction and does not cost any gas.
+
+Purpose: Account authentication
+Nonce: ${nonce}
+Issued At: ${isoNow}
+Expires At: ${expires}`;
+
       const signature = await signMessageAsync({ account: address as `0x${string}`, message });
       const isValid = await verifyMessage({ address: address as `0x${string}`, message, signature });
 
@@ -290,9 +304,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         sessionStorage.setItem(`verified_session_${address.toLowerCase()}`, 'true');
         setIsVerified(true);
         addToast("Wallet verified.");
+        // Check if username needs setting
+        if (user && user.username && user.username.startsWith('Hunter_')) {
+          setShowUsernameModal(true);
+        }
       }
     } catch (err: any) {
-      addToast("Verification failed.", "error");
+      console.error(err);
+      addToast("Verification failed or rejected.", "error");
     }
   };
 
