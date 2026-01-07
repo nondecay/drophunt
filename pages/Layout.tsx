@@ -161,38 +161,38 @@ export const Layout: React.FC = () => {
             <SidebarLink to="/investors" icon={<Users size={18} />} label={t('investors')} active={location.pathname === '/investors'} onClick={() => setSidebarOpen(false)} />
             <SidebarLink to="/tools" icon={<Wrench size={18} />} label={t('tools')} active={location.pathname === '/tools'} onClick={() => setSidebarOpen(false)} />
 
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mb-2 mt-6">{t('myHub')}</p>
+            <SidebarLink to="/my-airdrops" icon={<Target size={18} />} label={t('myAirdrops')} active={location.pathname === '/my-airdrops'} onClick={() => setSidebarOpen(false)} />
+
             {user && (
               <>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mb-2 mt-6">{t('myHub')}</p>
-                <SidebarLink to="/my-airdrops" icon={<Target size={18} />} label={t('myAirdrops')} active={location.pathname === '/my-airdrops'} onClick={() => setSidebarOpen(false)} />
-              </>
-            )}
 
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mb-2 mt-6">{t('onChainActivities')}</p>
-            <SidebarLink to="/daily-gm" icon={<SunIcon size={18} />} label={t('dailyGm')} active={location.pathname === '/daily-gm'} onClick={() => setSidebarOpen(false)} />
-            <SidebarLink to="/daily-mint" icon={<Sparkles size={18} />} label={t('dailyMint')} active={location.pathname === '/daily-mint'} onClick={() => setSidebarOpen(false)} />
-            <SidebarLink to="/deploy" icon={<ArrowUpCircle size={18} />} label={t('deploy')} active={location.pathname === '/deploy'} onClick={() => setSidebarOpen(false)} />
-            <SidebarLink to="/rpg" icon={<Sword size={18} />} label={t('onChainRpg')} active={location.pathname === '/rpg'} onClick={() => setSidebarOpen(false)} />
-            <SidebarLink to="/faucets" icon={<Droplets size={18} />} label={t('faucets')} active={location.pathname === '/faucets'} onClick={() => setSidebarOpen(false)} />
 
-            {(user?.role === 'admin' || user?.memberStatus === 'Admin') && (
-              <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                <SidebarLink to="/admin" icon={<ShieldAlert size={18} />} label={t('adminHq')} active={location.pathname === '/admin'} onClick={() => setSidebarOpen(false)} />
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mb-2 mt-6">{t('onChainActivities')}</p>
+                <SidebarLink to="/daily-gm" icon={<SunIcon size={18} />} label={t('dailyGm')} active={location.pathname === '/daily-gm'} onClick={() => setSidebarOpen(false)} />
+                <SidebarLink to="/daily-mint" icon={<Sparkles size={18} />} label={t('dailyMint')} active={location.pathname === '/daily-mint'} onClick={() => setSidebarOpen(false)} />
+                <SidebarLink to="/deploy" icon={<ArrowUpCircle size={18} />} label={t('deploy')} active={location.pathname === '/deploy'} onClick={() => setSidebarOpen(false)} />
+                <SidebarLink to="/rpg" icon={<Sword size={18} />} label={t('onChainRpg')} active={location.pathname === '/rpg'} onClick={() => setSidebarOpen(false)} />
+                <SidebarLink to="/faucets" icon={<Droplets size={18} />} label={t('faucets')} active={location.pathname === '/faucets'} onClick={() => setSidebarOpen(false)} />
+
+                {(user?.role === 'admin' || user?.memberStatus === 'Admin') && (
+                  <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <SidebarLink to="/admin" icon={<ShieldAlert size={18} />} label={t('adminHq')} active={location.pathname === '/admin'} onClick={() => setSidebarOpen(false)} />
+                  </div>
+                )}
+              </nav>
+
+            <footer className="mt-auto pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">DROPHUNT.IO © 2026</p>
+              <div className="flex justify-center gap-4 text-slate-400">
+                <a href="https://x.com/drophunt" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors">
+                  <Twitter size={18} />
+                </a>
+                <a href="https://discord.gg/drophunt" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors">
+                  <DiscordIcon size={18} />
+                </a>
               </div>
-            )}
-          </nav>
-
-          <footer className="mt-auto pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
-            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">DROPHUNT.IO © 2026</p>
-            <div className="flex justify-center gap-4 text-slate-400">
-              <a href="https://x.com/drophunt" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors">
-                <Twitter size={18} />
-              </a>
-              <a href="https://discord.gg/drophunt" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors">
-                <DiscordIcon size={18} />
-              </a>
-            </div>
-          </footer>
+            </footer>
         </div>
       </aside>
 
