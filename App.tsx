@@ -55,7 +55,17 @@ const config = getDefaultConfig({
 const queryClient = new QueryClient();
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useApp();
+  const { user, isDataLoaded } = useApp();
+
+  if (!isDataLoaded) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 mb-4"></div>
+        <p className="text-slate-500 font-bold animate-pulse">Authenticating...</p>
+      </div>
+    );
+  }
+
   return user ? <>{children}</> : <Navigate to="/" />;
 };
 
