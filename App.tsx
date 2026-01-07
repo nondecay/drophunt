@@ -99,7 +99,7 @@ export const App: React.FC = () => {
                   <Route path="/investors" element={<Investors />} />
                   <Route path="/investor/:id" element={<InvestorDetails />} />
                   <Route path="/tools" element={<Tools />} />
-                  <Route path="/my-airdrops" element={<MyAirdrops />} />
+                  <Route path="/my-airdrops" element={<ProtectedRoute><MyAirdrops /></ProtectedRoute>} />
                   <Route path="/calendar" element={<Calendar />} />
                   <Route path="/claims" element={<Claims type="claims" />} />
                   <Route path="/presales" element={<Claims type="presales" />} />
