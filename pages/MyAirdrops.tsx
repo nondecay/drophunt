@@ -86,9 +86,14 @@ export const MyAirdrops: React.FC = () => {
   }
 
 
-  // Ensure we have a user and verification before showing dashboard
-  // Redundant check but ensures type safety for 'user' usage below
-  if (!user) return null;
+  // Fallback if user is basic connected but state sync needs a moment
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto pb-20 px-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
