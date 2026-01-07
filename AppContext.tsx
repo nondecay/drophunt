@@ -267,12 +267,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       syncUser(address.toLowerCase());
       // Check session
       const sessionKey = `verified_session_${address.toLowerCase()}`;
-      setIsVerified(sessionStorage.getItem(sessionKey) === 'true');
+      const verified = sessionStorage.getItem(sessionKey) === 'true';
+      setIsVerified(verified);
+
+      // Auto-trigger verification if not verified
+      if (!verified) {
+        // Short delay to ensure connection is stable and avoid race conditions
+        setTimeout(() => verifyWallet(), 1500);
+      }
     } else {
       setUser(null);
       setUserTasks([]);
       setUserClaims([]);
       setIsVerified(false);
+      setShowUsernameModal(false);
     }
   }, [isConnected, address]);
 
