@@ -132,10 +132,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 5100);
   };
 
-  // Data States
-  isDataLoaded: boolean;
-  airdrops: Airdrop[];
-  // ... (rest of interface)
+
 
   // Inside AppProvider
   const [isDataLoaded, setIsDataLoaded] = useState(false);
