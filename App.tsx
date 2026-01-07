@@ -1,5 +1,9 @@
-
+```
 import React from 'react';
+import { ErrorBoundary } from './components/ErrorBoundary';
+
+// ... (existing imports)
+
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider, useApp } from './AppContext';
 import { Layout } from './pages/Layout';
@@ -80,7 +84,7 @@ export const App: React.FC = () => {
                   <Route path="/deploy" element={<Deploy />} />
                   <Route path="/rpg" element={<OnChainRPG />} />
                   <Route path="/faucets" element={<Faucets />} />
-                  <Route path="/project/:id" element={<ProjectDetails />} />
+                  <Route path="/project/:id" element={<ErrorBoundary><ProjectDetails /></ErrorBoundary>} />
                   <Route path="/investors" element={<Investors />} />
                   <Route path="/investor/:id" element={<InvestorDetails />} />
                   <Route path="/tools" element={<Tools />} />
