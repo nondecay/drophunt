@@ -2,7 +2,8 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../AppContext';
-import { Plus, CheckCircle2, Trash2, ListChecks, Zap, Clock, PieChart, RefreshCw, Target, ArrowUpRight, ChevronLeft, ChevronRight, Mail, DollarSign, Calendar, Filter, X, ChevronDown, Check } from 'lucide-react';
+import { Plus, CheckCircle2, Trash2, ListChecks, Zap, Clock, PieChart, RefreshCw, Target, ArrowUpRight, ChevronLeft, ChevronRight, Mail, DollarSign, Calendar, Filter, X, ChevronDown, Check, ShieldAlert } from 'lucide-react';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 export const MyAirdrops: React.FC = () => {
   const { airdrops, userTasks, setUserTasks, userClaims, setUserClaims, addToast, user, toggleTrackProject, t, inbox, manageTodo, manageUserClaim } = useApp();
