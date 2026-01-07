@@ -1,9 +1,5 @@
-```
 import React from 'react';
 import { ErrorBoundary } from './components/ErrorBoundary';
-
-// ... (existing imports)
-
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider, useApp } from './AppContext';
 import { Layout } from './pages/Layout';
