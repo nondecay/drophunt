@@ -6,7 +6,7 @@ import { Plus, CheckCircle2, Trash2, ListChecks, Zap, Clock, PieChart, RefreshCw
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 export const MyAirdrops: React.FC = () => {
-  const { airdrops, userTasks, setUserTasks, userClaims, setUserClaims, addToast, user, toggleTrackProject, t, inbox, manageTodo, manageUserClaim } = useApp();
+  const { airdrops, userTasks, setUserTasks, userClaims, setUserClaims, addToast, user, toggleTrackProject, t, inbox, manageTodo, manageUserClaim, infofiPlatforms } = useApp();
   const [activeTab, setActiveTab] = useState<'tasks' | 'airdrops' | 'infofi' | 'completed' | 'claimed'>('tasks');
   const [showAdd, setShowAdd] = useState(false);
   const [showClaimAdd, setShowClaimAdd] = useState(false);
@@ -18,8 +18,17 @@ export const MyAirdrops: React.FC = () => {
   const [claimMonthFilter, setClaimMonthFilter] = useState('all');
 
   // Derived State Definitions
-  const trackedAirdrops = useMemo(() => airdrops.filter(p => userClaims.some(c => c.projectName === p.name) || userTasks.some(t => t.airdropId === p.id) || p.is_tracked), [airdrops, userClaims, userTasks]);
-  const trackedInfoFi = useMemo(() => [], []); // Placeholder or filter from infofi list if available in context
+  // Restore "Old Look": show project if it is in user.trackedProjectIds OR has a claim/task
+  const trackedIds = useMemo(() => user?.trackedProjectIds || [], [user]);
+
+  const trackedAirdrops = useMemo(() => {
+    return airdrops.filter(p => trackedIds.includes(p.id) || userClaims.some(c => c.projectName === p.name) || userTasks.some(t => t.airdropId === p.id));
+  }, [airdrops, trackedIds, userClaims, userTasks]);
+
+  const trackedInfoFi = useMemo(() => {
+    return (infofiPlatforms || []).filter(p => trackedIds.includes(p.id));
+  }, [infofiPlatforms, trackedIds]);
+
   const activeTasksCount = useMemo(() => userTasks.filter(t => !t.completed).length, [userTasks]);
 
   // Calculate Earnings
