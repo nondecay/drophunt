@@ -151,7 +151,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         supabase.from('investors').select('*'),
         supabase.from('announcements').select('*'),
         supabase.from('tools').select('*'),
-        supabase.from('users').select('*')
+        supabase.from('users').select('*'),
+        supabase.from('events').select('*')
       ]);
 
       if (results[0].data) setAirdrops(results[0].data as any);
@@ -165,6 +166,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (results[8].data) setAnnouncements(results[8].data as any);
       if (results[9].data) setTools(results[9].data as any);
       if (results[10].data) setUsersList(results[10].data as any);
+      if (results[11].data) setEvents(results[11].data as any);
 
       setIsDataLoaded(true);
 
