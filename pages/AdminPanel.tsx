@@ -685,11 +685,7 @@ const AdminPanelContent: React.FC = () => {
 
                            <div className="col-span-2"><label className="text-[10px] font-black uppercase text-slate-400 block mb-2">Project Info / Details</label><textarea className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-xs h-32 outline-none" value={formData.projectInfo || ''} onChange={e => setFormData({ ...formData, projectInfo: e.target.value })} /></div>
 
-                           <div className="col-span-2 grid grid-cols-3 gap-3 border-t dark:border-slate-800 pt-6">
-                              <Fld label="Website" val={formData.socials?.website || ''} onChange={v => setFormData({ ...formData, socials: { ...formData.socials, website: v } })} />
-                              <Fld label="Twitter" val={formData.socials?.twitter || ''} onChange={v => setFormData({ ...formData, socials: { ...formData.socials, twitter: v } })} />
-                              <Fld label="Discord" val={formData.socials?.discord || ''} onChange={v => setFormData({ ...formData, socials: { ...formData.socials, discord: v } })} />
-                           </div>
+
 
                            {showModal === 'infofi' && (
                               <div className="col-span-2 space-y-4 border-t dark:border-slate-800 pt-6 mt-4">
@@ -702,6 +698,17 @@ const AdminPanelContent: React.FC = () => {
                                        <div key={idx} className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl">
                                           <span className="w-8 font-black text-xs text-slate-400 text-center">#{idx + 1}</span>
                                           <input type="text" className="flex-1 bg-white dark:bg-slate-900 p-2 rounded-lg text-[10px] font-bold outline-none" placeholder="Twitter Handle / URL" value={u.twitterUrl || ''} onChange={e => updateInfoFiSlot(idx, e.target.value)} />
+                                          <button onClick={() => {
+                                             const tw = u.twitterUrl;
+                                             if (!tw) return addToast("Enter Twitter URL", "error");
+                                             const username = tw.split('/').pop();
+                                             if (username) {
+                                                const newUsers = [...(formData.topUsers || [])];
+                                                newUsers[idx] = { ...u, avatar: `https://unavatar.io/twitter/${username}` };
+                                                setFormData({ ...formData, topUsers: newUsers });
+                                                addToast("Fetched avatar");
+                                             }
+                                          }} className="p-1.5 bg-sky-500 text-white rounded-lg shadow-sm hover:scale-105 transition-transform"><Sparkles size={12} /></button>
                                           {u.avatar && <img src={u.avatar} className="w-8 h-8 rounded-full" />}
                                        </div>
                                     ))}

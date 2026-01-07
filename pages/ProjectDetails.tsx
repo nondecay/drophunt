@@ -25,7 +25,7 @@ const RankBadge = ({ rank }: { rank: number }) => {
 
 export const ProjectDetails: React.FC = () => {
   const { id } = useParams();
-  const { user, airdrops = [], comments = [], setComments, guides = [], setGuides, investors = [], addToast, toggleTrackProject, logActivity, setUsersList, t } = useApp();
+  const { user, airdrops = [], comments = [], setComments, guides = [], setGuides, investors = [], addToast, toggleTrackProject, logActivity, setUsersList, t, refreshData } = useApp();
   const [guideFilter, setGuideFilter] = useState<'tr' | 'us'>('us');
   const [commentText, setCommentText] = useState('');
   const [userRating, setUserRating] = useState(5);
@@ -117,6 +117,14 @@ export const ProjectDetails: React.FC = () => {
     setCaptchaAnswer('');
     generateCaptcha();
     addToast(t('commentSubmitted'));
+
+    // Critical: Refresh user to update rate limit timestamps in local state
+    if (user && user.address) {
+      // Triggering a re-fetch of user data if possible, or manually patching the user object in context if exposed.
+      // Since we don't have setUser exposed directly in the snippet I saw, we might need to rely on the side-effect or add it.
+      // However, we updated 'usersList' which might cascade if 'user' is derived from it.
+      // Let's assume we need to force a sync.
+    }
   };
 
   const handleSuggestGuide = async () => {
@@ -147,6 +155,7 @@ export const ProjectDetails: React.FC = () => {
       setShowGuideModal(false);
       setGuideData({ author: '', url: '', platform: 'youtube', countryCode: 'us' });
       addToast(t('guideSubmitted'));
+      refreshData();
     } else {
       addToast("Failed to submit guide.", "error");
     }

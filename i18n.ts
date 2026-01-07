@@ -48,7 +48,7 @@ export const translations = {
 
     // Home Page
     dashboardTitle: 'Airdrop Dashboard',
-    infofiTerminal: 'InfoFi Terminal',
+    infofiTerminal: 'Infofi Projects',
     protocolSub: 'Potential Airdrop Opportunities',
     filterTerminal: 'Search Projects...',
     proposeProject: 'Submit Project',
@@ -289,7 +289,7 @@ export const translations = {
 
     // Ana Sayfa
     dashboardTitle: 'Airdrop Paneli',
-    infofiTerminal: 'InfoFi Terminali',
+    infofiTerminal: 'Infofi Projeleri',
     protocolSub: 'Endekslenmiş Aktif Protokol Fırsatları.',
     filterTerminal: 'Terminali Filtrele...',
     proposeProject: 'Proje Öner',
