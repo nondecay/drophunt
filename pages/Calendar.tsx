@@ -60,7 +60,7 @@ export const Calendar: React.FC = () => {
             <button onClick={handlePrevMonth} className="p-2 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors"><ChevronLeft size={18} /></button>
             <button onClick={handleNextMonth} className="p-2 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors"><ChevronRight size={18} /></button>
           </div>
-          {user?.isAdmin && <button onClick={() => setShowAdd(true)} className="p-3 bg-primary-600 text-white rounded-xl shadow-md"><Plus size={18} /></button>}
+          {(user?.role === 'admin' || user?.memberStatus === 'Admin') && <button onClick={() => setShowAdd(true)} className="p-3 bg-primary-600 text-white rounded-xl shadow-md"><Plus size={18} /></button>}
         </div>
       </div>
 

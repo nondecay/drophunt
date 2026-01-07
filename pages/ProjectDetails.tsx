@@ -324,7 +324,8 @@ export const ProjectDetails: React.FC = () => {
                         <img src={u.avatar || 'https://picsum.photos/100'} className="w-7 h-7 rounded-full object-cover shadow-sm" />
                         <span className="font-black text-xs uppercase tracking-tight">{u.name || 'Hunter'}</span>
                       </div>
-                      <a href={u.twitterUrl} target="_blank" className="inline-flex items-center gap-1.5 text-[8px] font-black uppercase text-primary-600 bg-primary-50 px-3 py-1.5 rounded-lg hover:bg-primary-600 hover:text-white transition-all">{t('leaderboardFollow')}</a>
+                      <a href={ensureHttp(u.twitterUrl)} target="_blank" className="inline-flex items-center gap-1.5 text-[8px] font-black uppercase text-primary-600 bg-primary-50 px-3 py-1.5 rounded-lg hover:bg-primary-600 hover:text-white transition-all">{t('leaderboardFollow')}</a>
+
                     </div>
                   ))}
                   {(project.topUsers || []).length === 0 && (
@@ -427,14 +428,14 @@ export const ProjectDetails: React.FC = () => {
               </button>
 
               {project.status === 'Claim Available' && project.claimUrl && (
-                <a href={project.claimUrl} target="_blank" className="w-full py-4 rounded-xl font-black text-xs flex items-center justify-center gap-3 transition-all active:scale-95 bg-emerald-500 text-white border border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:scale-[1.02]">
+                <a href={ensureHttp(project.claimUrl)} target="_blank" className="w-full py-4 rounded-xl font-black text-xs flex items-center justify-center gap-3 transition-all active:scale-95 bg-emerald-500 text-white border border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:scale-[1.02]">
                   <span className="text-lg">💰</span>
                   Claim Available!
                 </a>
               )}
 
               {project.campaignUrl && (
-                <a href={project.campaignUrl} target="_blank" className="w-full py-4 rounded-xl font-black text-xs flex items-center justify-center gap-3 transition-all active:scale-95 bg-white text-primary-600 border border-white/30 shadow-[0_0_20px_rgba(255,255,255,0.3)] animate-pulse-slow">
+                <a href={ensureHttp(project.campaignUrl)} target="_blank" className="w-full py-4 rounded-xl font-black text-xs flex items-center justify-center gap-3 transition-all active:scale-95 bg-white text-primary-600 border border-white/30 shadow-[0_0_20px_rgba(255,255,255,0.3)] animate-pulse-slow">
                   <Rocket size={18} className="animate-bounce" />
                   {t('goCampaign')}
                 </a>
