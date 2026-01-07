@@ -1,4 +1,5 @@
 import { useApp } from '../AppContext';
+import { supabase } from '../supabaseClient';
 import { ChevronLeft, ChevronRight, Plus, X, ExternalLink } from 'lucide-react';
 
 export const Calendar: React.FC = () => {
