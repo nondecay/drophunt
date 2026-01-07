@@ -343,42 +343,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     refreshData();
   };
 
-  const manageTodo = async (action: 'add' | 'remove' | 'toggle', payload: any) => {
-    if (!user) return;
-
-    if (action === 'add') {
-      const newTodo = { ...payload, userId: user.id };
-      const { data, error } = await supabase.from('todos').insert(newTodo).select().single();
-      if (!error && data) {
-        setUserTasks(prev => [data as any, ...prev]);
-      }
-    } else if (action === 'remove') {
-      await supabase.from('todos').delete().eq('id', payload);
-      setUserTasks(prev => prev.filter(t => t.id !== payload));
-    } else if (action === 'toggle') {
-      const task = userTasks.find(t => t.id === payload);
-      if (task) {
-        await supabase.from('todos').update({ completed: !task.completed }).eq('id', payload);
-        setUserTasks(prev => prev.map(t => t.id === payload ? { ...t, completed: !t.completed } : t));
-      }
-    }
-  };
-
-  const manageUserClaim = async (action: 'add' | 'remove', payload: any) => {
-    if (!user) return;
-
-    if (action === 'add') {
-      const newClaim = { ...payload, userId: user.id };
-      const { data, error } = await supabase.from('user_claims').insert(newClaim).select().single();
-      if (!error && data) {
-        setUserClaims(prev => [data as any, ...prev]);
-      }
-    } else if (action === 'remove') {
-      await supabase.from('user_claims').delete().eq('id', payload);
-      setUserClaims(prev => prev.filter(c => c.id !== payload));
-    }
-  };
-
 
   return (
     <AppContext.Provider value={{
