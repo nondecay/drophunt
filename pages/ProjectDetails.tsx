@@ -292,7 +292,7 @@ export const ProjectDetails: React.FC = () => {
               <div className="flex justify-between items-center mb-6"><h2 className="text-lg font-black flex items-center gap-2 uppercase tracking-tighter"><Trophy size={18} className="text-amber-500" /> {t('leaderboard')}</h2></div>
               <div className="bg-slate-50/50 dark:bg-slate-950/30 rounded-2xl border dark:border-slate-800 overflow-hidden">
                 <div className="divide-y dark:divide-slate-800">
-                  {(project.topUsers || []).slice(0, 10).map(u => (
+                  {(project.topUsers || []).slice(0, 10).map(u => u && (
                     <div key={u.id} className="flex items-center justify-between p-3 group hover:bg-white dark:hover:bg-slate-900 transition-colors">
                       <div className="flex items-center gap-3">
                         <RankBadge rank={u.rank} />
@@ -312,7 +312,7 @@ export const ProjectDetails: React.FC = () => {
             <section className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-6 border dark:border-slate-800 shadow-sm">
               <div className="flex justify-between items-center mb-6"><h2 className="text-lg font-black uppercase tracking-tighter">{t('guides')}</h2><div className="flex gap-2"><div className="flex gap-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-xl"><button onClick={() => setGuideFilter('us')} className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${guideFilter === 'us' ? 'bg-primary-600 text-white' : 'text-slate-400'}`}>EN</button><button onClick={() => setGuideFilter('tr')} className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${guideFilter === 'tr' ? 'bg-primary-600 text-white' : 'text-slate-400'}`}>TR</button></div><button onClick={() => setShowGuideModal(true)} className="p-2 bg-primary-600 text-white rounded-lg shadow-md active:scale-95"><Plus size={16} /></button></div></div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {filteredGuides.map(guide => (
+                {filteredGuides.map(guide => guide && (
                   <div key={guide.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-transparent hover:border-primary-500 transition-all group flex items-center justify-between">
                     <a href={guide.url} target="_blank" className="flex-1 flex items-center gap-3">
                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-sm ${getPlatformColor(guide.platform)}`}>
@@ -347,7 +347,7 @@ export const ProjectDetails: React.FC = () => {
                 {paginatedComments.length === 0 ? (
                   <p className="py-12 text-center text-slate-400 font-black uppercase text-xs tracking-widest">{t('noComments')}</p>
                 ) : (
-                  paginatedComments.map(c => (
+                  paginatedComments.map(c => c && (
                     <div key={c.id} className="flex gap-4 py-4 first:pt-0 last:pb-0 animate-in slide-in-from-left duration-300">
                       <img src={c.avatar} className="w-10 h-10 rounded-xl object-cover shadow-sm" />
                       <div className="flex-1">
