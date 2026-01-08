@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../AppContext';
 import { supabase } from '../supabaseClient';
 import { ChevronLeft, ChevronRight, Plus, X, ExternalLink } from 'lucide-react';
+import { LoadingSpinner } from '../components/LoadingSpinner';
 
 export const Calendar: React.FC = () => {
-  const { events, user, setEvents, addToast, t } = useApp();
+  const { events, user, setEvents, addToast, t, isDataLoaded } = useApp();
   const [showAdd, setShowAdd] = useState(false);
   const [newEvent, setNewEvent] = useState({ title: '', date: '', description: '', url: '' });
   const [currentDate, setCurrentDate] = useState(new Date());
+
+  if (!isDataLoaded) return <LoadingSpinner />;
 
   // Safety check to prevent blank page crash
   if (!events) return <div className="p-10 text-center">Loading Calendar...</div>;

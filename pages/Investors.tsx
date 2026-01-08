@@ -4,9 +4,13 @@ import { useApp } from '../AppContext';
 import { Search, ChevronDown, Check, ArrowUpDown, ChevronLeft, ChevronRight, Users, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { LoadingSpinner } from '../components/LoadingSpinner';
+
 export const Investors: React.FC = () => {
-  const { investors = [], airdrops = [], t } = useApp();
+  const { investors = [], airdrops = [], t, isDataLoaded } = useApp();
   const [search, setSearch] = useState('');
+
+  if (!isDataLoaded) return <LoadingSpinner />;
   const [sortBy, setSortBy] = useState('most_projects');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
@@ -16,7 +20,7 @@ export const Investors: React.FC = () => {
       const supportedProjects = airdrops.filter(a => a.backerIds?.includes(inv.id));
       const sorted = supportedProjects.sort((a, b) => b.createdAt - a.createdAt);
       const latestProject = sorted.length > 0 ? sorted[0] : null;
-      
+
       return {
         ...inv,
         projectCount: supportedProjects.length,
@@ -26,7 +30,7 @@ export const Investors: React.FC = () => {
   }, [investors, airdrops]);
 
   const filteredAndSortedAll = useMemo(() => {
-    return investorData.filter(inv => 
+    return investorData.filter(inv =>
       inv.name.toLowerCase().includes(search.toLowerCase())
     ).sort((a, b) => {
       if (sortBy === 'most_projects') return b.projectCount - a.projectCount;
@@ -45,13 +49,13 @@ export const Investors: React.FC = () => {
           <h1 className="text-4xl font-black tracking-tighter uppercase leading-none">{t('investors')}</h1>
           <p className="text-slate-500 font-medium text-sm tracking-wide mt-2">{t('investorPortalSub')}</p>
         </div>
-        
+
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={18} />
-            <input 
-              type="text" 
-              placeholder={t('investorSearch')} 
+            <input
+              type="text"
+              placeholder={t('investorSearch')}
               className="pl-12 pr-6 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 dark:bg-slate-900 outline-none w-full sm:w-64 font-bold focus:ring-4 focus:ring-primary-500/10 transition-all text-sm"
               value={search}
               onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
@@ -59,8 +63,8 @@ export const Investors: React.FC = () => {
           </div>
 
           <div className="relative">
-            <select 
-              value={sortBy} 
+            <select
+              value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               className="appearance-none pl-4 pr-10 py-3 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl font-bold text-xs shadow-sm hover:border-primary-500 transition-all outline-none"
             >
@@ -87,7 +91,7 @@ export const Investors: React.FC = () => {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {currentItems.length === 0 ? (
                 <tr>
-                   <td colSpan={5} className="p-20 text-center text-slate-400 font-black uppercase tracking-widest">No capital entities found.</td>
+                  <td colSpan={5} className="p-20 text-center text-slate-400 font-black uppercase tracking-widest">No capital entities found.</td>
                 </tr>
               ) : (
                 currentItems.map((inv, index) => (
@@ -107,12 +111,12 @@ export const Investors: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-6 py-5">
-                       <span className="text-xs font-black text-slate-400 uppercase">{inv.latestInvestmentDate}</span>
+                      <span className="text-xs font-black text-slate-400 uppercase">{inv.latestInvestmentDate}</span>
                     </td>
                     <td className="px-6 py-5 text-right">
-                       <Link to={`/investor/${inv.id}`} className="p-3 inline-flex rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary-600 transition-all shadow-sm">
-                          <ExternalLink size={18} />
-                       </Link>
+                      <Link to={`/investor/${inv.id}`} className="p-3 inline-flex rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary-600 transition-all shadow-sm">
+                        <ExternalLink size={18} />
+                      </Link>
                     </td>
                   </tr>
                 ))
@@ -124,19 +128,19 @@ export const Investors: React.FC = () => {
 
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2">
-           <button onClick={() => { setCurrentPage(p => Math.max(1, p - 1)); window.scrollTo(0, 0); }} className="p-3 rounded-2xl bg-white dark:bg-slate-900 border dark:border-slate-800 text-slate-400 hover:text-primary-600 shadow-sm transition-all"><ChevronLeft size={20}/></button>
-           <div className="flex gap-1.5">
-              {Array.from({ length: totalPages }, (_, i) => (
-                <button 
-                  key={i} 
-                  onClick={() => { setCurrentPage(i + 1); window.scrollTo(0, 0); }} 
-                  className={`w-11 h-11 rounded-2xl font-black text-xs transition-all ${currentPage === i + 1 ? 'bg-primary-600 text-white shadow-xl shadow-primary-500/30 scale-110' : 'bg-white dark:bg-slate-900 border dark:border-slate-800 text-slate-400'}`}
-                >
-                  {i + 1}
-                </button>
-              ))}
-           </div>
-           <button onClick={() => { setCurrentPage(p => Math.min(totalPages, p + 1)); window.scrollTo(0, 0); }} className="p-3 rounded-2xl bg-white dark:bg-slate-900 border dark:border-slate-800 text-slate-400 hover:text-primary-600 shadow-sm transition-all"><ChevronRight size={20}/></button>
+          <button onClick={() => { setCurrentPage(p => Math.max(1, p - 1)); window.scrollTo(0, 0); }} className="p-3 rounded-2xl bg-white dark:bg-slate-900 border dark:border-slate-800 text-slate-400 hover:text-primary-600 shadow-sm transition-all"><ChevronLeft size={20} /></button>
+          <div className="flex gap-1.5">
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i}
+                onClick={() => { setCurrentPage(i + 1); window.scrollTo(0, 0); }}
+                className={`w-11 h-11 rounded-2xl font-black text-xs transition-all ${currentPage === i + 1 ? 'bg-primary-600 text-white shadow-xl shadow-primary-500/30 scale-110' : 'bg-white dark:bg-slate-900 border dark:border-slate-800 text-slate-400'}`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+          <button onClick={() => { setCurrentPage(p => Math.min(totalPages, p + 1)); window.scrollTo(0, 0); }} className="p-3 rounded-2xl bg-white dark:bg-slate-900 border dark:border-slate-800 text-slate-400 hover:text-primary-600 shadow-sm transition-all"><ChevronRight size={20} /></button>
         </div>
       )}
     </div>

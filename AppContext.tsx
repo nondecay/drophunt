@@ -168,7 +168,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (results[9].data) setTools(results[9].data as any);
       if (results[10].data) setUsersList(results[10].data as any);
       if (results[11].data) setEvents(results[11].data as any);
-      if (results[12].data) setInbox(results[12].data as any);
+      if (results[12].data) {
+        const readIds = JSON.parse(localStorage.getItem('read_messages') || '[]');
+        const processedInbox = (results[12].data as any[]).map(m => ({
+          ...m,
+          isRead: readIds.includes(m.id)
+        }));
+        setInbox(processedInbox);
+      }
 
       setIsDataLoaded(true);
 
@@ -220,9 +227,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     ]);
     if (tData.data) {
       setUserTasks(tData.data as any);
-      checkRecurringTasks(tData.data, uData.data.id);
+      checkRecurringTasks(tData.data, uid);
     }
     if (cData.data) {
+      console.log("Fetched Claims for UID:", uid, "Count:", cData.data.length); // DEBUG
       // Normalize data to handle potential casing mismatches (DB might return lowercase, frontend expects camelCase)
       const normalizedClaims = cData.data.map((c: any) => ({
         ...c,
@@ -233,6 +241,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         earning: c.earning // usually simple enough
       }));
       setUserClaims(normalizedClaims as any);
+    } else {
+      console.error("Fetched Claims Error or Empty:", cData.error);
+    }
+  };
+
+  // Helper to persist read messages
+  const markMessageRead = (msgId: string) => {
+    const currentRead = JSON.parse(localStorage.getItem('read_messages') || '[]');
+    if (!currentRead.includes(msgId)) {
+      const updated = [...currentRead, msgId];
+      localStorage.setItem('read_messages', JSON.stringify(updated));
+      setInbox(prev => prev.map(m => m.id === msgId ? { ...m, isRead: true } : m));
     }
   };
 

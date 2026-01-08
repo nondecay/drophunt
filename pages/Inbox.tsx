@@ -2,14 +2,22 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useApp } from '../AppContext';
 import { Mail, MessageSquare, Shield, Info, Trash2, CheckCircle, Target, Layers } from 'lucide-react';
+import { LoadingSpinner } from '../components/LoadingSpinner';
 
 export const Inbox: React.FC = () => {
-  const { inbox, setInbox, airdrops, addToast, user, t } = useApp();
+  const { inbox, setInbox, airdrops, addToast, user, t, markMessageRead, isDataLoaded } = useApp();
   const [filter, setFilter] = useState<'all' | 'tracked' | 'system'>('all');
 
+  if (!isDataLoaded) return <LoadingSpinner />;
+
   useEffect(() => {
-    setInbox(prev => prev.map(m => ({ ...m, isRead: true })));
-  }, [setInbox]);
+    // Mark all visible messages as read
+    if (inbox.length > 0) {
+      inbox.forEach(m => {
+        if (!m.isRead) markMessageRead(m.id);
+      });
+    }
+  }, [inbox, markMessageRead]);
 
   const deleteMessage = (id: string) => {
     setInbox(prev => prev.filter(m => m.id !== id));

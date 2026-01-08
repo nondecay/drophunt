@@ -3,10 +3,13 @@ import React, { useState, useMemo } from 'react';
 import { useApp } from '../AppContext';
 import { ExternalLink, Search, Filter } from 'lucide-react';
 import { ToolCategory } from '../types';
+import { LoadingSpinner } from '../components/LoadingSpinner';
 
 export const Tools: React.FC = () => {
-  const { tools, t } = useApp();
+  const { tools, t, isDataLoaded } = useApp();
   const [search, setSearch] = useState('');
+
+  if (!isDataLoaded) return <LoadingSpinner />;
   const [activeCategory, setActiveCategory] = useState<ToolCategory | 'All'>('All');
 
   const categories: (ToolCategory | 'All')[] = ['All', 'Research', 'Security', 'Dex Data', 'Wallets', 'Bots', 'Track Assets'];
@@ -14,8 +17,8 @@ export const Tools: React.FC = () => {
   const filteredTools = useMemo(() => {
     return tools.filter(tool => {
       const categoryMatch = activeCategory === 'All' || tool.category === activeCategory;
-      const searchMatch = tool.name.toLowerCase().includes(search.toLowerCase()) || 
-                          tool.description.toLowerCase().includes(search.toLowerCase());
+      const searchMatch = tool.name.toLowerCase().includes(search.toLowerCase()) ||
+        tool.description.toLowerCase().includes(search.toLowerCase());
       return categoryMatch && searchMatch;
     });
   }, [tools, activeCategory, search]);
@@ -27,12 +30,12 @@ export const Tools: React.FC = () => {
           <h1 className="text-5xl font-black tracking-tighter uppercase leading-none">{t('tools')}</h1>
           <p className="text-slate-500 font-medium text-lg tracking-wide mt-3">{t('toolsPortalSub')}</p>
         </div>
-        
+
         <div className="relative group min-w-[300px]">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={20} />
-          <input 
-            type="text" 
-            placeholder={t('search')} 
+          <input
+            type="text"
+            placeholder={t('search')}
             className="w-full pl-12 pr-6 py-4 rounded-[1.5rem] bg-white dark:bg-slate-900 border dark:border-slate-800 outline-none font-bold text-sm focus:ring-4 focus:ring-primary-500/10 transition-all shadow-sm"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -45,11 +48,10 @@ export const Tools: React.FC = () => {
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
-            className={`px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${
-              activeCategory === cat 
-                ? 'bg-primary-600 text-white shadow-xl shadow-primary-500/20' 
+            className={`px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${activeCategory === cat
+                ? 'bg-primary-600 text-white shadow-xl shadow-primary-500/20'
                 : 'bg-white dark:bg-slate-900 text-slate-500 hover:bg-primary-50 dark:hover:bg-slate-800'
-            }`}
+              }`}
           >
             {cat === 'All' ? t('allCategories') : cat}
           </button>
@@ -60,7 +62,7 @@ export const Tools: React.FC = () => {
         {filteredTools.map(tool => (
           <div key={tool.id} className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center text-center group hover:shadow-2xl transition-all border-b-8 border-b-primary-600 h-[380px]">
             <div className="w-20 h-20 rounded-[2rem] bg-slate-50 dark:bg-slate-800 p-4 mb-6 group-hover:scale-110 transition-transform shadow-inner flex items-center justify-center">
-               <img src={tool.logo || '/logo.png'} className="w-full h-full object-contain" />
+              <img src={tool.logo || '/logo.png'} className="w-full h-full object-contain" />
             </div>
             <span className="text-[9px] font-black uppercase text-primary-600 tracking-[0.2em] mb-2">{tool.category}</span>
             <h3 className="text-xl font-black mb-3 line-clamp-1">{tool.name}</h3>
@@ -68,10 +70,10 @@ export const Tools: React.FC = () => {
               {tool.description}
             </p>
             <div className="mt-auto w-full">
-              <a 
-                href={tool.link} 
-                target="_blank" 
-                rel="noreferrer" 
+              <a
+                href={tool.link}
+                target="_blank"
+                rel="noreferrer"
                 className="w-full py-4 bg-primary-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-primary-500/20 hover:bg-primary-700 active:scale-95 transition-all"
               >
                 Go Website! <ExternalLink size={14} />

@@ -6,12 +6,24 @@ import { Plus, CheckCircle2, Trash2, ListChecks, Zap, Clock, PieChart, RefreshCw
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 export const MyAirdrops: React.FC = () => {
-  const { airdrops, userTasks, setUserTasks, userClaims, setUserClaims, addToast, user, toggleTrackProject, t, inbox, manageTodo, manageUserClaim, infofiPlatforms } = useApp();
+  const { airdrops, userTasks, setUserTasks, userClaims, setUserClaims, addToast, user, toggleTrackProject, t, inbox, manageTodo, manageUserClaim, infofiPlatforms, isDataLoaded } = useApp();
   const [activeTab, setActiveTab] = useState<'tasks' | 'airdrops' | 'infofi' | 'completed' | 'claimed'>('tasks');
   const [showAdd, setShowAdd] = useState(false);
   const [showClaimAdd, setShowClaimAdd] = useState(false);
   const [isMonthDropOpen, setMonthDropOpen] = useState(false);
   const monthDropRef = useRef<HTMLDivElement>(null);
+
+  if (!isDataLoaded) {
+    return (
+      <div className="min-h-[50vh] flex flex-col items-center justify-center space-y-4">
+        <div className="relative w-16 h-16">
+          <div className="absolute inset-0 border-4 border-slate-200 dark:border-slate-800 rounded-full"></div>
+          <div className="absolute inset-0 border-4 border-primary-500 rounded-full border-t-transparent animate-spin"></div>
+        </div>
+        <p className="text-slate-400 font-black uppercase tracking-widest text-xs animate-pulse">Initializing Protocol...</p>
+      </div>
+    );
+  }
 
   const [newTask, setNewTask] = useState({ note: '', airdropId: 'custom', reminder: 'none' as any, deadline: '' });
   const [newClaim, setNewClaim] = useState({ projectName: '', expense: 0, claimedToken: '', tokenCount: 0, earning: 0, claimedDate: new Date().toISOString().split('T')[0] });

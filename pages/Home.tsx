@@ -4,6 +4,7 @@ import { useApp } from '../AppContext';
 import { Search, Plus, Star, TrendingUp, Users, Bell, Zap, Lock, ChevronDown, Filter, X, Twitter, Calendar, Check, ArrowUpDown, ChevronLeft, ChevronRight, ExternalLink, DollarSign } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Airdrop } from '../types';
+import { LoadingSpinner } from '../components/LoadingSpinner';
 
 const PartialStar: React.FC<{ rating: number }> = ({ rating }) => {
   const stars = [];
@@ -175,7 +176,9 @@ const ensureHttp = (url: string) => {
 };
 
 export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => {
-  const { user, airdrops = [], claims = [], toggleTrackProject, addToast, setRequests, logActivity, usersList = [], infofiPlatforms = [], t } = useApp();
+  const { user, airdrops = [], claims = [], toggleTrackProject, addToast, setRequests, logActivity, usersList = [], infofiPlatforms = [], t, isDataLoaded } = useApp();
+
+  if (!isDataLoaded) return <LoadingSpinner />;
   const [search, setSearch] = useState('');
   const [platformFilter, setPlatformFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');

@@ -2,10 +2,13 @@
 import React from 'react';
 import { useApp } from '../AppContext';
 import { ExternalLink, Clock, AlertTriangle, ArrowRight, ShieldCheck, Calendar } from 'lucide-react';
+import { LoadingSpinner } from '../components/LoadingSpinner';
 
 export const Claims: React.FC<{ type: 'claims' | 'presales' }> = ({ type }) => {
-  const { claims, t } = useApp();
-  
+  const { claims, t, isDataLoaded } = useApp();
+
+  if (!isDataLoaded) return <LoadingSpinner />;
+
   // Use claims collection and filter by the type specified in the route
   const targetType = type === 'claims' ? 'claim' : 'presale';
   const data = claims.filter(c => c.type === targetType);
@@ -14,10 +17,10 @@ export const Claims: React.FC<{ type: 'claims' | 'presales' }> = ({ type }) => {
     <div className="max-w-7xl mx-auto pb-20">
       <div className="mb-12">
         <h1 className="text-4xl sm:text-5xl font-black tracking-tighter mb-3">
-           {type === 'claims' ? t('claimPortalTitle') : t('presalePortalTitle')}
+          {type === 'claims' ? t('claimPortalTitle') : t('presalePortalTitle')}
         </h1>
         <p className="text-slate-500 font-medium text-lg tracking-wide">
-           {type === 'claims' ? t('claimPortalSub') : t('presalePortalSub')}
+          {type === 'claims' ? t('claimPortalSub') : t('presalePortalSub')}
         </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -34,42 +37,41 @@ export const Claims: React.FC<{ type: 'claims' | 'presales' }> = ({ type }) => {
                   <h3 className="text-xl font-black tracking-tight">{item.projectName}</h3>
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-1 text-[9px] font-black text-slate-400 uppercase">
-                      <Clock size={10} /> 
+                      <Clock size={10} />
                       {item.isUpcoming ? 'Starting Soon' : (item.deadline ? `Ending: ${item.deadline}` : (type === 'claims' ? 'Open Now' : t('goPresaleSite')))}
                     </div>
                     {type === 'presales' && item.startDate && (
                       <div className="flex items-center gap-1 text-[9px] font-black text-primary-500 uppercase">
-                        <Calendar size={10} /> 
+                        <Calendar size={10} />
                         Start at: {item.startDate}
                       </div>
                     )}
                   </div>
                 </div>
               </div>
-              
+
               {type === 'presales' && (
                 <div className="grid grid-cols-2 gap-2 mb-6">
-                   <div className="p-2.5 bg-slate-50 dark:bg-slate-800 rounded-xl">
-                      <p className="text-[8px] font-black text-slate-400 uppercase">Sale FDV</p>
-                      <p className="text-xs font-black text-primary-600">{item.fdv || 'TBA'}</p>
-                   </div>
-                   <div className="p-2.5 bg-slate-50 dark:bg-slate-800 rounded-xl">
-                      <p className="text-[8px] font-black text-slate-400 uppercase">Status</p>
-                      <p className={`text-xs font-black ${item.whitelist === 'Whitelist' ? 'text-emerald-500' : 'text-primary-500'}`}>{item.whitelist || 'Public'}</p>
-                   </div>
+                  <div className="p-2.5 bg-slate-50 dark:bg-slate-800 rounded-xl">
+                    <p className="text-[8px] font-black text-slate-400 uppercase">Sale FDV</p>
+                    <p className="text-xs font-black text-primary-600">{item.fdv || 'TBA'}</p>
+                  </div>
+                  <div className="p-2.5 bg-slate-50 dark:bg-slate-800 rounded-xl">
+                    <p className="text-[8px] font-black text-slate-400 uppercase">Status</p>
+                    <p className={`text-xs font-black ${item.whitelist === 'Whitelist' ? 'text-emerald-500' : 'text-primary-500'}`}>{item.whitelist || 'Public'}</p>
+                  </div>
                 </div>
               )}
 
               <div className="mt-auto">
-                <a 
-                   href={item.isUpcoming ? undefined : item.link} 
-                   target="_blank" 
-                   rel="noreferrer" 
-                   className={`w-full py-3.5 rounded-xl font-black flex items-center justify-center gap-2 transition-all shadow-xl text-[10px] uppercase tracking-widest ${
-                     item.isUpcoming 
-                     ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed shadow-none' 
-                     : 'bg-primary-600 text-white hover:bg-primary-700 shadow-primary-500/20 active:scale-95'
-                   }`}
+                <a
+                  href={item.isUpcoming ? undefined : item.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={`w-full py-3.5 rounded-xl font-black flex items-center justify-center gap-2 transition-all shadow-xl text-[10px] uppercase tracking-widest ${item.isUpcoming
+                    ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed shadow-none'
+                    : 'bg-primary-600 text-white hover:bg-primary-700 shadow-primary-500/20 active:scale-95'
+                    }`}
                 >
                   {item.isUpcoming ? 'Upcoming' : (type === 'claims' ? 'Go Claim' : 'Join Presale')}
                   {!item.isUpcoming && <ExternalLink size={14} />}
