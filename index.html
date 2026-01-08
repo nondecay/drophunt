@@ -1,67 +1,95 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trackdropz - Airdrop Manager</title>
-    <!-- Essential Polyfills for Web3 libraries - Must run before index.tsx -->
-    <script>
-      window.global = window;
-      window.process = { env: { NODE_ENV: 'development' }, browser: true };
-    </script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            colors: {
-              primary: {
-                50: '#f5f3ff',
-                100: '#ede9fe',
-                200: '#ddd6fe',
-                300: '#c4b5fd',
-                400: '#a78bfa',
-                500: '#8b5cf6',
-                600: '#7c3aed',
-                700: '#6d28d9',
-                800: '#5b21b6',
-                900: '#4c1d95',
-              },
-            }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DropHunt.io - Everything for Airdrop Hunters</title>
+  <!-- Essential Polyfills for Web3 libraries - Must run before index.tsx -->
+  <script>
+    window.global = window;
+    window.process = { env: { NODE_ENV: 'development' }, browser: true };
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              200: '#ddd6fe',
+              300: '#c4b5fd',
+              400: '#a78bfa',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+              800: '#5b21b6',
+              900: '#4c1d95',
+            },
           }
         }
       }
-    </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-      body {
-        font-family: 'Inter', sans-serif;
-        margin: 0;
-        padding: 0;
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    #root {
+      min-height: 100vh;
+    }
+
+    .rainbow-connect-btn [data-testid="rk-connect-button"] {
+      background: #7c3aed !important;
+      border-radius: 1rem !important;
+      font-weight: 800 !important;
+    }
+
+    @keyframes pulse {
+      0% {
+        opacity: 0.4;
+        transform: scale(0.95);
       }
-      #root {
-        min-height: 100vh;
+
+      50% {
+        opacity: 1;
+        transform: scale(1);
       }
-      .rainbow-connect-btn [data-testid="rk-connect-button"] {
-        background: #7c3aed !important;
-        border-radius: 1rem !important;
-        font-weight: 800 !important;
+
+      100% {
+        opacity: 0.4;
+        transform: scale(0.95);
       }
-      @keyframes pulse {
-        0% { opacity: 0.4; transform: scale(0.95); }
-        50% { opacity: 1; transform: scale(1); }
-        100% { opacity: 0.4; transform: scale(0.95); }
-      }
-      /* Custom Scrollbar for Dark Mode */
-      .dark .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-      .dark .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
-      .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-      .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
-    </style>
-<script type="importmap">
+    }
+
+    /* Custom Scrollbar for Dark Mode */
+    .dark .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .dark .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 10px;
+    }
+
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+  <script type="importmap">
 {
   "imports": {
     "buffer": "https://esm.sh/buffer@^6.0.3",
@@ -83,17 +111,20 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
+  <link rel="stylesheet" href="/index.css">
 </head>
+
 <body class="bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
-    <div id="root">
-        <!-- Loader during initialization -->
-        <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; color: #7c3aed; font-weight: bold; background: #020617; flex-direction: column; gap: 20px;">
-            <div style="font-size: 2.5rem; letter-spacing: 0.5rem; animation: pulse 2s infinite;">T</div>
-            <div style="letter-spacing: 0.2em; font-size: 0.8rem; opacity: 0.8;">INITIALIZING PROTOCOL...</div>
-        </div>
+  <div id="root">
+    <!-- Loader during initialization -->
+    <div
+      style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; color: #7c3aed; font-weight: bold; background: #020617; flex-direction: column; gap: 20px;">
+      <div style="letter-spacing: 0.2em; font-size: 1.2rem; opacity: 0.8; animation: pulse 2s infinite;">Loading...
+      </div>
     </div>
-    <!-- Vite Entry Point -->
-    <script type="module" src="/index.tsx"></script>
+  </div>
+  <!-- Vite Entry Point -->
+  <script type="module" src="/index.tsx"></script>
 </body>
+
 </html>

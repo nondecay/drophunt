@@ -9,6 +9,7 @@ export const Inbox: React.FC = () => {
   const [filter, setFilter] = useState<'all' | 'tracked' | 'system'>('all');
 
   if (!isDataLoaded) return <LoadingSpinner />;
+  if (!inbox) return null;
 
   useEffect(() => {
     // Mark all visible messages as read
