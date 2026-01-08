@@ -141,8 +141,8 @@ export const Layout: React.FC = () => {
         ))}
       </div>
 
-      <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-transform duration-300 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-        <div className="flex flex-col h-full p-6">
+      <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-transform duration-300 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} overflow-y-auto`}>
+        <div className="flex flex-col min-h-full p-6 relative">
           <div className="flex items-center justify-between mb-8">
             <Link to="/" className="flex items-center gap-3 group">
               <img src="/logo.jpg" className="w-10 h-10 object-contain shadow-lg rounded-xl" alt="Logo" />
@@ -153,7 +153,7 @@ export const Layout: React.FC = () => {
                 </div>
               </div>
             </Link>
-            <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 bg-primary-50 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400 rounded-xl hover:bg-primary-100 transition-colors ml-4"><X size={20} /></button>
+            <button onClick={() => setSidebarOpen(false)} className="lg:hidden absolute top-6 right-6 p-2 bg-primary-50 text-white bg-primary-600 rounded-xl hover:bg-primary-700 transition-colors shadow-lg shadow-primary-500/30"><X size={18} /></button>
           </div>
 
           <style>{`

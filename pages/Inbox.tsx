@@ -13,11 +13,16 @@ export const Inbox: React.FC = () => {
 
   if (!isDataLoaded) return <LoadingSpinner />;
 
+  const markedRef = React.useRef<Set<string>>(new Set());
+
   useEffect(() => {
-    // Mark all visible messages as read
+    // Mark all visible messages as read, but only once per message
     if (currentInbox.length > 0) {
       currentInbox.forEach(m => {
-        if (!m.isRead) markMessageRead(m.id);
+        if (!m.isRead && !markedRef.current.has(m.id)) {
+          markedRef.current.add(m.id);
+          markMessageRead(m.id);
+        }
       });
     }
   }, [currentInbox, markMessageRead]);
