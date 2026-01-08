@@ -143,17 +143,17 @@ export const Layout: React.FC = () => {
 
       <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-transform duration-300 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} overflow-y-auto`}>
         <div className="flex flex-col min-h-full p-6 relative">
-          <div className="flex items-center justify-between mb-8">
-            <Link to="/" className="flex items-center gap-3 group">
-              <img src="/logo.jpg" className="w-10 h-10 object-contain shadow-lg rounded-xl" alt="Logo" />
-              <div className="flex flex-col">
+          <div className="flex items-center justify-between mb-8 w-full">
+            <Link to="/" className="flex items-center gap-3 group min-w-0 flex-1">
+              <img src="/logo.jpg" className="w-8 h-8 sm:w-10 sm:h-10 object-contain shadow-lg rounded-xl shrink-0" alt="Logo" />
+              <div className="flex flex-col min-w-0 overflow-hidden">
                 <div className="flex items-center gap-1.5 relative">
-                  <span className="text-2xl font-black tracking-tight text-primary-600 uppercase leading-none">DROPHUNT.IO</span>
-                  <span className="absolute -top-3 right-0 bg-primary-500/10 text-white border border-primary-500/20 text-[7px] font-black px-1.5 py-0.5 rounded animate-shake-rare">BETA</span>
+                  <span className="text-lg sm:text-2xl font-black tracking-tight text-primary-600 uppercase leading-none truncate">DROPHUNT.IO</span>
+                  <span className="absolute -top-3 right-0 bg-primary-500/10 text-white border border-primary-500/20 text-[6px] sm:text-[7px] font-black px-1.5 py-0.5 rounded animate-shake-rare">BETA</span>
                 </div>
               </div>
             </Link>
-            <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 bg-primary-50 text-white bg-primary-600 rounded-xl hover:bg-primary-700 transition-colors shadow-lg shadow-primary-500/30"><X size={18} /></button>
+            <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1.5 bg-primary-50 text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors shadow-lg shadow-primary-500/30 flex-shrink-0 ml-2"><X size={16} /></button>
           </div>
 
           <style>{`
