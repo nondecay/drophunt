@@ -71,6 +71,7 @@ interface AppContextType {
   refreshData: () => Promise<void>;
   manageTodo: (action: 'add' | 'remove' | 'toggle', item: any) => Promise<void>;
   manageUserClaim: (action: 'add' | 'update' | 'remove', item: any) => Promise<void>;
+  markMessageRead: (msgId: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -466,7 +467,7 @@ Expires At: ${expires}`;
       theme, toggleTheme: () => setTheme(t => t === 'light' ? 'dark' : 'light'),
       lang, setLang, t, isDataLoaded,
       user, isVerified, verifyWallet, logout: () => { disconnect(); },
-      setUsername, updateAvatar, banUser, toggleTrackProject, gainXP, logActivity, resetAllXPs, refreshData, manageTodo, manageUserClaim, showUsernameModal,
+      setUsername, updateAvatar, banUser, toggleTrackProject, gainXP, logActivity, resetAllXPs, refreshData, manageTodo, manageUserClaim, showUsernameModal, markMessageRead,
 
       // Data Props (Read Only mostly, write via specific actions or direct supabase calls in AdminPanel)
       // We pass the "setters" to maintain compatibility with AdminPanel, 
