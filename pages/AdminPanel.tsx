@@ -115,7 +115,7 @@ const AdminPanelContent: React.FC = () => {
          createdAt: Date.now(),
          targetRole: 'all',
          authorId: user?.id,
-         relatedAirdropId: msgData.target === 'project' ? msgData.projectId : undefined
+         relatedAirdropId: msgData.target === 'project' && msgData.projectId ? msgData.projectId : null
       };
 
       const { error } = await supabase.from('messages').insert(newMsg);

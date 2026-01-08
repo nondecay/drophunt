@@ -51,52 +51,52 @@ export const Inbox: React.FC = () => {
       </div>
 
       <div className="flex gap-2 mb-8 bg-white dark:bg-slate-900 p-1.5 rounded-2xl border dark:border-slate-800 shadow-sm w-fit">
-        <TabBtn active={filter === 'all'} label="All" icon={<Layers size={14}/>} onClick={() => setFilter('all')} />
-        <TabBtn active={filter === 'tracked'} label="Tracked Projects" icon={<Target size={14}/>} onClick={() => setFilter('tracked')} />
-        <TabBtn active={filter === 'system'} label="System" icon={<Shield size={14}/>} onClick={() => setFilter('system')} />
+        <TabBtn active={filter === 'all'} label="All" icon={<Layers size={14} />} onClick={() => setFilter('all')} />
+        <TabBtn active={filter === 'tracked'} label="Tracked Projects" icon={<Target size={14} />} onClick={() => setFilter('tracked')} />
+        <TabBtn active={filter === 'system'} label="System" icon={<Shield size={14} />} onClick={() => setFilter('system')} />
       </div>
 
       <div className="space-y-6">
         {filteredMessages.length === 0 ? (
           <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-24 text-center border-4 border-dashed border-slate-100 dark:border-slate-800">
-             <div className="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-8 text-slate-300">
-                <Mail size={48} />
-             </div>
-             <p className="text-slate-400 font-black uppercase tracking-widest text-xl">{t('noTransmissions')}</p>
-             <p className="text-slate-300 font-medium mt-2">Current sector filter is quiet.</p>
+            <div className="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-8 text-slate-300">
+              <Mail size={48} />
+            </div>
+            <p className="text-slate-400 font-black uppercase tracking-widest text-xl">{t('noTransmissions')}</p>
+            <p className="text-slate-300 font-medium mt-2">Current sector filter is quiet.</p>
           </div>
         ) : (
           filteredMessages.map(msg => {
             const related = airdrops.find(a => a.id === msg.relatedAirdropId);
             return (
               <div key={msg.id} className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-200 dark:border-slate-800 shadow-sm relative group hover:border-primary-500 transition-all">
-                 <div className="flex items-start justify-between gap-4 mb-4">
-                    <div className="flex items-center gap-4">
-                       <div className={`p-4 rounded-2xl ${msg.type === 'system' ? 'bg-primary-50 text-primary-600' : 'bg-emerald-50 text-emerald-600'}`}>
-                          {msg.type === 'system' ? <MessageSquare size={24} /> : <Info size={24} />}
-                       </div>
-                       <div>
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">System</p>
-                          <h3 className="text-2xl font-black tracking-tighter">{msg.title}</h3>
-                          <div className="flex items-center gap-3">
-                             <span className="text-[10px] font-bold text-slate-400 uppercase">{new Date(msg.timestamp).toLocaleString()}</span>
-                             {related && (
-                                <span className="text-[10px] font-black uppercase text-primary-600 bg-primary-50 px-2 py-0.5 rounded">
-                                   Related Project: {related.name}
-                                </span>
-                             )}
-                          </div>
-                       </div>
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <div className="flex items-center gap-4">
+                    <div className={`p-4 rounded-2xl ${msg.type === 'system' ? 'bg-primary-50 text-primary-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                      {msg.type === 'system' ? <MessageSquare size={24} /> : <Info size={24} />}
                     </div>
-                    <button onClick={() => deleteMessage(msg.id)} className="p-3 text-slate-200 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
-                       <Trash2 size={20} />
-                    </button>
-                 </div>
-                 <div className="pl-16">
-                    <p className="text-slate-600 dark:text-slate-400 font-medium text-lg leading-relaxed">
-                       {msg.content}
-                    </p>
-                 </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">System</p>
+                      <h3 className="text-2xl font-black tracking-tighter">{msg.title}</h3>
+                      <div className="flex items-center gap-3">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase">{msg.createdAt ? new Date(Number(msg.createdAt)).toLocaleString() : 'Just now'}</span>
+                        {related && (
+                          <span className="text-[10px] font-black uppercase text-primary-600 bg-primary-50 px-2 py-0.5 rounded">
+                            Related Project: {related.name}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <button onClick={() => deleteMessage(msg.id)} className="p-3 text-slate-200 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
+                    <Trash2 size={20} />
+                  </button>
+                </div>
+                <div className="pl-16">
+                  <p className="text-slate-600 dark:text-slate-400 font-medium text-lg leading-relaxed">
+                    {msg.content}
+                  </p>
+                </div>
               </div>
             );
           })

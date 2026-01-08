@@ -222,7 +222,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setUserTasks(tData.data as any);
       checkRecurringTasks(tData.data, uData.data.id);
     }
-    if (cData.data) setUserClaims(cData.data as any);
+    if (cData.data) {
+      // Normalize data to handle potential casing mismatches (DB might return lowercase, frontend expects camelCase)
+      const normalizedClaims = cData.data.map((c: any) => ({
+        ...c,
+        projectName: c.projectName || c.projectname,
+        claimedToken: c.claimedToken || c.claimedtoken,
+        tokenCount: c.tokenCount || c.tokencount,
+        claimedDate: c.claimedDate || c.claimeddate,
+        earning: c.earning // usually simple enough
+      }));
+      setUserClaims(normalizedClaims as any);
+    }
   };
 
   // CRUD Wrappers
