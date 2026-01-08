@@ -153,7 +153,7 @@ export const Layout: React.FC = () => {
                 </div>
               </div>
             </Link>
-            <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 text-slate-400 hover:text-primary-600"><X size={24} /></button>
+            <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 bg-primary-50 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400 rounded-xl hover:bg-primary-100 transition-colors ml-4"><X size={20} /></button>
           </div>
 
           <style>{`

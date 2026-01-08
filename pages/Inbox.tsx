@@ -8,9 +8,10 @@ export const Inbox: React.FC = () => {
   const { inbox, setInbox, airdrops, addToast, user, t, markMessageRead, isDataLoaded } = useApp();
   const [filter, setFilter] = useState<'all' | 'tracked' | 'system'>('all');
 
-  if (!isDataLoaded) return <LoadingSpinner />;
   // Ensure inbox is an array before proceeding
-  const currentInbox = inbox || [];
+  const currentInbox = Array.isArray(inbox) ? inbox : [];
+
+  if (!isDataLoaded) return <LoadingSpinner />;
 
   useEffect(() => {
     // Mark all visible messages as read
