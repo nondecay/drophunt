@@ -22,8 +22,10 @@ export const MyAirdrops: React.FC = () => {
   const trackedIds = useMemo(() => user?.trackedProjectIds || [], [user]);
 
   const trackedAirdrops = useMemo(() => {
-    return airdrops.filter(p => trackedIds.includes(p.id) || userClaims.some(c => c.projectName === p.name) || userTasks.some(t => t.airdropId === p.id));
-  }, [airdrops, trackedIds, userClaims, userTasks]);
+    // Exclude items that are actually InfoFi platforms
+    const infoFiIds = new Set((infofiPlatforms || []).map(i => i.id));
+    return airdrops.filter(p => !infoFiIds.has(p.id) && (trackedIds.includes(p.id) || userClaims.some(c => c.projectName === p.name) || userTasks.some(t => t.airdropId === p.id)));
+  }, [airdrops, trackedIds, userClaims, userTasks, infofiPlatforms]);
 
   const trackedInfoFi = useMemo(() => {
     return (infofiPlatforms || []).filter(p => trackedIds.includes(p.id));
