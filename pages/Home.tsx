@@ -176,7 +176,7 @@ const ensureHttp = (url: string) => {
 };
 
 export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => {
-  const { user, airdrops = [], claims = [], toggleTrackProject, addToast, setRequests, logActivity, usersList = [], infofiPlatforms = [], t, isDataLoaded } = useApp();
+  const { user, airdrops = [], claims = [], toggleTrackProject, addToast, setRequests, logActivity, usersList, infofiPlatforms, t, isDataLoaded } = useApp();
 
   if (!isDataLoaded) return <LoadingSpinner />;
   const [search, setSearch] = useState('');
