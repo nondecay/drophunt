@@ -320,10 +320,39 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
-        <StatCard icon={<TrendingUp size={24} />} label={category === 'infofi' ? t('infofiTerminal') : t('liveNodes')} value={filtered.length.toString()} color="text-primary-600" />
-        <StatCard icon={<Users size={24} />} label={t('activeHunters')} value={usersList.length.toLocaleString()} color="text-emerald-500" />
-        <StatCard icon={<Bell size={24} />} label={t('liveClaims')} value={claims.filter(c => c.type === 'claim').length.toString()} color="text-amber-500" />
+      <div className="grid grid-cols-3 gap-2 mb-4 sm:gap-6 sm:mb-12">
+        <div className="bg-white dark:bg-slate-900 p-2 sm:p-8 rounded-xl sm:rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-6">
+          <div className="p-1.5 sm:p-4 bg-slate-50 dark:bg-slate-800 rounded-lg sm:rounded-[1.5rem] text-primary-600">
+            <TrendingUp size={16} className="sm:hidden" />
+            <TrendingUp size={24} className="hidden sm:block" />
+          </div>
+          <div className="text-center sm:text-left">
+            <p className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0 sm:mb-1 leading-none">{category === 'infofi' ? 'Projects' : 'Airdrops'}</p>
+            <p className="text-sm sm:text-2xl font-black tracking-tighter sm:tracking-normal">{filtered.length}</p>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 p-2 sm:p-8 rounded-xl sm:rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-6">
+          <div className="p-1.5 sm:p-4 bg-slate-50 dark:bg-slate-800 rounded-lg sm:rounded-[1.5rem] text-emerald-500">
+            <Users size={16} className="sm:hidden" />
+            <Users size={24} className="hidden sm:block" />
+          </div>
+          <div className="text-center sm:text-left">
+            <p className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0 sm:mb-1 leading-none">{t('activeHunters')}</p>
+            <p className="text-sm sm:text-2xl font-black tracking-tighter sm:tracking-normal">{usersList.length.toLocaleString()}</p>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 p-2 sm:p-8 rounded-xl sm:rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-center gap-1 sm:gap-6">
+          <div className="p-1.5 sm:p-4 bg-slate-50 dark:bg-slate-800 rounded-lg sm:rounded-[1.5rem] text-amber-500">
+            <Bell size={16} className="sm:hidden" />
+            <Bell size={24} className="hidden sm:block" />
+          </div>
+          <div className="text-center sm:text-left">
+            <p className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0 sm:mb-1 leading-none">Claims</p>
+            <p className="text-sm sm:text-2xl font-black tracking-tighter sm:tracking-normal">{claims.filter(c => c.type === 'claim').length}</p>
+          </div>
+        </div>
       </div>
 
       {/* Mobile Card View */}
