@@ -311,6 +311,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setUserClaims(prev => [data as any, ...prev]);
       } else {
         console.error("Add Claim Error", error);
+        addToast(`Add Claim Failed: ${error?.message || 'Unknown error'}`, "error");
       }
     } else if (action === 'remove') {
       await supabase.from('user_claims').delete().eq('id', payload);

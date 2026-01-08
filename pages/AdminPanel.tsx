@@ -125,7 +125,7 @@ const AdminPanelContent: React.FC = () => {
          setMsgData({ title: '', content: '', target: 'all', projectId: '' });
       } else {
          console.error("Broadcast Error", error);
-         addToast("Failed to broadcast.", "error");
+         addToast(`Failed to broadcast: ${error?.message || 'Unknown error'}`, "error");
       }
    };
 
