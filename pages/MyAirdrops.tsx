@@ -28,8 +28,15 @@ export const MyAirdrops: React.FC = () => {
   }, [airdrops, trackedIds, userClaims, userTasks, infofiPlatforms]);
 
   const trackedInfoFi = useMemo(() => {
-    return (infofiPlatforms || []).filter(p => trackedIds.includes(p.id));
-  }, [infofiPlatforms, trackedIds]);
+    // Include explicit InfoFi platforms AND Airdrops that are marked as InfoFi
+    const explicitInfoFi = (infofiPlatforms || []).filter(p => trackedIds.includes(p.id));
+    const airdropInfoFi = airdrops.filter(p => p.hasInfoFi && trackedIds.includes(p.id));
+
+    // Merge unique by ID
+    const combined = [...explicitInfoFi, ...airdropInfoFi];
+    const unique = Array.from(new Map(combined.map(item => [item.id, item])).values());
+    return unique;
+  }, [infofiPlatforms, airdrops, trackedIds]);
 
   const activeTasksCount = useMemo(() => userTasks.filter(t => !t.completed).length, [userTasks]);
 
