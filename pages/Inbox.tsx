@@ -28,23 +28,37 @@ export const Inbox: React.FC = () => {
   }, [currentInbox, markMessageRead]);
 
   const deleteMessage = (id: string) => {
-    setInbox(prev => prev.filter(m => m.id !== id));
-    addToast("Message removed.");
+    const deleted = JSON.parse(localStorage.getItem('deleted_messages') || '[]');
+    if (!deleted.includes(id)) {
+      localStorage.setItem('deleted_messages', JSON.stringify([...deleted, id]));
+      setInbox(prev => prev.filter(m => m.id !== id));
+      addToast("Message removed.");
+    }
   };
 
   const clearInbox = () => {
     if (confirm("Clear current view?")) {
-      setInbox(prev => {
-        if (filter === 'all') return [];
-        if (filter === 'tracked') return prev.filter(m => !m.relatedAirdropId || !user?.trackedProjectIds?.includes(m.relatedAirdropId));
-        return prev.filter(m => m.relatedAirdropId);
-      });
+      const deleted = JSON.parse(localStorage.getItem('deleted_messages') || '[]');
+      const idsToRemove = filter === 'all'
+        ? inbox.map(m => m.id)
+        : inbox.filter(m => {
+          if (filter === 'tracked') return m.relatedAirdropId && user?.trackedProjectIds?.includes(m.relatedAirdropId);
+          if (filter === 'system') return !m.relatedAirdropId;
+          return false;
+        }).map(m => m.id);
+
+      const newDeleted = [...new Set([...deleted, ...idsToRemove])];
+      localStorage.setItem('deleted_messages', JSON.stringify(newDeleted));
+
+      setInbox(prev => prev.filter(m => !idsToRemove.includes(m.id)));
       addToast("Inbox cleared.");
     }
   };
 
   const filteredMessages = useMemo(() => {
+    const deleted = JSON.parse(localStorage.getItem('deleted_messages') || '[]');
     return inbox.filter(m => {
+      if (deleted.includes(m.id)) return false;
       const isTracked = m.relatedAirdropId && user?.trackedProjectIds?.includes(m.relatedAirdropId);
       if (filter === 'tracked') return isTracked;
       if (filter === 'system') return !isTracked;
