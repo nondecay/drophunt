@@ -263,7 +263,7 @@ export const ProjectDetails: React.FC = () => {
                 <div className="flex flex-wrap items-center gap-2 mb-4">
                   <span className="flex items-center gap-1.5 text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase">
                     <DollarSign size={12} className="text-emerald-500" />
-                    {project.investment} Raise
+                    {project.investment} Raised
                   </span>
                   <span className={`text-[10px] font-black px-2.5 py-1 rounded-lg ${getTypeStyle(project.type)}`}>{project.type}</span>
                   {project.hasInfoFi && <span className="text-[10px] font-black px-2.5 py-1 bg-primary-600 text-white rounded-lg uppercase">{project.platform || 'InfoFi'}</span>}
