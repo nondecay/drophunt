@@ -9,16 +9,17 @@ export const Inbox: React.FC = () => {
   const [filter, setFilter] = useState<'all' | 'tracked' | 'system'>('all');
 
   if (!isDataLoaded) return <LoadingSpinner />;
-  if (!inbox) return null;
+  // Ensure inbox is an array before proceeding
+  const currentInbox = inbox || [];
 
   useEffect(() => {
     // Mark all visible messages as read
-    if (inbox.length > 0) {
-      inbox.forEach(m => {
+    if (currentInbox.length > 0) {
+      currentInbox.forEach(m => {
         if (!m.isRead) markMessageRead(m.id);
       });
     }
-  }, [inbox, markMessageRead]);
+  }, [currentInbox, markMessageRead]);
 
   const deleteMessage = (id: string) => {
     setInbox(prev => prev.filter(m => m.id !== id));
