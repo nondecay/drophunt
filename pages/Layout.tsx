@@ -149,7 +149,7 @@ export const Layout: React.FC = () => {
               <div className="flex flex-col">
                 <div className="flex items-center gap-1.5 relative">
                   <span className="text-2xl font-black tracking-tight text-primary-600 uppercase leading-none">DROPHUNT.IO</span>
-                  <span className="absolute -top-2 right-0 bg-primary-500/10 text-white border border-primary-500/20 text-[6px] font-black px-1 py-0.5 rounded animate-shake-rare">BETA</span>
+                  <span className="absolute -top-3 right-0 bg-primary-500/10 text-white border border-primary-500/20 text-[7px] font-black px-1.5 py-0.5 rounded animate-shake-rare">BETA</span>
                 </div>
               </div>
             </Link>
