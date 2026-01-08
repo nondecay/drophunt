@@ -145,7 +145,7 @@ export const Layout: React.FC = () => {
         <div className="flex flex-col h-full p-6">
           <div className="flex items-center justify-between mb-8">
             <Link to="/" className="flex items-center gap-3 group">
-              <img src="/logo.png" className="w-10 h-10 object-contain shadow-lg rounded-xl" alt="Logo" />
+              <img src="/logo.jpg" className="w-10 h-10 object-contain shadow-lg rounded-xl" alt="Logo" />
               <div className="flex flex-col">
                 <div className="flex items-center gap-1.5 relative">
                   <span className="text-2xl font-black tracking-tight text-primary-600 uppercase leading-none">DROPHUNT.IO</span>
