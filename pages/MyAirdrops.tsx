@@ -4,9 +4,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../AppContext';
 import { Plus, CheckCircle2, Trash2, ListChecks, Zap, Clock, PieChart, RefreshCw, Target, ArrowUpRight, ChevronLeft, ChevronRight, Mail, DollarSign, Calendar, Filter, X, ChevronDown, Check, ShieldAlert } from 'lucide-react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useAccount } from 'wagmi'; // Added this import
 
 export const MyAirdrops: React.FC = () => {
   const { airdrops, userTasks, setUserTasks, userClaims, setUserClaims, addToast, user, toggleTrackProject, t, inbox, manageTodo, manageUserClaim, infofiPlatforms, isDataLoaded } = useApp();
+  const { isConnected } = useAccount();
+
+  // Modal State
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ type: 'claim' | 'task', id: string } | null>(null);
+
   const [activeTab, setActiveTab] = useState<'tasks' | 'airdrops' | 'infofi' | 'completed' | 'claimed'>('tasks');
   const [showAdd, setShowAdd] = useState(false);
   const [showClaimAdd, setShowClaimAdd] = useState(false);
@@ -414,9 +421,8 @@ export const MyAirdrops: React.FC = () => {
                         <td className="p-6 text-right">
                           <button
                             onClick={() => {
-                              if (confirm(t('confirmDelete'))) {
-                                manageUserClaim('remove', c.id);
-                              }
+                              setDeleteTarget({ type: 'claim', id: c.id });
+                              setShowDeleteModal(true);
                             }}
                             className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                             title={t('delete')}
@@ -489,6 +495,32 @@ export const MyAirdrops: React.FC = () => {
             <div className="flex gap-4 mt-10">
               <button onClick={() => setShowClaimAdd(false)} className="flex-1 font-black text-slate-400 uppercase text-xs tracking-widest">{t('abort')}</button>
               <button onClick={addClaimEntry} className="flex-1 py-4 bg-emerald-600 text-white rounded-xl font-black shadow-xl active:scale-95 transition-transform text-xs tracking-widest">{t('archive')}</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-[2rem] p-8 shadow-2xl relative animate-in zoom-in-95 border dark:border-slate-800">
+            <h3 className="text-xl font-black mb-4 text-center">{t('confirmDelete')}</h3>
+            <p className="text-slate-500 text-center text-sm font-medium mb-8">Are you sure you want to delete this item? This action cannot be undone.</p>
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="py-3 rounded-xl font-black text-xs uppercase tracking-widest bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              >
+                {t('cancel')}
+              </button>
+              <button
+                onClick={() => {
+                  if (deleteTarget?.type === 'claim') manageUserClaim('remove', deleteTarget.id);
+                  if (deleteTarget?.type === 'task') manageTodo('remove', deleteTarget.id);
+                  setShowDeleteModal(false);
+                }}
+                className="py-3 rounded-xl font-black text-xs uppercase tracking-widest bg-red-600 text-white shadow-lg shadow-red-500/30 hover:bg-red-700 active:scale-95 transition-all"
+              >
+                {t('confirm')}
+              </button>
             </div>
           </div>
         </div>

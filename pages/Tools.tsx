@@ -49,8 +49,8 @@ export const Tools: React.FC = () => {
             key={cat}
             onClick={() => setActiveCategory(cat)}
             className={`px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${activeCategory === cat
-                ? 'bg-primary-600 text-white shadow-xl shadow-primary-500/20'
-                : 'bg-white dark:bg-slate-900 text-slate-500 hover:bg-primary-50 dark:hover:bg-slate-800'
+              ? 'bg-primary-600 text-white shadow-xl shadow-primary-500/20'
+              : 'bg-white dark:bg-slate-900 text-slate-500 hover:bg-primary-50 dark:hover:bg-slate-800'
               }`}
           >
             {cat === 'All' ? t('allCategories') : cat}
@@ -60,13 +60,13 @@ export const Tools: React.FC = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredTools.map(tool => (
-          <div key={tool.id} className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center text-center group hover:shadow-2xl transition-all border-b-8 border-b-primary-600 h-[380px]">
-            <div className="w-20 h-20 rounded-[2rem] bg-slate-50 dark:bg-slate-800 p-4 mb-6 group-hover:scale-110 transition-transform shadow-inner flex items-center justify-center">
+          <div key={tool.id} className="bg-white dark:bg-slate-900 rounded-[2rem] p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center text-center group hover:shadow-xl transition-all border-b-4 border-b-primary-600 h-[300px]">
+            <div className="w-16 h-16 rounded-2xl bg-slate-50 dark:bg-slate-800 p-3 mb-4 group-hover:scale-110 transition-transform shadow-inner flex items-center justify-center">
               <img src={tool.logo || '/logo.png'} className="w-full h-full object-contain" />
             </div>
             <span className="text-[9px] font-black uppercase text-primary-600 tracking-[0.2em] mb-2">{tool.category}</span>
-            <h3 className="text-xl font-black mb-3 line-clamp-1">{tool.name}</h3>
-            <p className="text-slate-500 dark:text-slate-400 text-xs font-medium leading-relaxed mb-8 line-clamp-3">
+            <h3 className="text-lg font-black mb-2 line-clamp-1">{tool.name}</h3>
+            <p className="text-slate-500 dark:text-slate-400 text-[10px] font-medium leading-relaxed mb-4 line-clamp-3">
               {tool.description}
             </p>
             <div className="mt-auto w-full">
@@ -76,7 +76,7 @@ export const Tools: React.FC = () => {
                 rel="noreferrer"
                 className="w-full py-4 bg-primary-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-primary-500/20 hover:bg-primary-700 active:scale-95 transition-all"
               >
-                Go Website! <ExternalLink size={14} />
+                Go Website! <ExternalLink size={12} />
               </a>
             </div>
           </div>

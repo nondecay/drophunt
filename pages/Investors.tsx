@@ -63,15 +63,19 @@ export const Investors: React.FC = () => {
           </div>
 
           <div className="relative">
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="appearance-none pl-4 pr-10 py-3 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl font-bold text-xs shadow-sm hover:border-primary-500 transition-all outline-none"
-            >
-              <option value="most_projects">Most Projects</option>
-              <option value="newest">Newest Added</option>
-            </select>
-            <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            <div className="relative">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="appearance-none pl-5 pr-12 py-3 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl font-black text-xs uppercase tracking-wider shadow-sm hover:border-primary-500 transition-all outline-none cursor-pointer text-slate-600 dark:text-slate-300 focus:ring-4 focus:ring-primary-500/10"
+              >
+                <option value="most_projects">Most Projects</option>
+                <option value="newest">Newest Added</option>
+              </select>
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
+                <Filter size={12} className="text-slate-500" />
+              </div>
+            </div>
           </div>
         </div>
       </div>

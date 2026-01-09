@@ -389,7 +389,11 @@ Expires At: ${expires}`;
       if (isValid) {
         sessionStorage.setItem(`verified_session_${address.toLowerCase()}`, 'true');
         setIsVerified(true);
-        addToast("Wallet verified.");
+        addToast(t('walletVerified') || "Wallet verified.");
+
+        // Force sync user to ensure they are logged in DB-wise
+        await syncUser(address.toLowerCase());
+
         // Check if username needs setting
         if (user && user.username && user.username.startsWith('Hunter_')) {
           setShowUsernameModal(true);
@@ -397,7 +401,7 @@ Expires At: ${expires}`;
       }
     } catch (err: any) {
       console.error(err);
-      addToast("Verification failed or rejected.", "error");
+      addToast(t('verificationFailed') || "Verification failed.", "error");
     }
   };
 

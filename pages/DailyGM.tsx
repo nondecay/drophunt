@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useApp } from '../AppContext';
 import { Sun, Loader2, Send, Search, Wallet, Globe, ChevronDown, Check, Clock } from 'lucide-react';
 import { useAccount, useSwitchChain, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { parseEther } from 'viem';
 
 const GMCard: React.FC<{ activity: any, isExecuting: boolean, onAction: (activity: any) => void }> = ({ activity, isExecuting, onAction }) => {
@@ -63,7 +64,7 @@ const GMCard: React.FC<{ activity: any, isExecuting: boolean, onAction: (activit
             disabled={isExecuting}
             className={`w-full py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${!isConnected ? 'bg-primary-600 text-white shadow-primary-500/20' : isWrongChain ? 'bg-amber-500 text-white shadow-amber-500/20' : 'bg-primary-600 text-white shadow-primary-500/20'}`}
           >
-            {isExecuting ? <Loader2 className="animate-spin" size={14} /> : (!isConnected ? t('connect') : isWrongChain ? t('syncNetwork') : t('broadcastGm'))}
+            {isExecuting ? <Loader2 className="animate-spin" size={14} /> : (!isConnected ? "Connect Wallet" : isWrongChain ? t('syncNetwork') : t('broadcastGm'))}
           </button>
         )}
       </div>
@@ -74,6 +75,7 @@ const GMCard: React.FC<{ activity: any, isExecuting: boolean, onAction: (activit
 export const DailyGM: React.FC = () => {
   const { activities, addToast, logActivity, chains, t } = useApp();
   const { isConnected, chainId: currentChainId } = useAccount();
+  const { openConnectModal } = useConnectModal();
   const { switchChainAsync } = useSwitchChain();
   const [mode, setMode] = useState<'mainnet' | 'testnet'>('mainnet');
   const [search, setSearch] = useState('');

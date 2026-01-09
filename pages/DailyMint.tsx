@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../AppContext';
 import { Sparkles, Loader2, Wallet, Globe, ChevronDown, Check, Search } from 'lucide-react';
 import { useAccount, useSwitchChain, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { parseEther } from 'viem';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 
@@ -11,6 +12,7 @@ export const DailyMint: React.FC = () => {
 
    if (!isDataLoaded) return <LoadingSpinner />;
    const { isConnected, chainId: currentChainId } = useAccount();
+   const { openConnectModal } = useConnectModal();
    const { switchChainAsync } = useSwitchChain();
    const [mode, setMode] = useState<'mainnet' | 'testnet'>('mainnet');
    const [selectedChainId, setSelectedChainId] = useState<number | null>(null);
@@ -47,7 +49,10 @@ export const DailyMint: React.FC = () => {
 
    const handleMint = async () => {
       if (!activeMint) return;
-      if (!isConnected) return addToast("Protocol requires wallet connection", "error");
+      if (!isConnected) {
+         if (openConnectModal) openConnectModal();
+         return;
+      }
       if (isProcessing || isTxSending || isWaitingForTx) return;
 
       setIsProcessing(true);
@@ -118,7 +123,7 @@ export const DailyMint: React.FC = () => {
                   </div>
 
                   <button onClick={handleMint} disabled={isLoading} className={`w-full py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${!isConnected ? 'bg-primary-600 text-white shadow-primary-500/20' : currentChainId !== activeMint.chainId ? 'bg-amber-500 text-white shadow-amber-500/20' : 'bg-primary-600 text-white shadow-primary-500/20'}`}
-                  >           {isLoading ? <Loader2 className="animate-spin" size={20} /> : (!isConnected ? <><Wallet size={18} /> {t('connect')}</> : currentChainId !== activeMint.chainId ? <><Globe size={18} /> {t('syncNetwork')}</> : <>{t('forgeArtifact')}</>)}
+                  >           {isLoading ? <Loader2 className="animate-spin" size={20} /> : (!isConnected ? <><Wallet size={18} /> Connect Wallet</> : currentChainId !== activeMint.chainId ? <><Globe size={18} /> {t('syncNetwork')}</> : <>{t('forgeArtifact')}</>)}
                   </button>
                </div>
             ) : (
