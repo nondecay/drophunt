@@ -51,6 +51,7 @@ export const ProjectDetails: React.FC = () => {
 
   useEffect(() => {
     generateCaptcha();
+    window.scrollTo(0, 0); // Reset scroll on mount
   }, []);
 
   // HOOKS MUST BE DECLARED BEFORE CONDITIONS
@@ -252,6 +253,14 @@ export const ProjectDetails: React.FC = () => {
     return 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500';
   };
 
+  const getStatusStyle = (status: string) => {
+    const s = (status || '').toLowerCase();
+    if (s === 'potential') return 'bg-purple-600 text-white';
+    if (s.includes('available')) return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
+    if (s === 'airdrop confirmed') return 'bg-red-600 text-white shadow-lg animate-pulse';
+    return 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500';
+  };
+
   return (
     <div className="max-w-6xl mx-auto pb-24 px-4">
       <Link to={project.hasInfoFi ? "/infofi" : "/"} className="inline-flex items-center gap-2 text-slate-500 hover:text-primary-600 mb-8 transition-colors font-black uppercase text-[10px] tracking-widest"><ChevronLeft size={16} /> {t('airdrops')}</Link>
@@ -269,6 +278,7 @@ export const ProjectDetails: React.FC = () => {
                     {project.investment} Raised
                   </span>
                   <span className={`text-[10px] font-black px-2.5 py-1 rounded-lg ${getTypeStyle(project.type)}`}>{project.type}</span>
+                  <span className={`text-[10px] font-black px-2.5 py-1 rounded-lg ${getStatusStyle(project.status)}`}>{project.status}</span>
                   {project.hasInfoFi && <span className="text-[10px] font-black px-2.5 py-1 bg-primary-600 text-white rounded-lg uppercase">{project.platform || 'InfoFi'}</span>}
                 </div>
 
@@ -425,9 +435,15 @@ export const ProjectDetails: React.FC = () => {
             <h3 className="text-xl font-black mb-6 relative z-10 tracking-tight uppercase leading-none">{t('operationTitle')}</h3>
 
             <div className="space-y-4 relative z-10">
-              <button onClick={() => toggleTrackProject(project.id)} className={`w-full py-4 rounded-xl font-black text-xs flex items-center justify-center gap-3 transition-all active:scale-95 shadow-lg ${isProjectTracked ? 'bg-white/20 text-white border border-white/30' : 'bg-white text-primary-600 hover:scale-[1.02]'}`}>
-                {isProjectTracked ? <ShieldCheck size={18} /> : <Plus size={18} />}
-                {isProjectTracked ? t('untrack') : t('trackAlpha')}
+              <button
+                onClick={() => {
+                  if (!user?.address) return addToast("Connect Wallet to Track", "error");
+                  toggleTrackProject(project.id);
+                }}
+                className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${isProjectTracked ? 'bg-slate-100 text-slate-400 dark:bg-slate-800' : 'bg-primary-600 text-white shadow-lg shadow-primary-500/30 hover:scale-105'}`}
+              >
+                {isProjectTracked ? <CheckCircle size={18} /> : <Plus size={18} />}
+                {isProjectTracked ? t('tracked') : t('trackProject')}
               </button>
 
               {project.status === 'Claim Available' && project.claimUrl && (

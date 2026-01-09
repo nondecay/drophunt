@@ -7,109 +7,43 @@ import { parseEther } from 'viem';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 
 export const OnChainRPG: React.FC = () => {
-   const { user, activities, gainXP, addToast, usersList, chains, t, isDataLoaded } = useApp();
-
+   const { user, activities, gainXP, addToast, usersList, chains, t, isDataLoaded, verifyWallet } = useApp();
    if (!isDataLoaded) return <LoadingSpinner />;
    const { isConnected, chainId: currentChainId } = useAccount();
    const { switchChainAsync } = useSwitchChain();
+   // ... (existing code)
 
-   const rpgMissions = useMemo(() => activities.filter(a => a.type === 'rpg' && !a.isTestnet), [activities]);
+   // ... (existing code inside component)
 
-   // Set default mission to Base if available
-   const [selectedMissionId, setSelectedMissionId] = useState<string | null>(() => {
-      const baseMission = activities.find(a => a.type === 'rpg' && !a.isTestnet && a.name.toLowerCase().includes('base'));
-      return baseMission?.id || (activities.find(a => a.type === 'rpg' && !a.isTestnet)?.id || null);
-   });
-
-   const [isMissionDropdownOpen, setIsMissionDropdownOpen] = useState(false);
-   const [missionSearch, setMissionSearch] = useState('');
-   const missionDropdownRef = useRef<HTMLDivElement>(null);
-
-   const [rankingPage, setRankingPage] = useState(1);
-   const rankPerPage = 10;
-
-   const { writeContractAsync } = useWriteContract();
-   const [txHash, setTxHash] = useState<`0x${string}` | undefined>();
-   const { isLoading: isWaitingForTx } = useWaitForTransactionReceipt({ hash: txHash });
-
-   // Monthly Reset Countdown
-   const [countdown, setCountdown] = useState('');
-   useEffect(() => {
-      const timer = setInterval(() => {
-         const now = new Date();
-         const end = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0);
-         const diff = end.getTime() - now.getTime();
-
-         const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-         const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-         const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-         const s = Math.floor((diff % (1000 * 60)) / 1000);
-         setCountdown(`${d}d ${h}h ${m}m ${s}s`);
-      }, 1000);
-      return () => clearInterval(timer);
-   }, []);
-
-   useEffect(() => {
-      const handleClickOutside = (event: MouseEvent) => {
-         if (missionDropdownRef.current && !missionDropdownRef.current.contains(event.target as Node)) {
-            setIsMissionDropdownOpen(false);
-         }
-      };
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-   }, []);
-
-   const filteredMissions = rpgMissions.filter(m => m.name.toLowerCase().includes(missionSearch.toLowerCase()));
-   const activeMission = rpgMissions.find(m => m.id === selectedMissionId);
-   const missionChainObj = chains.find(c => c.chainId === activeMission?.chainId);
-
-   const rankedHunters = useMemo(() => {
-      return usersList
-         .filter(u => u.xp > 0 || u.level > 1)
-         .sort((a, b) => {
-            const totalA = (a.level - 1) * 100 + a.xp;
-            const totalB = (b.level - 1) * 100 + b.xp;
-            return totalB - totalA;
-         });
-   }, [usersList]);
-
-   const userRank = useMemo(() => {
-      if (!user) return null;
-      const idx = rankedHunters.findIndex(u => u.address === user.address);
-      return idx !== -1 ? idx + 1 : 'N/A';
-   }, [rankedHunters, user]);
-
-   const totalPages = Math.min(10, Math.ceil(Math.min(100, rankedHunters.length) / rankPerPage));
-   const currentRanked = rankedHunters.slice((rankingPage - 1) * rankPerPage, rankingPage * rankPerPage);
-
-   const handleAdventure = async () => {
-      if (!activeMission) return addToast("Select a mission node!", "warning");
-      try {
-         if (currentChainId !== activeMission.chainId) await switchChainAsync({ chainId: activeMission.chainId });
-
-         const fee = activeMission.mintFee || '0';
-         const hash = await writeContractAsync({
-            address: activeMission.contractAddress as `0x${string}`,
-            abi: [{ "inputs": [], "name": activeMission.functionName || "mint", "outputs": [], "stateMutability": "payable", "type": "function" }],
-            functionName: activeMission.functionName || 'mint',
-            value: parseEther(fee),
-         } as any);
-         setTxHash(hash);
-         addToast("Engaging Protocol Mission...", "info");
-      } catch (e: any) {
-         addToast(e?.shortMessage || e?.message || "Adventure failed", "error");
+   // Logic to handle !user
+   if (!user) {
+      if (isConnected) {
+         return (
+            <div className="max-w-4xl mx-auto py-32 text-center px-4">
+               <div className="w-24 h-24 bg-amber-100 dark:bg-amber-900/30 text-amber-600 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-inner border-2 border-amber-500/20 animate-pulse">
+                  <ShieldCheck size={48} />
+               </div>
+               <h1 className="text-3xl md:text-5xl font-black tracking-tighter uppercase mb-6 text-slate-900 dark:text-white">Verification Required</h1>
+               <p className="text-slate-500 text-lg md:text-xl font-medium mb-10 max-w-lg mx-auto leading-relaxed">You must Verify your wallet for play Onchain RPG.</p>
+               <button
+                  onClick={() => verifyWallet()}
+                  className="px-10 py-5 bg-primary-600 text-white rounded-3xl font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 active:scale-95 transition-all text-sm flex items-center gap-3 mx-auto"
+               >
+                  <ShieldCheck size={20} /> Sign And Verify
+               </button>
+            </div>
+         );
       }
-   };
-
-   React.useEffect(() => {
-      if (!isWaitingForTx && txHash && activeMission) {
-         gainXP(activeMission.extraXP || 25, activeMission.id);
-         addToast(`Mission Accomplished! +${activeMission.extraXP || 25} XP transmitted.`, "success");
-         setTxHash(undefined);
-      }
-   }, [isWaitingForTx, txHash, activeMission, gainXP, addToast]);
-
-   if (!user) return <div className="max-w-4xl mx-auto py-32 text-center"><div className="w-24 h-24 bg-rose-100 dark:bg-rose-900/30 text-rose-600 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-inner border-2 border-rose-500/20"><Shield size={48} /></div><h1 className="text-5xl font-black tracking-tighter uppercase mb-4">{t('rpgTitle')}</h1><p className="text-slate-500 text-xl font-medium mb-12">{t('rpgSub')}</p></div>;
+      return (
+         <div className="max-w-4xl mx-auto py-32 text-center px-4">
+            <div className="w-24 h-24 bg-rose-100 dark:bg-rose-900/30 text-rose-600 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-inner border-2 border-rose-500/20">
+               <Shield size={48} />
+            </div>
+            <h1 className="text-5xl font-black tracking-tighter uppercase mb-4 text-slate-900 dark:text-white">{t('rpgTitle')}</h1>
+            <p className="text-slate-500 text-xl font-medium mb-12">{t('rpgSub')}</p>
+         </div>
+      );
+   }
 
    const xpRequired = user.level * 100;
    const progress = (user.xp / xpRequired) * 100;

@@ -117,8 +117,8 @@ export const DailyMint: React.FC = () => {
                      </div>
                   </div>
 
-                  <button onClick={handleMint} disabled={isLoading} className={`w-full py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs shadow-2xl transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3 ${!isConnected ? 'bg-slate-900 text-white' : currentChainId !== activeMint.chainId ? 'bg-amber-500 text-white' : 'bg-primary-600 text-white shadow-primary-500/40'}`}>
-                     {isLoading ? <Loader2 className="animate-spin" size={20} /> : (!isConnected ? <><Wallet size={18} /> {t('connect')}</> : currentChainId !== activeMint.chainId ? <><Globe size={18} /> {t('syncNetwork')}</> : <>{t('forgeArtifact')}</>)}
+                  <button onClick={handleMint} disabled={isLoading} className={`w-full py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${!isConnected ? 'bg-primary-600 text-white shadow-primary-500/20' : currentChainId !== activeMint.chainId ? 'bg-amber-500 text-white shadow-amber-500/20' : 'bg-primary-600 text-white shadow-primary-500/20'}`}
+                  >           {isLoading ? <Loader2 className="animate-spin" size={20} /> : (!isConnected ? <><Wallet size={18} /> {t('connect')}</> : currentChainId !== activeMint.chainId ? <><Globe size={18} /> {t('syncNetwork')}</> : <>{t('forgeArtifact')}</>)}
                   </button>
                </div>
             ) : (

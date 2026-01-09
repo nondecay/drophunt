@@ -127,7 +127,12 @@ const MobileProjectCard: React.FC<{ project: Airdrop, isTracked: boolean, onTrac
         <div className="flex-1 min-w-0">
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="font-black text-lg uppercase tracking-tight leading-none mb-1 text-slate-900 dark:text-white truncate">{project.name}</h3>
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="font-black text-lg uppercase tracking-tight leading-none text-slate-900 dark:text-white truncate">{project.name}</h3>
+                {(project.createdAt || 0) > Date.now() - 7 * 24 * 60 * 60 * 1000 && (
+                  <span className="bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded animate-pulse">NEW</span>
+                )}
+              </div>
               <span className={`inline-block text-[9px] font-black uppercase px-2 py-0.5 rounded-md mb-2 ${getTypeStyle(project.type)}`}>{project.type}</span>
             </div>
             {user?.username ? (
@@ -403,6 +408,9 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
                         <Link to={`/project/${a.id}`} className="flex items-center gap-4">
                           <div className="relative shrink-0">
                             <img src={a.icon || 'https://picsum.photos/200'} className="w-12 h-12 rounded-xl object-cover shadow-lg group-hover:scale-110 transition-transform" alt="" />
+                            {(a.createdAt || 0) > Date.now() - 7 * 24 * 60 * 60 * 1000 && (
+                              <div className="absolute -top-2 -right-2 bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-md shadow-sm z-10 animate-pulse">NEW</div>
+                            )}
                           </div>
                           <div className="min-w-0">
                             <span className="font-black text-base block leading-tight mb-1 group-hover:text-primary-600 transition-colors uppercase truncate">{a.name}</span>
@@ -437,7 +445,7 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
                             <Plus size={20} className={isProjectTracked(a.id) ? 'rotate-45' : ''} />
                           </button>
                         ) : (
-                          <div className="flex justify-end"><div className="p-3 bg-slate-100 dark:bg-slate-800 text-slate-300 rounded-xl cursor-not-allowed group/lock relative"><Lock size={20} /><div className="absolute bottom-full right-0 mb-2 hidden group-hover/lock:block bg-slate-900 text-white text-[10px] py-1 px-2 rounded">Identify to Track</div></div></div>
+                          <div className="flex justify-end"><div className="p-3 bg-slate-100 dark:bg-slate-800 text-slate-300 rounded-xl cursor-not-allowed group/lock relative"><Lock size={20} /><div className="absolute bottom-full right-0 mb-2 hidden group-hover/lock:block bg-slate-900 text-white text-[10px] py-1 px-2 rounded whitespace-nowrap">Connect Wallet to Track</div></div></div>
                         )}
                       </td>
                     </tr>
