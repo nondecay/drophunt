@@ -10,6 +10,94 @@ export const OnChainRPG: React.FC = () => {
    const { user, activities, gainXP, addToast, usersList, chains, t, isDataLoaded, verifyWallet } = useApp();
    const { isConnected, chainId: currentChainId } = useAccount();
    const { switchChainAsync } = useSwitchChain();
+   const { writeContractAsync } = useWriteContract();
+
+   const [missionSearch, setMissionSearch] = useState('');
+   const [isMissionDropdownOpen, setIsMissionDropdownOpen] = useState(false);
+   const [selectedMissionId, setSelectedMissionId] = useState<string | null>(null);
+   const [isWaitingForTx, setIsWaitingForTx] = useState(false);
+   const [rankingPage, setRankingPage] = useState(1);
+   const [countdown, setCountdown] = useState('');
+   const missionDropdownRef = useRef<HTMLDivElement>(null);
+
+   const rankPerPage = 10;
+
+   useEffect(() => {
+      const updateTimer = () => {
+         const now = new Date();
+         const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+         const diff = nextMonth.getTime() - now.getTime();
+         const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+         const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+         const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+         const s = Math.floor((diff % (1000 * 60)) / 1000);
+         setCountdown(`${d}d ${h}h ${m}m ${s}s`);
+      };
+      updateTimer();
+      const timer = setInterval(updateTimer, 1000);
+      return () => clearInterval(timer);
+   }, []);
+
+   useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+         if (missionDropdownRef.current && !missionDropdownRef.current.contains(event.target as Node)) {
+            setIsMissionDropdownOpen(false);
+         }
+      };
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+   }, []);
+
+   const missions = useMemo(() => {
+      return activities.filter(a => a.type === 'rpg');
+   }, [activities]);
+
+   const filteredMissions = useMemo(() => {
+      return missions.filter(m => m.name.toLowerCase().includes(missionSearch.toLowerCase()));
+   }, [missions, missionSearch]);
+
+   const activeMission = useMemo(() => {
+      return missions.find(m => m.id === selectedMissionId);
+   }, [missions, selectedMissionId]);
+
+   const rankedHunters = useMemo(() => {
+      if (!usersList) return [];
+      return [...usersList].sort((a, b) => ((b.level - 1) * 100 + b.xp) - ((a.level - 1) * 100 + a.xp));
+   }, [usersList]);
+
+   const totalPages = Math.ceil(rankedHunters.length / rankPerPage);
+   const currentRanked = rankedHunters.slice((rankingPage - 1) * rankPerPage, rankingPage * rankPerPage);
+
+   const handleAdventure = async () => {
+      if (!selectedMissionId || !user) return;
+      setIsWaitingForTx(true);
+      try {
+         const mission = activeMission;
+         if (!mission) throw new Error("Mission not found");
+
+         if (mission.chainId && currentChainId !== mission.chainId) {
+            await switchChainAsync({ chainId: mission.chainId });
+         }
+
+         if (mission.contractAddress && mission.abi) {
+            await writeContractAsync({
+               address: mission.contractAddress as `0x${string}`,
+               abi: mission.abi,
+               functionName: mission.functionName || 'adventure',
+               args: [],
+            });
+            addToast("Adventure Transaction Sent! Waiting for confirmation...", "success");
+         } else {
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            addToast("Adventure Completed! (Simulation)", "success");
+         }
+      } catch (e: any) {
+         console.error(e);
+         addToast("Adventure Failed: " + (e.message || "Unknown error"), "error");
+      } finally {
+         setIsWaitingForTx(false);
+      }
+   };
 
    const userRank = useMemo(() => {
       if (!user || !usersList) return 'N/A';
