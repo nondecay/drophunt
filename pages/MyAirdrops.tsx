@@ -502,112 +502,113 @@ export const MyAirdrops: React.FC = () => {
       {showDeleteModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md animate-in fade-in duration-200">
           <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-[2rem] p-8 shadow-2xl relative animate-in zoom-in-95 border dark:border-slate-800">
-            <h3 className="text-xl font-black mb-4 text-center">{t('confirmDelete')}</h3>
-            <p className="text-slate-500 text-center text-sm font-medium mb-8">Are you sure you want to delete this item? This action cannot be undone.</p>
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="py-3 rounded-xl font-black text-xs uppercase tracking-widest bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-              >
-                {t('cancel')}
-              </button>
-              <button
-                onClick={() => {
-                  if (deleteTarget?.type === 'claim') manageUserClaim('remove', deleteTarget.id);
-                  if (deleteTarget?.type === 'task') manageTodo('remove', deleteTarget.id);
-                  setShowDeleteModal(false);
-                }}
-                className="py-3 rounded-xl font-black text-xs uppercase tracking-widest bg-red-600 text-white shadow-lg shadow-red-500/30 hover:bg-red-700 active:scale-95 transition-all"
-              >
-                {t('confirm')}
-              </button>
+            <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-[2rem] p-8 shadow-2xl relative animate-in zoom-in-95 border dark:border-slate-800">
+              {/* Title Removed as requested */}
+              <p className="text-slate-500 text-center text-sm font-medium mb-8">Are you sure you want to delete this item? This action cannot be undone.</p>
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="py-3 rounded-xl font-black text-xs uppercase tracking-widest bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                >
+                  {t('cancel')}
+                </button>
+                <button
+                  onClick={() => {
+                    if (deleteTarget?.type === 'claim') manageUserClaim('remove', deleteTarget.id);
+                    if (deleteTarget?.type === 'task') manageTodo('remove', deleteTarget.id);
+                    setShowDeleteModal(false);
+                  }}
+                  className="py-3 rounded-xl font-black text-xs uppercase tracking-widest bg-red-600 text-white shadow-lg shadow-red-500/30 hover:bg-red-700 active:scale-95 transition-all"
+                >
+                  {t('confirm')}
+                </button>
+              </div>
+            </div>
+          </div>
+      )}
+        </div>
+      );
+};
+
+      const DashboardStat: React.FC<{ label: string, val: string | number, icon: any, color: string }> = ({label, val, icon, color}) => (
+      <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
+        <div className={`p-3 rounded-2xl text-white ${color} shadow-lg shadow-current/20`}>{icon}</div>
+        <div>
+          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">{label}</p>
+          <p className="text-lg font-black tracking-tight">{val}</p>
+        </div>
+      </div>
+      );
+
+      const ProjectCard: React.FC<{ project: any, onUntrack: () => void, t_func: any, unreadMessage?: any }> = ({project, onUntrack, t_func, unreadMessage}) => (
+      <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 p-5 flex flex-col group hover:shadow-xl hover:border-primary-500 transition-all relative">
+        {unreadMessage && (
+          <Link to="/inbox" className="absolute -top-2 -right-2 bg-red-500 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-xl flex items-center gap-1 animate-bounce z-10 border-2 border-white dark:border-slate-900">
+            <Mail size={10} /> Mission Intel
+          </Link>
+        )}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <img src={project.icon} className="w-12 h-12 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform" />
+            <div className="min-w-0">
+              <h4 className="font-black text-sm uppercase truncate">{project.name}</h4>
+              {project.hasInfoFi && (
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest truncate">{project.platform}</p>
+              )}
+            </div>
+          </div>
+          <button onClick={onUntrack} className="p-2 text-slate-300 hover:text-red-500 transition-colors bg-slate-50 dark:bg-slate-800 rounded-lg"><Trash2 size={14} /></button>
+        </div>
+        <div className="flex items-center justify-between mt-auto pt-4 border-t dark:border-slate-800">
+          <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-50 dark:bg-slate-800/80 text-primary-600 dark:text-primary-400 rounded-xl font-black font-mono text-[10px] border border-slate-100 dark:border-slate-700 shadow-sm transition-all group-hover:bg-primary-600 group-hover:text-white group-hover:border-primary-500">
+            <DollarSign size={10} />
+            {project.investment}
+          </div>
+          <Link to={`/project/${project.id}`} className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 hover:text-primary-600 transition-colors uppercase tracking-widest">{t_func('projectDetails')} <ArrowUpRight size={12} /></Link>
+        </div>
+      </div>
+      );
+
+      const TaskCard: React.FC<{ task: any, project?: any, onToggle: () => void, onDelete: () => void, t_func: any }> = ({task, project, onToggle, onDelete, t_func}) => (
+      <div className={`bg-white dark:bg-slate-900 rounded-2xl border dark:border-slate-800 shadow-sm p-4 flex items-center justify-between group transition-all hover:border-primary-500/50 ${task.completed ? 'opacity-50 grayscale' : ''}`}>
+        <div className="flex items-center gap-4 min-w-0">
+          <button onClick={onToggle} className={`p-1 rounded-lg transition-all ${task.completed ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'text-slate-300 hover:text-primary-600 bg-slate-50 dark:bg-slate-800'}`}>
+            <CheckCircle2 size={24} />
+          </button>
+          <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center shrink-0 shadow-inner">
+            {project ? <img src={project.icon} className="w-full h-full rounded-xl object-cover shadow-sm" /> : <ListChecks size={20} className="text-primary-600" />}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-0.5">
+              <h4 className={`font-black text-sm truncate ${task.completed ? 'line-through' : ''}`}>{task.note}</h4>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1 text-[8px] font-black text-slate-400 uppercase tracking-widest"><Clock size={10} /> {new Date(task.createdAt).toLocaleString()}</span>
+              {task.deadline && (
+                <span className="flex items-center gap-1 text-[8px] font-black text-red-500 uppercase tracking-widest"><Calendar size={10} /> Deadline: {task.deadline}</span>
+              )}
+              {task.reminder && task.reminder !== 'none' && (
+                <span className="flex items-center gap-1 text-[8px] font-black text-primary-600 uppercase tracking-tighter bg-primary-50 dark:bg-primary-900/40 px-1.5 py-0.5 rounded shadow-sm">
+                  <RefreshCw size={10} className="animate-spin-slow" /> {task.reminder} cycle
+                </span>
+              )}
             </div>
           </div>
         </div>
-      )}
-    </div>
-  );
-};
+        <button onClick={onDelete} className="p-2 text-slate-200 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={16} /></button>
+      </div>
+      );
 
-const DashboardStat: React.FC<{ label: string, val: string | number, icon: any, color: string }> = ({ label, val, icon, color }) => (
-  <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
-    <div className={`p-3 rounded-2xl text-white ${color} shadow-lg shadow-current/20`}>{icon}</div>
-    <div>
-      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">{label}</p>
-      <p className="text-lg font-black tracking-tight">{val}</p>
-    </div>
-  </div>
-);
-
-const ProjectCard: React.FC<{ project: any, onUntrack: () => void, t_func: any, unreadMessage?: any }> = ({ project, onUntrack, t_func, unreadMessage }) => (
-  <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 p-5 flex flex-col group hover:shadow-xl hover:border-primary-500 transition-all relative">
-    {unreadMessage && (
-      <Link to="/inbox" className="absolute -top-2 -right-2 bg-red-500 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-xl flex items-center gap-1 animate-bounce z-10 border-2 border-white dark:border-slate-900">
-        <Mail size={10} /> Mission Intel
-      </Link>
-    )}
-    <div className="flex items-center justify-between mb-4">
-      <div className="flex items-center gap-3 min-w-0">
-        <img src={project.icon} className="w-12 h-12 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform" />
-        <div className="min-w-0">
-          <h4 className="font-black text-sm uppercase truncate">{project.name}</h4>
-          {project.hasInfoFi && (
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest truncate">{project.platform}</p>
-          )}
+      const NavBtn: React.FC<{ icon: any, label: string, active: boolean, count?: number, onClick: () => void, notificationCount?: number, colorClass?: string }> = ({icon, label, active, count, onClick, notificationCount, colorClass}) => (
+      <button onClick={onClick} className={`px-6 py-4 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-between transition-all relative ${active ? (colorClass || 'bg-primary-600') + ' text-white shadow-xl shadow-primary-500/20' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+        <div className="flex items-center gap-3">{icon} <span>{label}</span></div>
+        <div className="flex items-center gap-2">
+          {count !== undefined && count > 0 && <span className={`text-[9px] px-2 py-0.5 rounded-full ${active ? 'bg-white text-primary-600' : 'bg-slate-200 dark:bg-slate-700 text-slate-600'}`}>{count}</span>}
+          {notificationCount !== undefined && notificationCount > 0 && <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.5)]"></span>}
         </div>
-      </div>
-      <button onClick={onUntrack} className="p-2 text-slate-300 hover:text-red-500 transition-colors bg-slate-50 dark:bg-slate-800 rounded-lg"><Trash2 size={14} /></button>
-    </div>
-    <div className="flex items-center justify-between mt-auto pt-4 border-t dark:border-slate-800">
-      <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-50 dark:bg-slate-800/80 text-primary-600 dark:text-primary-400 rounded-xl font-black font-mono text-[10px] border border-slate-100 dark:border-slate-700 shadow-sm transition-all group-hover:bg-primary-600 group-hover:text-white group-hover:border-primary-500">
-        <DollarSign size={10} />
-        {project.investment}
-      </div>
-      <Link to={`/project/${project.id}`} className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 hover:text-primary-600 transition-colors uppercase tracking-widest">{t_func('projectDetails')} <ArrowUpRight size={12} /></Link>
-    </div>
-  </div>
-);
-
-const TaskCard: React.FC<{ task: any, project?: any, onToggle: () => void, onDelete: () => void, t_func: any }> = ({ task, project, onToggle, onDelete, t_func }) => (
-  <div className={`bg-white dark:bg-slate-900 rounded-2xl border dark:border-slate-800 shadow-sm p-4 flex items-center justify-between group transition-all hover:border-primary-500/50 ${task.completed ? 'opacity-50 grayscale' : ''}`}>
-    <div className="flex items-center gap-4 min-w-0">
-      <button onClick={onToggle} className={`p-1 rounded-lg transition-all ${task.completed ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'text-slate-300 hover:text-primary-600 bg-slate-50 dark:bg-slate-800'}`}>
-        <CheckCircle2 size={24} />
       </button>
-      <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center shrink-0 shadow-inner">
-        {project ? <img src={project.icon} className="w-full h-full rounded-xl object-cover shadow-sm" /> : <ListChecks size={20} className="text-primary-600" />}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-0.5">
-          <h4 className={`font-black text-sm truncate ${task.completed ? 'line-through' : ''}`}>{task.note}</h4>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1 text-[8px] font-black text-slate-400 uppercase tracking-widest"><Clock size={10} /> {new Date(task.createdAt).toLocaleString()}</span>
-          {task.deadline && (
-            <span className="flex items-center gap-1 text-[8px] font-black text-red-500 uppercase tracking-widest"><Calendar size={10} /> Deadline: {task.deadline}</span>
-          )}
-          {task.reminder && task.reminder !== 'none' && (
-            <span className="flex items-center gap-1 text-[8px] font-black text-primary-600 uppercase tracking-tighter bg-primary-50 dark:bg-primary-900/40 px-1.5 py-0.5 rounded shadow-sm">
-              <RefreshCw size={10} className="animate-spin-slow" /> {task.reminder} cycle
-            </span>
-          )}
-        </div>
-      </div>
-    </div>
-    <button onClick={onDelete} className="p-2 text-slate-200 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={16} /></button>
-  </div>
-);
+      );
 
-const NavBtn: React.FC<{ icon: any, label: string, active: boolean, count?: number, onClick: () => void, notificationCount?: number, colorClass?: string }> = ({ icon, label, active, count, onClick, notificationCount, colorClass }) => (
-  <button onClick={onClick} className={`px-6 py-4 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-between transition-all relative ${active ? (colorClass || 'bg-primary-600') + ' text-white shadow-xl shadow-primary-500/20' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-    <div className="flex items-center gap-3">{icon} <span>{label}</span></div>
-    <div className="flex items-center gap-2">
-      {count !== undefined && count > 0 && <span className={`text-[9px] px-2 py-0.5 rounded-full ${active ? 'bg-white text-primary-600' : 'bg-slate-200 dark:bg-slate-700 text-slate-600'}`}>{count}</span>}
-      {notificationCount !== undefined && notificationCount > 0 && <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.5)]"></span>}
-    </div>
-  </button>
-);
-
-const Stat: React.FC<{ label: string, val: string, color: string }> = ({ label, val, color }) => (
-  <div className="min-w-0"><p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 truncate">{label}</p><p className={`text-2xl font-black ${color} truncate`}>{val}</p></div>
-);
+      const Stat: React.FC<{ label: string, val: string, color: string }> = ({label, val, color}) => (
+      <div className="min-w-0"><p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 truncate">{label}</p><p className={`text-2xl font-black ${color} truncate`}>{val}</p></div>
+      );

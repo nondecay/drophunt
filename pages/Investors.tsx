@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../AppContext';
-import { Search, ChevronDown, Check, ArrowUpDown, ChevronLeft, ChevronRight, Users, ExternalLink } from 'lucide-react';
+import { Search, ChevronDown, Check, ArrowUpDown, ChevronLeft, ChevronRight, Users, ExternalLink, Filter } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { LoadingSpinner } from '../components/LoadingSpinner';

@@ -11,6 +11,14 @@ export const OnChainRPG: React.FC = () => {
    if (!isDataLoaded) return <LoadingSpinner />;
    const { isConnected, chainId: currentChainId } = useAccount();
    const { switchChainAsync } = useSwitchChain();
+
+   const userRank = useMemo(() => {
+      if (!user || !usersList) return 'N/A';
+      const sorted = [...usersList].sort((a, b) => ((b.level - 1) * 100 + b.xp) - ((a.level - 1) * 100 + a.xp));
+      const index = sorted.findIndex(u => u.id === user.id);
+      return index >= 0 ? index + 1 : 'N/A';
+   }, [user, usersList]);
+
    // ... (existing code)
 
    // ... (existing code inside component)

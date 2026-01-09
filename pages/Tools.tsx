@@ -9,8 +9,9 @@ export const Tools: React.FC = () => {
   const { tools, t, isDataLoaded } = useApp();
   const [search, setSearch] = useState('');
 
-  if (!isDataLoaded) return <LoadingSpinner />;
   const [activeCategory, setActiveCategory] = useState<ToolCategory | 'All'>('All');
+
+  if (!isDataLoaded) return <LoadingSpinner />;
 
   const categories: (ToolCategory | 'All')[] = ['All', 'Research', 'Security', 'Dex Data', 'Wallets', 'Bots', 'Track Assets'];
 
