@@ -443,7 +443,7 @@ export const ProjectDetails: React.FC = () => {
                 className={`w-full py-4 rounded-xl font-black text-xs flex items-center justify-center gap-3 transition-all active:scale-95 ${isProjectTracked ? 'bg-slate-100 text-slate-400 dark:bg-slate-800' : 'bg-white text-primary-600 shadow-xl shadow-black/10 hover:bg-slate-50'}`}
               >
                 {isProjectTracked ? <CheckCircle size={18} /> : <Plus size={18} />}
-                {isProjectTracked ? t('tracked') : t('trackProject')}
+                {isProjectTracked ? 'Tracked' : 'Track Project'}
               </button>
 
               {project.status === 'Claim Available' && project.claimUrl && (

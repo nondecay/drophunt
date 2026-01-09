@@ -8,6 +8,9 @@ import { LoadingSpinner } from '../components/LoadingSpinner';
 
 export const OnChainRPG: React.FC = () => {
    const { user, activities, gainXP, addToast, usersList, chains, t, isDataLoaded, verifyWallet } = useApp();
+   const { isConnected, chainId: currentChainId } = useAccount();
+   const { switchChainAsync } = useSwitchChain();
+
    const userRank = useMemo(() => {
       if (!user || !usersList) return 'N/A';
       const sorted = [...usersList].sort((a, b) => ((b.level - 1) * 100 + b.xp) - ((a.level - 1) * 100 + a.xp));
