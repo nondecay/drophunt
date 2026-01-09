@@ -440,7 +440,7 @@ export const ProjectDetails: React.FC = () => {
                   if (!user?.address) return addToast("Connect Wallet to Track", "error");
                   toggleTrackProject(project.id);
                 }}
-                className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${isProjectTracked ? 'bg-slate-100 text-slate-400 dark:bg-slate-800' : 'bg-white text-primary-600 shadow-lg shadow-white/10 hover:scale-105'}`}
+                className={`w-full py-4 rounded-xl font-black text-xs flex items-center justify-center gap-3 transition-all active:scale-95 ${isProjectTracked ? 'bg-slate-100 text-slate-400 dark:bg-slate-800' : 'bg-white text-primary-600 shadow-xl shadow-black/10 hover:bg-slate-50'}`}
               >
                 {isProjectTracked ? <CheckCircle size={18} /> : <Plus size={18} />}
                 {isProjectTracked ? t('tracked') : t('trackProject')}

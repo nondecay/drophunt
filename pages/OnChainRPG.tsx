@@ -8,10 +8,6 @@ import { LoadingSpinner } from '../components/LoadingSpinner';
 
 export const OnChainRPG: React.FC = () => {
    const { user, activities, gainXP, addToast, usersList, chains, t, isDataLoaded, verifyWallet } = useApp();
-   if (!isDataLoaded) return <LoadingSpinner />;
-   const { isConnected, chainId: currentChainId } = useAccount();
-   const { switchChainAsync } = useSwitchChain();
-
    const userRank = useMemo(() => {
       if (!user || !usersList) return 'N/A';
       const sorted = [...usersList].sort((a, b) => ((b.level - 1) * 100 + b.xp) - ((a.level - 1) * 100 + a.xp));
@@ -19,36 +15,45 @@ export const OnChainRPG: React.FC = () => {
       return index >= 0 ? index + 1 : 'N/A';
    }, [user, usersList]);
 
+   if (!isDataLoaded) return <LoadingSpinner />;
+
    // ... (existing code)
 
    // ... (existing code inside component)
 
-   // Logic to handle !user
-   if (!user) {
-      if (isConnected) {
+   // Logic to handle !user or !isConnected
+   if (!isConnected || !user) {
+      // 1. If not connected, show Connect Wallet
+      if (!isConnected) {
          return (
             <div className="max-w-4xl mx-auto py-32 text-center px-4">
-               <div className="w-24 h-24 bg-amber-100 dark:bg-amber-900/30 text-amber-600 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-inner border-2 border-amber-500/20 animate-pulse">
-                  <ShieldCheck size={48} />
+               <div className="w-24 h-24 bg-slate-100 dark:bg-slate-800 text-primary-500 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-inner border-2 border-slate-200 dark:border-slate-700 animate-pulse">
+                  <Wallet size={48} />
                </div>
-               <h1 className="text-3xl md:text-5xl font-black tracking-tighter uppercase mb-6 text-slate-900 dark:text-white">Verification Required</h1>
-               <p className="text-slate-500 text-lg md:text-xl font-medium mb-10 max-w-lg mx-auto leading-relaxed">You must Verify your wallet for play Onchain RPG.</p>
-               <button
-                  onClick={() => verifyWallet()}
-                  className="px-10 py-5 bg-primary-600 text-white rounded-3xl font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 active:scale-95 transition-all text-sm flex items-center gap-3 mx-auto"
-               >
-                  <ShieldCheck size={20} /> Sign And Verify
-               </button>
+               <h1 className="text-3xl md:text-5xl font-black tracking-tighter uppercase mb-6 text-slate-900 dark:text-white">{t('connectWallet')}</h1>
+               <p className="text-slate-500 text-lg md:text-xl font-medium mb-10 max-w-lg mx-auto leading-relaxed">Please connect your wallet to access the Onchain RPG.</p>
+               {/* Connect Button is handled by RainbowKit in Header usually, but we can show a hint or custom button if specific connection required */}
+               <div className="p-4 bg-amber-50 dark:bg-amber-900/20 text-amber-600 rounded-2xl inline-block font-bold">
+                  Please use the Connect button in the header.
+               </div>
             </div>
          );
       }
+
+      // 2. If connected but not verified (!user), show Verify screen
       return (
          <div className="max-w-4xl mx-auto py-32 text-center px-4">
-            <div className="w-24 h-24 bg-rose-100 dark:bg-rose-900/30 text-rose-600 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-inner border-2 border-rose-500/20">
-               <Shield size={48} />
+            <div className="w-24 h-24 bg-amber-100 dark:bg-amber-900/30 text-amber-600 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-inner border-2 border-amber-500/20 animate-pulse">
+               <ShieldCheck size={48} />
             </div>
-            <h1 className="text-5xl font-black tracking-tighter uppercase mb-4 text-slate-900 dark:text-white">{t('rpgTitle')}</h1>
-            <p className="text-slate-500 text-xl font-medium mb-12">{t('rpgSub')}</p>
+            <h1 className="text-3xl md:text-5xl font-black tracking-tighter uppercase mb-6 text-slate-900 dark:text-white">Verification Required</h1>
+            <p className="text-slate-500 text-lg md:text-xl font-medium mb-10 max-w-lg mx-auto leading-relaxed">You must Verify your wallet for play Onchain RPG.</p>
+            <button
+               onClick={() => verifyWallet()}
+               className="px-10 py-5 bg-primary-600 text-white rounded-3xl font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 active:scale-95 transition-all text-sm flex items-center gap-3 mx-auto"
+            >
+               <ShieldCheck size={20} /> Sign And Verify
+            </button>
          </div>
       );
    }

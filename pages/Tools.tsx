@@ -11,11 +11,10 @@ export const Tools: React.FC = () => {
 
   const [activeCategory, setActiveCategory] = useState<ToolCategory | 'All'>('All');
 
-  if (!isDataLoaded) return <LoadingSpinner />;
-
   const categories: (ToolCategory | 'All')[] = ['All', 'Research', 'Security', 'Dex Data', 'Wallets', 'Bots', 'Track Assets'];
 
   const filteredTools = useMemo(() => {
+    if (!tools) return [];
     return tools.filter(tool => {
       const categoryMatch = activeCategory === 'All' || tool.category === activeCategory;
       const searchMatch = tool.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -23,6 +22,8 @@ export const Tools: React.FC = () => {
       return categoryMatch && searchMatch;
     });
   }, [tools, activeCategory, search]);
+
+  if (!isDataLoaded) return <LoadingSpinner />;
 
   return (
     <div className="max-w-7xl mx-auto px-4 pb-24 animate-in fade-in duration-500">

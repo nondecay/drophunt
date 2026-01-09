@@ -10,37 +10,10 @@ export const Investors: React.FC = () => {
   const { investors = [], airdrops = [], t, isDataLoaded } = useApp();
   const [search, setSearch] = useState('');
 
-  if (!isDataLoaded) return <LoadingSpinner />;
-  const [sortBy, setSortBy] = useState('most_projects');
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20;
-
-  const investorData = useMemo(() => {
-    return investors.map(inv => {
-      const supportedProjects = airdrops.filter(a => a.backerIds?.includes(inv.id));
-      const sorted = supportedProjects.sort((a, b) => b.createdAt - a.createdAt);
-      const latestProject = sorted.length > 0 ? sorted[0] : null;
-
-      return {
-        ...inv,
-        projectCount: supportedProjects.length,
-        latestInvestmentDate: latestProject ? new Date(latestProject.createdAt).toLocaleDateString() : 'N/A',
-      };
-    });
-  }, [investors, airdrops]);
-
-  const filteredAndSortedAll = useMemo(() => {
-    return investorData.filter(inv =>
-      inv.name.toLowerCase().includes(search.toLowerCase())
-    ).sort((a, b) => {
-      if (sortBy === 'most_projects') return b.projectCount - a.projectCount;
-      if (sortBy === 'newest') return b.createdAt - a.createdAt;
-      return 0;
-    });
-  }, [investorData, search, sortBy]);
-
   const totalPages = Math.ceil(filteredAndSortedAll.length / itemsPerPage);
   const currentItems = filteredAndSortedAll.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  if (!isDataLoaded) return <LoadingSpinner />;
 
   return (
     <div className="max-w-7xl mx-auto px-4 pb-20 animate-in fade-in duration-500">
