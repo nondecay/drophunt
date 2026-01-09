@@ -145,19 +145,7 @@ export const ProjectDetails: React.FC = () => {
 
     setComments(prev => [...prev, savedComment as any]);
 
-    // Optimistic Rating Update
-    if (project && userRating > 0) {
-      const currentComments = comments.filter(c => c.airdropId === project.id && c.rating);
-      const totalScore = currentComments.reduce((acc, c) => acc + (c.rating || 0), 0) + userRating;
-      const newAvg = totalScore / (currentComments.length + 1);
-      // We need to update the project in the global state, but 'airdrops' is from context.
-      // Ideally we call a context method, but for now we can rely on the server trigger and eventually a refresh.
-      // However, to show it immediately (user requested "etki etmesi gereklidir"), we should try to update local perception if possible.
-      // Since 'project' is derived from 'airdrops', we can try to force a refreshData call or if we had setAirdrops exposed.
-      // AdminPanel exposes setAirdrops, ProjectDetails does not.
-      // We will trigger a refreshData() which re-fetches.
-      refreshData();
-    }
+    setComments(prev => [...prev, savedComment as any]);
 
     // Update local activity tracking (Persist to DB)
     const updatedTimestamps = { ...projectTimestamps, [project.id]: now };
