@@ -108,7 +108,7 @@ export interface Airdrop {
   hasInfoFi: boolean;
   rating: number;
   voteCount: number;
-  status: 'Potential' | 'Claim Available';
+  status: 'Potential' | 'Claim Available' | 'Airdrop Confirmed';
   socials: SocialLinks;
   topUsers?: TopUser[];
   createdAt: number;

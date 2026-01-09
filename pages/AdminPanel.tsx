@@ -661,6 +661,7 @@ const AdminPanelContent: React.FC = () => {
                                     <select className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-xs outline-none" value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })}>
                                        <option value="Potential">Potential</option>
                                        <option value="Claim Available">Claim Available</option>
+                                       <option value="Airdrop Confirmed">Airdrop Confirmed</option>
                                     </select>
                                  </div>
                                  <div>

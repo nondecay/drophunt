@@ -400,7 +400,7 @@ export const MyAirdrops: React.FC = () => {
               <div className="bg-white dark:bg-slate-900 rounded-[2rem] border dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead className="bg-slate-50 dark:bg-slate-800/50 text-[10px] font-black uppercase text-slate-400 tracking-widest">
-                    <tr><th className="p-6">{t('origin')}</th><th className="p-6">Claimed Date</th><th className="p-6">{t('expense')}</th><th className="p-6">{t('allocation')}</th><th className="p-6">{t('reward')}</th><th className="p-6">{t('yield')}</th></tr>
+                    <tr><th className="p-6">{t('origin')}</th><th className="p-6">Claimed Date</th><th className="p-6">{t('expense')}</th><th className="p-6">{t('allocation')}</th><th className="p-6">{t('reward')}</th><th className="p-6">{t('yield')}</th><th className="p-6 text-right">Actions</th></tr>
                   </thead>
                   <tbody className="divide-y dark:divide-slate-800 font-medium">
                     {filteredClaims.map(c => (
@@ -411,6 +411,19 @@ export const MyAirdrops: React.FC = () => {
                         <td className="p-6 font-bold text-slate-500">{c.tokenCount?.toLocaleString() || '0'} {c.claimedToken}</td>
                         <td className="p-6 text-emerald-500 font-black">+${c.earning.toLocaleString()}</td>
                         <td className={`p-6 font-black ${c.earning - c.expense >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>${(c.earning - c.expense).toLocaleString()}</td>
+                        <td className="p-6 text-right">
+                          <button
+                            onClick={() => {
+                              if (confirm(t('confirmDelete'))) {
+                                manageUserClaim('remove', c.id);
+                              }
+                            }}
+                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                            title={t('delete')}
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
