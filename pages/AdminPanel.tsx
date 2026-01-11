@@ -9,6 +9,15 @@ import {
 } from 'lucide-react';
 import { OnChainActivity, Airdrop, Claim, Guide, Comment, TopUser, Chain, User, InfoFiPlatform, Announcement, Investor, Tool, ToolCategory } from '../types';
 
+// Image Proxy Helper
+const getImgUrl = (path: string) => {
+   if (!path) return '';
+   if (path.startsWith('http') || path.startsWith('data:')) return path;
+   // Ensure we don't double-slash or miss slash
+   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+   return `https://bxklsejtopzevituoaxk.supabase.co/storage/v1/object/public/${cleanPath}`;
+};
+
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: string }> {
    state = { hasError: false, error: '' };
 
@@ -258,6 +267,10 @@ const AdminPanelContent: React.FC = () => {
    const handleFile = async (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
       const file = e.target.files?.[0];
       if (file) {
+         // Immediate Preview
+         const objectUrl = URL.createObjectURL(file);
+         setFormData((prev: any) => ({ ...prev, _preview: objectUrl }));
+
          try {
             // New Logic: Upload to Supabase Storage
             const fileExt = file.name.split('.').pop();
@@ -923,7 +936,7 @@ const AdminPanelContent: React.FC = () => {
                            {(formData.icon || formData.logo || formData.nftImage) && (
                               <div className="mt-4">
                                  <p className="text-[9px] font-black uppercase text-slate-400 mb-2">Preview</p>
-                                 <img src={getImgUrl(formData.icon || formData.logo || formData.nftImage)} className="h-20 w-20 object-cover rounded-xl shadow-md border dark:border-slate-800" />
+                                 <img src={formData._preview || getImgUrl(formData.icon || formData.logo || formData.nftImage)} className="h-20 w-20 object-cover rounded-xl shadow-md border dark:border-slate-800" />
                               </div>
                            )}
                         </div>
@@ -951,12 +964,7 @@ const SectionWrapper: React.FC<{ title: string, onAdd?: () => void, children: Re
    </div>
 );
 
-// Image Proxy Helper
-const getImgUrl = (path: string) => {
-   if (!path) return '';
-   if (path.startsWith('http') || path.startsWith('data:')) return path;
-   return `https://bxklsejtopzevituoaxk.supabase.co/storage/v1/object/public/${path}`;
-};
+// Helper removed (hoisted)
 
 const ListItem: React.FC<{ title: string, sub: string, img: string, onEdit: () => void, onDelete: () => void }> = ({ title, sub, img, onEdit, onDelete }) => (
    <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl flex items-center justify-between group border dark:border-slate-700 hover:border-primary-500 transition-all shadow-sm">
