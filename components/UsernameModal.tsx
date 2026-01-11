@@ -1,61 +1,79 @@
+
 import React, { useState } from 'react';
+import { User, AuthenticatedUser, CheckCircle, AlertCircle, Sparkles } from 'lucide-react';
 import { useApp } from '../AppContext';
 
 export const UsernameModal: React.FC = () => {
-    const { user, isVerified, setUsername, showUsernameModal } = useApp();
-    const [name, setName] = useState('');
-    const [loading, setLoading] = useState(false);
+    const { user, showUsernameModal, registerUsername } = useApp();
+    const [input, setInput] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    if (!user || !isVerified || !showUsernameModal) return null;
+    // Only show if explicitly triggered by AppContext state
+    if (!showUsernameModal) return null;
 
-    // Don't show if username is already set custom (not Hunter_...)
-    // But showUsernameModal global state controls this mostly.
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
         setError('');
-        if (!name.trim() || name.length < 3) return setError("Minimum 3 characters.");
-        if (!/^[a-zA-Z0-9_]+$/.test(name)) return setError("Alphanumeric only.");
+
+        // Regex: Alphanumeric + symbols, 1-12 chars
+        const regex = /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{1,12}$/;
+
+        if (!input.match(regex)) {
+            setError('Invalid format. Max 12 chars, no spaces.');
+            return;
+        }
+
+        if (input.length > 12) {
+            setError('Too long (max 12 characters).');
+            return;
+        }
 
         setLoading(true);
-        const success = await setUsername(name);
-        setLoading(false);
-        if (!success) setError("Username taken or invalid.");
+        try {
+            await registerUsername(input);
+        } catch (e: any) {
+            setError(e.message || 'Failed to set username');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
-        <div className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-700 p-8 rounded-3xl w-full max-w-md shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-500 to-indigo-500"></div>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/90 backdrop-blur-md animate-in fade-in duration-300 p-4">
+            <div className="bg-white dark:bg-slate-900 w-full max-w-md p-8 rounded-[2.5rem] shadow-2xl border-4 border-amber-500/20 text-center relative">
 
-                <h2 className="text-2xl font-black text-white text-center mb-2 uppercase tracking-tight">Identity Required</h2>
-                <p className="text-center text-slate-400 text-xs mb-8">Choose a unique codename for the DropHunt network.</p>
+                <div className="w-20 h-20 bg-amber-50 dark:bg-amber-900/20 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner ring-4 ring-white dark:ring-slate-900">
+                    <User size={40} />
+                </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                        <input
-                            type="text"
-                            className="w-full bg-slate-950 border-2 border-slate-800 focus:border-primary-500 rounded-xl p-4 text-center font-black text-xl text-white outline-none transition-all placeholder:text-slate-700"
-                            placeholder="USERNAME"
-                            value={name}
-                            onChange={(e) => setName(e.target.value.substring(0, 15))}
-                            autoFocus
-                        />
-                        {error && <p className="text-red-500 text-center text-xs font-bold mt-2 animate-pulse">{error}</p>}
-                    </div>
+                <h2 className="text-2xl font-black uppercase tracking-tighter mb-2">Identify Yourself</h2>
+                <p className="text-slate-500 font-medium mb-8 text-sm">
+                    Choose a unique codename for the network. <br />
+                    <span className="opacity-75">Max 12 chars. Symbols allowed.</span>
+                </p>
 
-                    <button
-                        disabled={loading}
-                        className="w-full bg-white text-black font-black p-4 rounded-xl hover:scale-105 active:scale-95 transition-all text-sm uppercase disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {loading ? 'Registering...' : 'Establish Identity'}
-                    </button>
+                <div className="mb-6 relative">
+                    <input
+                        type="text"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        placeholder="Enter Username"
+                        className="w-full px-6 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 font-black text-center text-lg outline-none focus:border-amber-500 transition-colors uppercase placeholder:text-slate-300 placeholder:normal-case"
+                    />
+                    {error && (
+                        <div className="absolute -bottom-6 left-0 w-full text-center text-rose-500 text-xs font-bold flex items-center justify-center gap-1">
+                            <AlertCircle size={10} /> {error}
+                        </div>
+                    )}
+                </div>
 
-                    <p className="text-[10px] text-center text-slate-600 font-mono">
-                        This will be permanently valid for your wallet.
-                    </p>
-                </form>
+                <button
+                    onClick={handleSubmit}
+                    disabled={loading || !input}
+                    className="w-full py-4 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-amber-500/20 active:scale-95 transition-all flex items-center justify-center gap-3"
+                >
+                    {loading ? 'Registering...' : <><Sparkles size={20} /> Confirm Identity</>}
+                </button>
             </div>
         </div>
     );

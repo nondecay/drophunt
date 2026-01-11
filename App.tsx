@@ -19,6 +19,8 @@ import { Investors } from './pages/Investors';
 import { InvestorDetails } from './pages/InvestorDetails';
 import { Tools } from './pages/Tools';
 import { Faucets } from './pages/Faucets';
+import { VerificationModal } from './components/VerificationModal';
+import { UsernameModal } from './components/UsernameModal';
 
 // RainbowKit & Wagmi Imports
 import '@rainbow-me/rainbowkit/styles.css';

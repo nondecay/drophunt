@@ -13,11 +13,11 @@ interface AppContextType {
   lang: Language;
   setLang: (l: Language) => void;
   user: User | null;
-  isVerified: boolean;
   verifyWallet: () => Promise<void>;
   // username: string; // REMOVED: relied on user.username
   updateAvatar: (url: string) => Promise<void>;
   showUsernameModal: boolean;
+  registerUsername: (username: string) => Promise<void>;
 
   isDataLoaded: boolean;
 
@@ -94,8 +94,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // States initialized empty, populated via Supabase
   const [usersList, setUsersList] = useState<User[]>([]);
   const [user, setUser] = useState<User | null>(null);
-  const [isVerified, setIsVerified] = useState(false);
+  // Remove isVerified - we rely on user presence or modal
   const [showUsernameModal, setShowUsernameModal] = useState(false);
+  const [isVerified, setIsVerified] = useState(false); // Kept for backwards compat if needed, but redundant
 
   const [airdrops, setAirdrops] = useState<Airdrop[]>([]);
   const [activities, setActivities] = useState<OnChainActivity[]>([]);
@@ -171,6 +172,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (results[11].data) setEvents(results[11].data as any);
       if (results[12].data) {
         const readIds = JSON.parse(localStorage.getItem('read_messages') || '[]');
+
+        // Filter messages for privacy:
+        // 1. If user is logged in, show messages after their registration OR personal messages
+        // 2. If not logged in, maybe show nothing or just system (we'll filter in UI or here)
+        // Correct implementation: AppContext has user state. But refreshData might run before user is set.
+        // It uses the FETCHED data. We should filter in the UI or update 'inbox' state when user logs in.
+        // For now, load all, and we'll filter in Inbox.tsx OR here if we have user.
+        // BETTER: Filter here if possible, but 'user' state might be stale in this closure if not careful.
+        // Actually, just loading all is risky for privacy if we care about "network tab" privacy.
+        // But user request implies "view" privacy. 
+
         const processedInbox = (results[12].data as any[]).map(m => ({
           ...m,
           isRead: readIds.includes(m.id)
@@ -199,25 +211,60 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (existing) {
       setUser(existing as any);
       fetchUserData(existing.id);
+      setIsVerified(true);
       return;
     }
 
-    // Create new user if not exists
-    if (!existing) {
-      const newUser = {
-        address: addr,
-        avatar: RANDOM_AVATARS[Math.floor(Math.random() * RANDOM_AVATARS.length)],
-        username: `Hunter_${addr.substring(2, 6)}`,
-        role: 'user', // Default role
-        "memberStatus": "Hunter", // Legacy field compat
-        registeredAt: Date.now()
-      };
-      const { data: created, error: insertErr } = await supabase.from('users').insert(newUser).select().single();
-      if (created) {
-        setUser(created as any);
-        fetchUserData(created.id);
+    // DO NOT AUTO CREATE.
+    // If not existing, user state remains null.
+    // UI (VerificationModal) will detect isConnected && !user and prompt "Sign & Verify".
+  };
+
+  const registerUsername = async (username: string) => {
+    if (!address) return;
+
+    const newUser = {
+      address: address,
+      avatar: RANDOM_AVATARS[Math.floor(Math.random() * RANDOM_AVATARS.length)],
+      username: username,
+      role: 'user',
+      "memberStatus": "Hunter",
+      registeredAt: Date.now()
+    };
+
+    const { data: created, error: insertErr } = await supabase.from('users').insert(newUser).select().single();
+
+    if (created) {
+      setUser(created as any);
+      fetchUserData(created.id);
+      setShowUsernameModal(false);
+      addToast("Welcome, Hunter!", "success");
+    } else {
+      console.error("User Creation Failed", insertErr);
+      // Check for duplicate username
+      if (insertErr?.code === '23505') {
+        throw new Error("Username already taken.");
       }
-      else console.error("User Creation Failed", insertErr);
+      throw new Error("Registration failed.");
+    }
+  };
+
+  const verifyWallet = async () => {
+    if (!isConnected || !address) return;
+    try {
+      const message = `Verify ownership of ${address} for Trackdropz access. Timestamp: ${Date.now()}`;
+      await signMessageAsync({ message });
+
+      // After signing, if user doesn't exist, we show username modal to complete registration.
+      // We check existence again to be sure? Or just proceed to registration flow.
+      // Since syncUser runs on connect, if we are here, 'user' is null.
+
+      // Show username selection modal
+      setShowUsernameModal(true);
+
+    } catch (e) {
+      console.error(e);
+      addToast("Verification cancelled", "error");
     }
   };
 

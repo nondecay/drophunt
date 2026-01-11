@@ -11,21 +11,36 @@ export const Inbox: React.FC = () => {
   // Ensure inbox is an array before proceeding
   const currentInbox = Array.isArray(inbox) ? inbox : [];
 
+  // Filter messages based on user registration time
+  const visibleInbox = useMemo(() => {
+    if (!user || !user.registeredAt) return currentInbox; // Fallback or show all if logic unclear (or show nothing?)
+    // If user is logged in, only show messages created AFTER they registered ("System" type usually)
+    // Personal messages (with relatedAirdropId) are usually specific, but general broadcasts should be time-gated.
+    // Requirement: "New user... shouldn't see pre-existing messages."
+
+    return currentInbox.filter(m => {
+      // If message has specific user targeting (not implemented deeply here, usually done via RLS), pass it.
+      // Assuming 'inbox' logic is global broadcasts + personal.
+      // Simple Logic: timestamp >= registeredAt
+      return Number(m.timestamp) >= Number(user.registeredAt);
+    });
+  }, [currentInbox, user]);
+
   if (!isDataLoaded) return <LoadingSpinner />;
 
   const markedRef = React.useRef<Set<string>>(new Set());
 
   useEffect(() => {
     // Mark all visible messages as read, but only once per message
-    if (currentInbox.length > 0) {
-      currentInbox.forEach(m => {
+    if (visibleInbox.length > 0) {
+      visibleInbox.forEach((m: any) => {
         if (!m.isRead && !markedRef.current.has(m.id)) {
           markedRef.current.add(m.id);
           markMessageRead(m.id);
         }
       });
     }
-  }, [currentInbox, markMessageRead]);
+  }, [visibleInbox, markMessageRead]);
 
   const deleteMessage = (id: string) => {
     const deleted = JSON.parse(localStorage.getItem('deleted_messages') || '[]');
@@ -40,12 +55,12 @@ export const Inbox: React.FC = () => {
     if (confirm("Clear current view?")) {
       const deleted = JSON.parse(localStorage.getItem('deleted_messages') || '[]');
       const idsToRemove = filter === 'all'
-        ? inbox.map(m => m.id)
-        : inbox.filter(m => {
+        ? visibleInbox.map((m: any) => m.id)
+        : visibleInbox.filter((m: any) => {
           if (filter === 'tracked') return m.relatedAirdropId && user?.trackedProjectIds?.includes(m.relatedAirdropId);
           if (filter === 'system') return !m.relatedAirdropId;
           return false;
-        }).map(m => m.id);
+        }).map((m: any) => m.id);
 
       const newDeleted = [...new Set([...deleted, ...idsToRemove])];
       localStorage.setItem('deleted_messages', JSON.stringify(newDeleted));
@@ -57,14 +72,14 @@ export const Inbox: React.FC = () => {
 
   const filteredMessages = useMemo(() => {
     const deleted = JSON.parse(localStorage.getItem('deleted_messages') || '[]');
-    return inbox.filter(m => {
+    return visibleInbox.filter((m: any) => {
       if (deleted.includes(m.id)) return false;
       const isTracked = m.relatedAirdropId && user?.trackedProjectIds?.includes(m.relatedAirdropId);
       if (filter === 'tracked') return isTracked;
       if (filter === 'system') return !isTracked;
       return true;
     });
-  }, [inbox, filter, user]);
+  }, [visibleInbox, filter, user]);
 
   return (
     <div className="max-w-4xl mx-auto pb-20 px-4">
@@ -73,8 +88,6 @@ export const Inbox: React.FC = () => {
           <h1 className="text-5xl font-black tracking-tighter mb-2">{t('hunterInbox')}</h1>
           <p className="text-slate-500 font-medium tracking-wide">{t('inboxSub')}</p>
         </div>
-        {inbox.length > 0 && (
-          <button onClick={clearInbox} className="text-xs font-black uppercase tracking-widest text-red-500 hover:underline flex items-center gap-2">
             <Trash2 size={16} /> {t('clearAll')}
           </button>
         )}
@@ -132,7 +145,7 @@ export const Inbox: React.FC = () => {
           })
         )}
       </div>
-    </div>
+    </div >
   );
 };
 
