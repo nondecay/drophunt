@@ -920,6 +920,12 @@ const AdminPanelContent: React.FC = () => {
                         <div className="col-span-2 mt-4 p-6 bg-slate-50 dark:bg-slate-900 border-2 border-dashed dark:border-slate-800 rounded-2xl">
                            <label className="text-[10px] font-black uppercase text-slate-400 block mb-2">Graphic Resource</label>
                            <input type="file" className="text-xs" onChange={e => handleFile(e, (['airdrop', 'infofi', 'chain', 'claim', 'presale', 'platform', 'investor', 'tool'].includes(showModal || '')) ? (['platform', 'chain', 'investor', 'tool'].includes(showModal || '') ? 'logo' : 'icon') : (showModal === 'mint' ? 'nftImage' : 'logo'))} />
+                           {(formData.icon || formData.logo || formData.nftImage) && (
+                              <div className="mt-4">
+                                 <p className="text-[9px] font-black uppercase text-slate-400 mb-2">Preview</p>
+                                 <img src={getImgUrl(formData.icon || formData.logo || formData.nftImage)} className="h-20 w-20 object-cover rounded-xl shadow-md border dark:border-slate-800" />
+                              </div>
+                           )}
                         </div>
                      )}
                   </div>
