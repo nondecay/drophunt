@@ -4,7 +4,7 @@ import { User, AuthenticatedUser, CheckCircle, AlertCircle, Sparkles } from 'luc
 import { useApp } from '../AppContext';
 
 export const UsernameModal: React.FC = () => {
-    const { user, showUsernameModal, registerUsername } = useApp();
+    const { user, showUsernameModal, setShowUsernameModal, setUsername } = useApp();
     const [input, setInput] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -30,7 +30,8 @@ export const UsernameModal: React.FC = () => {
 
         setLoading(true);
         try {
-            await registerUsername(input);
+            const success = await setUsername(input);
+            if (success) setShowUsernameModal(false);
         } catch (e: any) {
             setError(e.message || 'Failed to set username');
         } finally {
@@ -46,9 +47,9 @@ export const UsernameModal: React.FC = () => {
                     <User size={40} />
                 </div>
 
-                <h2 className="text-2xl font-black uppercase tracking-tighter mb-2">Identify Yourself</h2>
+                <h2 className="text-2xl font-black uppercase tracking-tighter mb-2">Select Your Username</h2>
                 <p className="text-slate-500 font-medium mb-8 text-sm">
-                    Choose a unique codename for the network. <br />
+                    We assigned you a codename, but you can change it now.<br />
                     <span className="opacity-75">Max 12 chars. Symbols allowed.</span>
                 </p>
 
@@ -57,7 +58,7 @@ export const UsernameModal: React.FC = () => {
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        placeholder="Enter Username"
+                        placeholder={user?.username || "Enter Username"}
                         className="w-full px-6 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 font-black text-center text-lg outline-none focus:border-amber-500 transition-colors uppercase placeholder:text-slate-300 placeholder:normal-case"
                     />
                     {error && (
@@ -72,7 +73,13 @@ export const UsernameModal: React.FC = () => {
                     disabled={loading || !input}
                     className="w-full py-4 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-amber-500/20 active:scale-95 transition-all flex items-center justify-center gap-3"
                 >
-                    {loading ? 'Registering...' : <><Sparkles size={20} /> Confirm Identity</>}
+                    {loading ? 'Updating...' : <><Sparkles size={20} /> Update Username</>}
+                </button>
+                <button
+                    onClick={() => setShowUsernameModal(false)}
+                    className="text-xs text-slate-400 font-bold uppercase tracking-widest hover:text-slate-600 dark:hover:text-slate-200 mt-3 block w-full text-center"
+                >
+                    Keep Current Name
                 </button>
             </div>
         </div>
