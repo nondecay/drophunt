@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useApp } from '../AppContext';
-import { ChevronLeft, Youtube, Twitter, MessageSquare, Star, Zap, Plus, Globe, Trophy, ExternalLink, ShieldCheck, Github, Trash2, Medal, X, Lock, Info, Rocket, DollarSign, Users, Edit3, ChevronRight, CheckCircle, AlertCircle } from 'lucide-react';
+import { ChevronLeft, Youtube, Twitter, MessageSquare, Star, Zap, Plus, Globe, Trophy, ExternalLink, ShieldCheck, Github, Trash2, Medal, X, Lock, Info, Rocket, DollarSign, Users, Edit3, ChevronRight, CheckCircle, AlertCircle, ChevronDown } from 'lucide-react';
 import { Guide, Comment } from '../types';
 import { supabase } from '../supabaseClient';
 
