@@ -216,9 +216,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return;
     }
 
-    // DO NOT AUTO CREATE.
-    // If not existing, user state remains null.
-    // UI (VerificationModal) will detect isConnected && !user and prompt "Sign & Verify".
+    // Do NOT auto-create here. Verify wallet flow handles creation.
+    // However, if we are ALREADY verified in session, we might want to sync?
+    // But syncUser is called in useEffect on connect.
+    // If user exists, fine. If not, do nothing (wait for verify).
   };
 
   const registerUsername = async (username: string) => {
@@ -413,6 +414,64 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // 4. Actions (Updated to Async / DB)
 
+  const verifyWallet = async () => {
+    if (!address) return;
+    try {
+      const nonce = Math.random().toString(36).substring(2, 15);
+      const now = new Date();
+      const isoNow = now.toISOString();
+      const expires = new Date(now.getTime() + 5 * 60000).toISOString();
+
+      const message = `Welcome to drophunt.io!
+
+Please sign this message to verify that you are the owner of this wallet.
+This signature does not initiate any blockchain transaction and does not cost any gas.
+
+Purpose: Account authentication
+Nonce: ${nonce}
+Issued At: ${isoNow}
+Expires At: ${expires}`;
+
+      const signature = await signMessageAsync({ account: address as `0x${string}`, message });
+      const isValid = await verifyMessage({ address: address as `0x${string}`, message, signature });
+
+      if (isValid) {
+        sessionStorage.setItem(`verified_session_${address.toLowerCase()}`, 'true');
+        setIsVerified(true);
+        addToast(t('walletVerified') || "Wallet verified.");
+
+        // Check if user exists, if not AUTO-REGISTER
+        const { data: existing } = await supabase.from('users').select('*').eq('address', address.toLowerCase()).single();
+
+        if (!existing) {
+          const newUser = {
+            address: address.toLowerCase(),
+            avatar: RANDOM_AVATARS[Math.floor(Math.random() * RANDOM_AVATARS.length)],
+            username: `Hunter_${address.substring(2, 6)}`,
+            role: 'user',
+            "memberStatus": "Hunter",
+            registeredAt: Date.now()
+          };
+          const { data: created, error } = await supabase.from('users').insert(newUser).select().single();
+          if (created) {
+            setUser(created as any);
+            // Show optional username change modal
+            setShowUsernameModal(true);
+          } else {
+            console.error("Auto-reg failed", error);
+            addToast("Registration failed", "error");
+          }
+        } else {
+          // Existing user
+          setUser(existing as any);
+          fetchUserData(existing.id);
+        }
+      }
+    } catch (err: any) {
+      console.error(err);
+      addToast(t('verificationFailed') || "Verification failed.", "error");
+    }
+  };
 
 
   const setUsername = async (name: string) => {
