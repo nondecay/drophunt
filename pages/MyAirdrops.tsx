@@ -551,7 +551,16 @@ export const MyAirdrops: React.FC = () => {
   );
 };
 
+// Image Proxy Helper
+const getImgUrl = (path: string) => {
+  if (!path) return '';
+  if (path.startsWith('http') || path.startsWith('data:')) return path;
+  return `/image/${path}`;
+};
+
+
 const DashboardStat: React.FC<{ label: string, val: string | number, icon: any, color: string }> = ({ label, val, icon, color }) => (
+  // ... (unchanged)
   <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
     <div className={`p-3 rounded-2xl text-white ${color} shadow-lg shadow-current/20`}>{icon}</div>
     <div>
@@ -570,7 +579,7 @@ const ProjectCard: React.FC<{ project: any, onUntrack: () => void, t_func: any, 
     )}
     <div className="flex items-center justify-between mb-4">
       <div className="flex items-center gap-3 min-w-0">
-        <img src={project.icon} className="w-12 h-12 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform" />
+        <img src={getImgUrl(project.icon)} className="w-12 h-12 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform" />
         <div className="min-w-0">
           <h4 className="font-black text-sm uppercase truncate">{project.name}</h4>
           {project.hasInfoFi && (
@@ -597,7 +606,7 @@ const TaskCard: React.FC<{ task: any, project?: any, onToggle: () => void, onDel
         <CheckCircle2 size={24} />
       </button>
       <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center shrink-0 shadow-inner">
-        {project ? <img src={project.icon} className="w-full h-full rounded-xl object-cover shadow-sm" /> : <ListChecks size={20} className="text-primary-600" />}
+        {project ? <img src={getImgUrl(project.icon)} className="w-full h-full rounded-xl object-cover shadow-sm" /> : <ListChecks size={20} className="text-primary-600" />}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-0.5">

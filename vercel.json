@@ -2,14 +2,17 @@
     "framework": "vite",
     "buildCommand": "vite build",
     "outputDirectory": "dist",
-    "rewrites": [
-        {
-            "source": "/api/(.*)",
-            "destination": "/api/$1"
-        },
-        {
-            "source": "/(.*)",
-            "destination": "/index.html"
-        }
-    ]
+    {
+        "source": "/image/(.*)",
+        "destination": "https://REPLACE_WITH_YOUR_PROJECT_ID.supabase.co/storage/v1/object/public/$1"
+    },
+    {
+        "source": "/api/(.*)",
+        "destination": "/api/$1"
+    },
+    {
+        "source": "/(.*)",
+        "destination": "/index.html"
+    }
+]
 }

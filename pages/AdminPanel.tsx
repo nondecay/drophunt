@@ -255,12 +255,44 @@ const AdminPanelContent: React.FC = () => {
       }
    };
 
-   const handleFile = (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
+   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
       const file = e.target.files?.[0];
       if (file) {
-         const reader = new FileReader();
-         reader.onloadend = () => setFormData({ ...formData, [field]: reader.result as string });
-         reader.readAsDataURL(file);
+         try {
+            // New Logic: Upload to Supabase Storage
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+            const filePath = `${field === 'logo' || field === 'icon' ? 'logos' : 'assets'}/${fileName}`;
+
+            // Assuming 'public-files' bucket exists, or user must create it.
+            // We'll try 'images' bucket first as it's common.
+            const bucketName = 'images';
+
+            const { data, error } = await supabase.storage
+               .from(bucketName)
+               .upload(filePath, file);
+
+            if (error) throw error;
+
+            // Store relative path: 'images/logos/filename.png'
+            // The proxy will access it via /image/images/logos/filename.png
+            // So we store: "images/" + filePath
+            const relativePath = `${bucketName}/${filePath}`;
+            console.log("Uploaded:", relativePath);
+
+            setFormData({ ...formData, [field]: relativePath });
+            addToast("Image Uploaded");
+
+         } catch (error: any) {
+            console.error("Upload failed", error);
+            // Fallback for local dev or if upload fails? No, explicit failure better.
+            addToast(`Upload Failed: ${error.message}`, "error");
+
+            // Legacy Fallback (optional, maybe remove if strictly wanted storage)
+            // const reader = new FileReader();
+            // reader.onloadend = () => setFormData({ ...formData, [field]: reader.result as string });
+            // reader.readAsDataURL(file);
+         }
       }
    };
 
@@ -913,10 +945,17 @@ const SectionWrapper: React.FC<{ title: string, onAdd?: () => void, children: Re
    </div>
 );
 
+// Image Proxy Helper
+const getImgUrl = (path: string) => {
+   if (!path) return '';
+   if (path.startsWith('http') || path.startsWith('data:')) return path;
+   return `/image/${path}`;
+};
+
 const ListItem: React.FC<{ title: string, sub: string, img: string, onEdit: () => void, onDelete: () => void }> = ({ title, sub, img, onEdit, onDelete }) => (
    <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl flex items-center justify-between group border dark:border-slate-700 hover:border-primary-500 transition-all shadow-sm">
       <div className="flex items-center gap-4 min-w-0">
-         {img ? <img src={img} className="w-12 h-12 rounded-xl object-cover shadow-sm group-hover:scale-110 transition-transform" /> : <div className="w-12 h-12 rounded-xl bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-400 font-black text-[8px]">NO IMG</div>}
+         {img ? <img src={getImgUrl(img)} className="w-12 h-12 rounded-xl object-cover shadow-sm group-hover:scale-110 transition-transform" /> : <div className="w-12 h-12 rounded-xl bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-400 font-black text-[8px]">NO IMG</div>}
          <div className="min-w-0"><p className="font-black text-sm uppercase truncate w-32 md:w-48">{title}</p><p className="text-[9px] font-black text-slate-400 uppercase tracking-widest truncate w-32 md:w-48">{sub}</p></div>
       </div>
       <div className="flex gap-1 transition-all"><button onClick={onEdit} className="p-2.5 bg-white dark:bg-slate-900 rounded-xl text-slate-400 hover:text-primary-600 shadow-sm"><Edit size={16} /></button><button onClick={() => { if (confirm("Purge from protocol?")) onDelete(); }} className="p-2.5 bg-white dark:bg-slate-900 rounded-xl text-slate-400 hover:text-red-500 shadow-sm"><Trash2 size={16} /></button></div>
