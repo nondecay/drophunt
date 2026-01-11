@@ -6,6 +6,13 @@ import { Link } from 'react-router-dom';
 
 import { LoadingSpinner } from '../components/LoadingSpinner';
 
+// Image Proxy Helper
+const getImgUrl = (path: string) => {
+  if (!path) return '';
+  if (path.startsWith('http') || path.startsWith('data:')) return path;
+  return `https://bxklsejtopzevituoaxk.supabase.co/storage/v1/object/public/${path}`;
+};
+
 export const Investors: React.FC = () => {
   const { investors = [], airdrops = [], t, isDataLoaded } = useApp();
   const [search, setSearch] = useState('');
@@ -106,7 +113,7 @@ export const Investors: React.FC = () => {
                     </td>
                     <td className="px-6 py-5">
                       <Link to={`/investor/${inv.id}`} className="flex items-center gap-4">
-                        <img src={inv.logo || 'https://picsum.photos/seed/' + inv.id + '/200'} className="w-12 h-12 rounded-xl object-cover shadow-lg group-hover:scale-110 transition-transform" alt="" />
+                        <img src={getImgUrl(inv.logo) || 'https://picsum.photos/seed/' + inv.id + '/200'} className="w-12 h-12 rounded-xl object-cover shadow-lg group-hover:scale-110 transition-transform" alt="" />
                         <span className="font-black text-base uppercase group-hover:text-primary-600 transition-colors">{inv.name}</span>
                       </Link>
                     </td>

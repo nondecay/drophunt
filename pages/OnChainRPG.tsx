@@ -6,6 +6,13 @@ import { useAccount, useSwitchChain, useWriteContract, useWaitForTransactionRece
 import { parseEther } from 'viem';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 
+// Image Proxy Helper
+const getImgUrl = (path: string) => {
+   if (!path) return '';
+   if (path.startsWith('http') || path.startsWith('data:')) return path;
+   return `https://bxklsejtopzevituoaxk.supabase.co/storage/v1/object/public/${path}`;
+};
+
 export const OnChainRPG: React.FC = () => {
    const { user, activities, gainXP, addToast, usersList, chains, t, isDataLoaded, verifyWallet } = useApp();
    const { isConnected, chainId: currentChainId } = useAccount();
@@ -182,7 +189,7 @@ export const OnChainRPG: React.FC = () => {
                <div className="bg-white dark:bg-slate-900 rounded-[3.5rem] p-10 border border-slate-200 dark:border-slate-800 shadow-2xl relative overflow-hidden group">
                   <div className="flex flex-col items-center text-center relative z-10">
                      <div className="relative mb-8">
-                        <img src={user.avatar} className="w-36 h-36 rounded-[3rem] object-cover ring-8 ring-primary-50 dark:ring-slate-800 shadow-2xl" />
+                        <img src={getImgUrl(user.avatar)} className="w-36 h-36 rounded-[3rem] object-cover ring-8 ring-primary-50 dark:ring-slate-800 shadow-2xl" />
                         <div className="absolute -bottom-3 -right-3 w-14 h-14 bg-primary-600 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-2xl border-4 border-white dark:border-slate-900">{user.level}</div>
                      </div>
                      <h2 className="text-3xl font-black tracking-tighter uppercase mb-6 leading-none">{user.username || 'Hunter'}</h2>
@@ -232,7 +239,7 @@ export const OnChainRPG: React.FC = () => {
                      <div className="flex flex-col gap-4 mb-8 items-center justify-center max-w-sm mx-auto" ref={missionDropdownRef}>
                         {activeMission && (
                            <div className="w-20 h-20 p-3 bg-white dark:bg-slate-900 rounded-[1.5rem] shadow-xl border dark:border-slate-800 flex items-center justify-center animate-in zoom-in duration-300">
-                              <img src={activeMission.logo} className="w-full h-full object-contain" />
+                              <img src={getImgUrl(activeMission.logo)} className="w-full h-full object-contain" />
                            </div>
                         )}
 
@@ -264,7 +271,7 @@ export const OnChainRPG: React.FC = () => {
                                        <button key={m.id} onClick={() => { setSelectedMissionId(m.id); setIsMissionDropdownOpen(false); setMissionSearch(''); }} className={`w-full flex items-center justify-between px-5 py-3 rounded-2xl text-xs font-black uppercase transition-all ${selectedMissionId === m.id ? 'bg-primary-600 text-white shadow-xl' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>
                                           <div className="flex items-center gap-4">
                                              <div className="w-8 h-8 flex items-center justify-center bg-white dark:bg-slate-800 rounded-xl shadow-sm">
-                                                <img src={m.logo} className="w-full h-full object-contain p-1" />
+                                                <img src={getImgUrl(m.logo)} className="w-full h-full object-contain p-1" />
                                              </div>
                                              <div className="text-left">
                                                 <p className="font-black text-[10px] leading-tight">{m.name}</p>
@@ -297,7 +304,7 @@ export const OnChainRPG: React.FC = () => {
                         <div key={u.address} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-3xl transition-all hover:bg-white dark:hover:bg-slate-800 border dark:border-slate-700 shadow-sm">
                            <div className="flex items-center gap-5">
                               <span className={`w-8 font-black text-sm ${(rankingPage - 1) * rankPerPage + i < 3 ? 'text-amber-500' : 'text-slate-400'}`}>#{(rankingPage - 1) * rankPerPage + i + 1}</span>
-                              <img src={u.avatar} className="w-12 h-12 rounded-2xl object-cover shadow-md border-2 border-white dark:border-slate-700" />
+                              <img src={getImgUrl(u.avatar)} className="w-12 h-12 rounded-2xl object-cover shadow-md border-2 border-white dark:border-slate-700" />
                               <div>
                                  <p className="font-black text-sm uppercase leading-none mb-1">{u.username || 'Hunter'}</p>
                                  <p className="text-[10px] font-mono text-slate-400">{u.address.slice(0, 6)}...{u.address.slice(-4)}</p>

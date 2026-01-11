@@ -7,6 +7,13 @@ import { useAccount, useSwitchChain, useWriteContract, useWaitForTransactionRece
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { parseEther } from 'viem';
 
+// Image Proxy Helper
+const getImgUrl = (path: string) => {
+  if (!path) return '';
+  if (path.startsWith('http') || path.startsWith('data:')) return path;
+  return `https://bxklsejtopzevituoaxk.supabase.co/storage/v1/object/public/${path}`;
+};
+
 const GMCard: React.FC<{ activity: any, isExecuting: boolean, onAction: (activity: any) => void }> = ({ activity, isExecuting, onAction }) => {
   const { user, chains, t } = useApp();
   const { isConnected, chainId: currentChainId } = useAccount();
@@ -47,7 +54,7 @@ const GMCard: React.FC<{ activity: any, isExecuting: boolean, onAction: (activit
       )}
 
       <div className="w-14 h-14 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
-        <img src={activity.logo} className="w-full h-full object-contain" alt="" />
+        <img src={getImgUrl(activity.logo)} className="w-full h-full object-contain" alt="" />
       </div>
 
       <h3 className="text-xs font-black tracking-tight mb-4 uppercase leading-none truncate w-full px-2">{activity.name}</h3>
