@@ -230,19 +230,6 @@ export const Layout: React.FC = () => {
               {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
             </button>
 
-            <div className="relative" ref={langMenuRef}>
-              <button onClick={() => setShowLangMenu(!showLangMenu)} className={`flex items-center gap-2 px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-bold uppercase transition-colors ${showLangMenu ? 'text-primary-600' : ''}`}>
-                <Globe size={18} />
-                <span className="hidden sm:inline">{lang}</span>
-              </button>
-              {showLangMenu && (
-                <div className="absolute right-0 top-full mt-2 w-32 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 p-1 z-[60]">
-                  <button onClick={() => { setLang('en'); setShowLangMenu(false); }} className={`w-full text-left px-4 py-2 hover:bg-primary-50 dark:hover:bg-slate-700 rounded-lg text-sm font-bold ${lang === 'en' ? 'text-primary-600' : ''}`}>English</button>
-                  <button onClick={() => { setLang('tr'); setShowLangMenu(false); }} className={`w-full text-left px-4 py-2 hover:bg-primary-50 dark:hover:bg-slate-700 rounded-lg text-sm font-bold ${lang === 'tr' ? 'text-primary-600' : ''}`}>Türkçe</button>
-                </div>
-              )}
-            </div>
-
             <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 mx-1" />
 
             <ConnectButton accountStatus="address" showBalance={false} chainStatus="icon" />

@@ -132,18 +132,18 @@ const MobileProjectCard: React.FC<{ project: Airdrop, isTracked: boolean, onTrac
       <Link to={`/project/${project.id}`} className="flex items-start gap-4 mb-4">
         <img src={getImgUrl(project.icon) || 'https://picsum.photos/200'} className="w-16 h-16 rounded-2xl object-cover shadow-md" alt="" />
         <div className="flex-1 min-w-0">
-          <div className="flex justify-between items-center">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-black text-lg uppercase tracking-tight leading-none text-slate-900 dark:text-white truncate">{project.name}</h3>
+          <div className="flex justify-between items-center min-w-0">
+            <div className="min-w-0 flex-1 mr-2">
+              <div className="flex items-center gap-2 mb-1 min-w-0">
+                <h3 className="font-black text-lg uppercase tracking-tight leading-none text-slate-900 dark:text-white truncate block w-full">{project.name}</h3>
                 {(project.createdAt || 0) > Date.now() - 7 * 24 * 60 * 60 * 1000 && (
-                  <span className="bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded animate-pulse">NEW</span>
+                  <span className="bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded animate-pulse shrink-0">NEW</span>
                 )}
               </div>
               <span className={`inline-block text-[9px] font-black uppercase px-2 py-0.5 rounded-md mb-2 ${getTypeStyle(project.type)}`}>{project.type}</span>
             </div>
             {user?.username ? (
-              <button onClick={(e) => { e.preventDefault(); onTrack(); }} className={`p-2 rounded-xl transition-all shadow-sm active:scale-95 ${isTracked ? 'bg-primary-600 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary-600'}`}>
+              <button onClick={(e) => { e.preventDefault(); onTrack(); }} className={`p-2 rounded-xl transition-all shadow-sm active:scale-95 shrink-0 ${isTracked ? 'bg-primary-600 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary-600'}`}>
                 <Plus size={16} className={isTracked ? 'rotate-45' : ''} />
               </button>
             ) : (
@@ -411,7 +411,7 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
                   const platformObj = a.hasInfoFi ? infofiPlatforms.find(p => p.name === a.platform) : null;
                   return (
                     <tr key={a.id} className="group hover:bg-primary-50/30 dark:hover:bg-primary-900/5 transition-all">
-                      <td className="px-6 py-5">
+                      <td className="px-6 py-3">
                         <Link to={`/project/${a.id}`} className="flex items-center gap-4">
                           <div className="relative shrink-0">
                             <img src={getImgUrl(a.icon) || 'https://picsum.photos/200'} className="w-12 h-12 rounded-xl object-cover shadow-lg group-hover:scale-110 transition-transform" alt="" />
@@ -425,21 +425,19 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
                           </div>
                         </Link>
                       </td>
-                      <td className="px-6 py-5 text-[11px] font-bold text-slate-500 whitespace-nowrap">{new Date(a.createdAt || Date.now()).toLocaleDateString()}</td>
-                      <td className="px-6 py-5">
-                        <td className="px-6 py-5">
-                          <div className="flex items-center text-slate-900 dark:text-white font-bold gap-0.5">
-                            <span className="text-2xl">$</span>
-                            <span className="text-2xl">{a.investment}</span>
-                          </div>
-                        </td>
+                      <td className="px-6 py-3 text-[11px] font-bold text-slate-500 whitespace-nowrap">{new Date(a.createdAt || Date.now()).toLocaleDateString()}</td>
+                      <td className="px-6 py-3">
+                        <div className="flex items-center text-slate-900 dark:text-white font-bold gap-0.5">
+                          <span className="text-2xl">$</span>
+                          <span className="text-2xl">{a.investment}</span>
+                        </div>
                       </td>
-                      <td className="px-6 py-5">
+                      <td className="px-6 py-3">
                         <span className={`inline-flex items-center px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest whitespace-nowrap ${getStatusStyle(a.status)}`}>
                           {a.status}
                         </span>
                       </td>
-                      {category === 'infofi' && <td className="px-6 py-5">
+                      {category === 'infofi' && <td className="px-6 py-3">
                         <div className="flex items-center gap-2">
                           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 transition-all whitespace-nowrap`}>
                             {platformObj?.logo && <img src={getImgUrl(platformObj.logo)} className="w-3 h-3 object-contain" />}
@@ -447,8 +445,8 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
                           </span>
                         </div>
                       </td>}
-                      <td className="px-6 py-5"><div className="flex flex-col gap-1"><PartialStar rating={a.rating} /><span className="text-[10px] font-bold text-slate-400">{(a.rating || 0).toFixed(1)}</span></div></td>
-                      <td className="px-6 py-5 text-right">
+                      <td className="px-6 py-3"><div className="flex flex-col gap-1"><PartialStar rating={a.rating} /><span className="text-[10px] font-bold text-slate-400">{(a.rating || 0).toFixed(1)}</span></div></td>
+                      <td className="px-6 py-3 text-right">
                         {user?.username ? (
                           <button onClick={() => toggleTrackProject(a.id)} className={`p-3 rounded-xl transition-all shadow-sm active:scale-95 ${isProjectTracked(a.id) ? 'bg-primary-600 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary-600'}`}>
                             <Plus size={20} className={isProjectTracked(a.id) ? 'rotate-45' : ''} />

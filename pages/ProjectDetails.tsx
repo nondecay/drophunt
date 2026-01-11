@@ -389,7 +389,24 @@ export const ProjectDetails: React.FC = () => {
             </section>
           ) : (
             <section className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-6 border dark:border-slate-800 shadow-sm">
-              <div className="flex justify-between items-center mb-6"><h2 className="text-lg font-black uppercase tracking-tighter">{t('guides')}</h2><div className="flex gap-2"><div className="flex gap-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-xl"><button onClick={() => setGuideFilter('us')} className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${guideFilter === 'us' ? 'bg-primary-600 text-white' : 'text-slate-400'}`}>EN</button><button onClick={() => setGuideFilter('tr')} className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${guideFilter === 'tr' ? 'bg-primary-600 text-white' : 'text-slate-400'}`}>TR</button></div><button onClick={() => setShowGuideModal(true)} className="p-2 bg-primary-600 text-white rounded-lg shadow-md active:scale-95"><Plus size={16} /></button></div></div>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-lg font-black uppercase tracking-tighter">{t('guides')}</h2>
+                <div className="flex gap-2">
+                  <div className="relative group">
+                    <select
+                      value={guideFilter}
+                      onChange={(e) => setGuideFilter(e.target.value)}
+                      className="appearance-none pl-8 pr-8 py-2 bg-slate-100 dark:bg-slate-950 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 outline-none focus:ring-2 focus:ring-primary-500/20 cursor-pointer"
+                    >
+                      <option value="us">Select Language (English)</option>
+                      <option value="tr">Turkish</option>
+                    </select>
+                    <Globe size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                    <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                  </div>
+                  <button onClick={() => setShowGuideModal(true)} className="p-2 bg-primary-600 text-white rounded-lg shadow-md active:scale-95"><Plus size={16} /></button>
+                </div>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {filteredGuides.map(guide => guide && (
                   <div key={guide.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-transparent hover:border-primary-500 transition-all group flex items-center justify-between">

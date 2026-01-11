@@ -29,6 +29,20 @@ export const OnChainRPG: React.FC = () => {
 
    const { isVerified } = useApp(); // Destructure isVerified
 
+   if (!isConnected) {
+      return (
+         <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-8 animate-in fade-in zoom-in duration-500">
+            <div className="w-24 h-24 bg-primary-50 dark:bg-primary-900/20 text-primary-500 rounded-full flex items-center justify-center mb-8 shadow-inner ring-8 ring-white dark:ring-slate-900">
+               <Wallet size={48} />
+            </div>
+            <h2 className="text-4xl font-black tracking-tighter mb-4">Connect Wallet</h2>
+            <p className="text-slate-500 font-medium max-w-md mx-auto mb-8 text-lg">
+               Connect your wallet to access the OnChain RPG Zone.
+            </p>
+         </div>
+      );
+   }
+
    if (isConnected && !isVerified) {
       return (
          <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-8 animate-in fade-in zoom-in duration-500">

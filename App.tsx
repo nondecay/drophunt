@@ -95,7 +95,7 @@ export const App: React.FC = () => {
                   <Route path="/daily-gm" element={<DailyGM />} />
                   <Route path="/daily-mint" element={<DailyMint />} />
                   <Route path="/deploy" element={<Deploy />} />
-                  <Route path="/rpg" element={<ProtectedRoute><OnChainRPG /></ProtectedRoute>} />
+                  <Route path="/rpg" element={<OnChainRPG />} />
                   <Route path="/faucets" element={<Faucets />} />
                   <Route path="/project/:id" element={<ErrorBoundary><ProjectDetails /></ErrorBoundary>} />
                   <Route path="/my-airdrops" element={<ProtectedRoute><MyAirdrops /></ProtectedRoute>} />
