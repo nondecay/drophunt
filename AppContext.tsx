@@ -17,7 +17,8 @@ interface AppContextType {
   // username: string; // REMOVED: relied on user.username
   updateAvatar: (url: string) => Promise<void>;
   showUsernameModal: boolean;
-  registerUsername: (username: string) => Promise<void>;
+  setShowUsernameModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setUsername: (username: string) => Promise<boolean>;
 
   isDataLoaded: boolean;
 
