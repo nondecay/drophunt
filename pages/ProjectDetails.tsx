@@ -311,6 +311,39 @@ export const ProjectDetails: React.FC = () => {
             </div>
           </div>
 
+
+          {/* Mobile Actions Section */}
+          <div className="lg:hidden mb-6 bg-primary-600 rounded-[2rem] p-6 text-white shadow-xl relative overflow-hidden">
+            <h3 className="text-lg font-black mb-4 relative z-10 tracking-tight uppercase leading-none">{t('operationTitle')}</h3>
+            <div className="space-y-3 relative z-10">
+              <button
+                onClick={() => {
+                  if (!user?.address) return addToast("Connect Wallet to Track", "error");
+                  toggleTrackProject(project.id);
+                }}
+                className={`w-full py-3 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all active:scale-95 ${isProjectTracked ? 'bg-slate-100 text-slate-400 dark:bg-slate-800' : 'bg-white text-primary-600 shadow-lg'}`}
+              >
+                {isProjectTracked ? <CheckCircle size={16} /> : <Plus size={16} />}
+                {isProjectTracked ? 'Tracked' : 'Track Project'}
+              </button>
+
+              {project.status === 'Claim Available' && project.claimUrl && (
+                <a href={ensureHttp(project.claimUrl)} target="_blank" className="w-full py-3 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all active:scale-95 bg-emerald-500 text-white border border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:scale-[1.02]">
+                  <span className="text-base">💰</span>
+                  Claim Available!
+                </a>
+              )}
+
+              {project.campaignUrl && (
+                <a href={ensureHttp(project.campaignUrl)} target="_blank" className="w-full py-3 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all active:scale-95 bg-white text-primary-600 border border-white/30 shadow-[0_0_15px_rgba(255,255,255,0.3)] animate-pulse-slow">
+                  <Rocket size={16} className="animate-bounce" />
+                  {t('goCampaign')}
+                </a>
+              )}
+            </div>
+            <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 blur-2xl -mr-12 -mt-12"></div>
+          </div>
+
           <section className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border dark:border-slate-800 shadow-sm relative overflow-hidden">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-slate-50 dark:bg-slate-800 rounded-xl flex items-center justify-center text-primary-600 shadow-inner">
@@ -438,7 +471,7 @@ export const ProjectDetails: React.FC = () => {
         </div>
 
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-primary-600 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden">
+          <div className="hidden lg:block bg-primary-600 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden">
             <h3 className="text-xl font-black mb-6 relative z-10 tracking-tight uppercase leading-none">{t('operationTitle')}</h3>
 
             <div className="space-y-4 relative z-10">

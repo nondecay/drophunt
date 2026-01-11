@@ -147,7 +147,7 @@ const MobileProjectCard: React.FC<{ project: Airdrop, isTracked: boolean, onTrac
                 <Plus size={16} className={isTracked ? 'rotate-45' : ''} />
               </button>
             ) : (
-              <div className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-300 rounded-xl"><Lock size={16} /></div>
+              <div className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-300 rounded-xl shrink-0"><Lock size={16} /></div>
             )}
           </div>
         </div>
@@ -427,10 +427,12 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
                       </td>
                       <td className="px-6 py-5 text-[11px] font-bold text-slate-500 whitespace-nowrap">{new Date(a.createdAt || Date.now()).toLocaleDateString()}</td>
                       <td className="px-6 py-5">
-                        <div className="flex items-center text-emerald-600 dark:text-emerald-400 font-black gap-0.5">
-                          <span className="text-2xl">$</span>
-                          <span className="text-2xl">{a.investment}</span>
-                        </div>
+                        <td className="px-6 py-5">
+                          <div className="flex items-center text-slate-900 dark:text-white font-bold gap-0.5">
+                            <span className="text-2xl">$</span>
+                            <span className="text-2xl">{a.investment}</span>
+                          </div>
+                        </td>
                       </td>
                       <td className="px-6 py-5">
                         <span className={`inline-flex items-center px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest whitespace-nowrap ${getStatusStyle(a.status)}`}>

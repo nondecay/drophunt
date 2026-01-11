@@ -71,7 +71,7 @@ export const Tools: React.FC = () => {
         {filteredTools.map(tool => (
           <div key={tool.id} className="bg-white dark:bg-slate-900 rounded-[2rem] p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center text-center group hover:shadow-xl transition-all border-b-4 border-b-primary-600 h-[300px]">
             <div className="w-16 h-16 rounded-2xl bg-slate-50 dark:bg-slate-800 p-3 mb-4 group-hover:scale-110 transition-transform shadow-inner flex items-center justify-center">
-              <img src={getImgUrl(tool.logo) || '/logo.png'} className="w-full h-full object-contain" />
+              <img src={getImgUrl(tool.logo) || 'https://picsum.photos/200'} className="w-full h-full object-contain" onError={(e) => { e.currentTarget.src = 'https://picsum.photos/200'; }} />
             </div>
             <span className="text-[9px] font-black uppercase text-primary-600 tracking-[0.2em] mb-2">{tool.category}</span>
             <h3 className="text-lg font-black mb-2 line-clamp-1">{tool.name}</h3>
