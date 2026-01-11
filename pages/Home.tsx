@@ -414,7 +414,7 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
                       <td className="px-6 py-5">
                         <Link to={`/project/${a.id}`} className="flex items-center gap-4">
                           <div className="relative shrink-0">
-                            <img src={a.icon || 'https://picsum.photos/200'} className="w-12 h-12 rounded-xl object-cover shadow-lg group-hover:scale-110 transition-transform" alt="" />
+                            <img src={getImgUrl(a.icon) || 'https://picsum.photos/200'} className="w-12 h-12 rounded-xl object-cover shadow-lg group-hover:scale-110 transition-transform" alt="" />
                             {(a.createdAt || 0) > Date.now() - 7 * 24 * 60 * 60 * 1000 && (
                               <div className="absolute -top-2 -right-2 bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-md shadow-sm z-10 animate-pulse">NEW</div>
                             )}
@@ -440,7 +440,7 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
                       {category === 'infofi' && <td className="px-6 py-5">
                         <div className="flex items-center gap-2">
                           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 transition-all whitespace-nowrap`}>
-                            {platformObj?.logo && <img src={platformObj.logo} className="w-3 h-3 object-contain" />}
+                            {platformObj?.logo && <img src={getImgUrl(platformObj.logo)} className="w-3 h-3 object-contain" />}
                             {a.platform || 'N/A'}
                           </span>
                         </div>
