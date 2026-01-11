@@ -33,7 +33,7 @@ const RankBadge = ({ rank }: { rank: number }) => {
 export const ProjectDetails: React.FC = () => {
   const { id } = useParams();
   const { user, airdrops = [], comments = [], setComments, guides = [], setGuides, investors = [], addToast, toggleTrackProject, logActivity, setUsersList, t, refreshData, isDataLoaded } = useApp();
-  const [guideFilter, setGuideFilter] = useState<'tr' | 'us'>('us');
+  const [guideFilter, setGuideFilter] = useState<'tr' | 'us' | 'es' | 'ru' | 'in' | 'cn' | 'jp' | 'kr' | 'vn' | 'ph' | 'id'>('us');
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -409,22 +409,77 @@ export const ProjectDetails: React.FC = () => {
                       onClick={() => setDropdownOpen(!isDropdownOpen)}
                       className="flex items-center gap-2 pl-3 pr-4 py-2 bg-slate-100 dark:bg-slate-950 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-900 transition-colors"
                     >
-                      {guideFilter === 'us' ? (
+                      {guideFilter === 'us' && (
                         <>
                           <img src="https://flagcdn.com/w20/us.png" className="w-4 h-3 object-cover rounded-[2px]" alt="English" />
                           <span>English</span>
                         </>
-                      ) : (
+                      )}
+                      {guideFilter === 'tr' && (
                         <>
                           <img src="https://flagcdn.com/w20/tr.png" className="w-4 h-3 object-cover rounded-[2px]" alt="Turkish" />
-                          <span>Turkish</span>
+                          <span>TÜRKÇE</span>
+                        </>
+                      )}
+                      {guideFilter === 'es' && (
+                        <>
+                          <img src="https://flagcdn.com/w20/es.png" className="w-4 h-3 object-cover rounded-[2px]" alt="Spanish" />
+                          <span>Español</span>
+                        </>
+                      )}
+                      {guideFilter === 'ru' && (
+                        <>
+                          <img src="https://flagcdn.com/w20/ru.png" className="w-4 h-3 object-cover rounded-[2px]" alt="Russian" />
+                          <span>Русский</span>
+                        </>
+                      )}
+                      {guideFilter === 'in' && (
+                        <>
+                          <img src="https://flagcdn.com/w20/in.png" className="w-4 h-3 object-cover rounded-[2px]" alt="Hindi" />
+                          <span>हिन्दी</span>
+                        </>
+                      )}
+                      {guideFilter === 'cn' && (
+                        <>
+                          <img src="https://flagcdn.com/w20/cn.png" className="w-4 h-3 object-cover rounded-[2px]" alt="Chinese" />
+                          <span>中文</span>
+                        </>
+                      )}
+                      {guideFilter === 'jp' && (
+                        <>
+                          <img src="https://flagcdn.com/w20/jp.png" className="w-4 h-3 object-cover rounded-[2px]" alt="Japanese" />
+                          <span>日本語</span>
+                        </>
+                      )}
+                      {guideFilter === 'kr' && (
+                        <>
+                          <img src="https://flagcdn.com/w20/kr.png" className="w-4 h-3 object-cover rounded-[2px]" alt="Korean" />
+                          <span>한국어</span>
+                        </>
+                      )}
+                      {guideFilter === 'vn' && (
+                        <>
+                          <img src="https://flagcdn.com/w20/vn.png" className="w-4 h-3 object-cover rounded-[2px]" alt="Vietnamese" />
+                          <span>Tiếng Việt</span>
+                        </>
+                      )}
+                      {guideFilter === 'ph' && (
+                        <>
+                          <img src="https://flagcdn.com/w20/ph.png" className="w-4 h-3 object-cover rounded-[2px]" alt="Tagalog" />
+                          <span>Tagalog</span>
+                        </>
+                      )}
+                      {guideFilter === 'id' && (
+                        <>
+                          <img src="https://flagcdn.com/w20/id.png" className="w-4 h-3 object-cover rounded-[2px]" alt="Indonesian" />
+                          <span>Bahasa Indonesia</span>
                         </>
                       )}
                       <ChevronDown size={14} className={`text-slate-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
                     </button>
 
                     {isDropdownOpen && (
-                      <div className="absolute right-0 top-full mt-2 w-32 bg-white dark:bg-slate-950 rounded-xl shadow-xl border border-slate-100 dark:border-slate-800 p-1 animate-in zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 origin-top-right">
+                      <div className="absolute right-0 top-full mt-2 w-40 bg-white dark:bg-slate-950 rounded-xl shadow-xl border border-slate-100 dark:border-slate-800 p-1 animate-in zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 origin-top-right max-h-60 overflow-y-auto custom-scrollbar z-50">
                         <button
                           onClick={() => { setGuideFilter('us'); setDropdownOpen(false); }}
                           className={`w-full text-left px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-colors ${guideFilter === 'us' ? 'bg-primary-50 dark:bg-primary-900/10 text-primary-600' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}
@@ -437,7 +492,43 @@ export const ProjectDetails: React.FC = () => {
                           className={`w-full text-left px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-colors ${guideFilter === 'tr' ? 'bg-primary-50 dark:bg-primary-900/10 text-primary-600' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}
                         >
                           <img src="https://flagcdn.com/w20/tr.png" className="w-4 h-3 object-cover rounded-[2px]" alt="Turkish" />
-                          <span>Turkish</span>
+                          <span>TÜRKÇE</span>
+                        </button>
+                        <button onClick={() => { setGuideFilter('es'); setDropdownOpen(false); }} className={`w-full text-left px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-colors ${guideFilter === 'es' ? 'bg-primary-50 dark:bg-primary-900/10 text-primary-600' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>
+                          <img src="https://flagcdn.com/w20/es.png" className="w-4 h-3 object-cover rounded-[2px]" alt="Spanish" />
+                          <span>Español</span>
+                        </button>
+                        <button onClick={() => { setGuideFilter('ru'); setDropdownOpen(false); }} className={`w-full text-left px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-colors ${guideFilter === 'ru' ? 'bg-primary-50 dark:bg-primary-900/10 text-primary-600' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>
+                          <img src="https://flagcdn.com/w20/ru.png" className="w-4 h-3 object-cover rounded-[2px]" alt="Russian" />
+                          <span>Русский</span>
+                        </button>
+                        <button onClick={() => { setGuideFilter('in'); setDropdownOpen(false); }} className={`w-full text-left px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-colors ${guideFilter === 'in' ? 'bg-primary-50 dark:bg-primary-900/10 text-primary-600' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>
+                          <img src="https://flagcdn.com/w20/in.png" className="w-4 h-3 object-cover rounded-[2px]" alt="Hindi" />
+                          <span>हिन्दी</span>
+                        </button>
+                        <button onClick={() => { setGuideFilter('cn'); setDropdownOpen(false); }} className={`w-full text-left px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-colors ${guideFilter === 'cn' ? 'bg-primary-50 dark:bg-primary-900/10 text-primary-600' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>
+                          <img src="https://flagcdn.com/w20/cn.png" className="w-4 h-3 object-cover rounded-[2px]" alt="Chinese" />
+                          <span>中文</span>
+                        </button>
+                        <button onClick={() => { setGuideFilter('jp'); setDropdownOpen(false); }} className={`w-full text-left px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-colors ${guideFilter === 'jp' ? 'bg-primary-50 dark:bg-primary-900/10 text-primary-600' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>
+                          <img src="https://flagcdn.com/w20/jp.png" className="w-4 h-3 object-cover rounded-[2px]" alt="Japanese" />
+                          <span>日本語</span>
+                        </button>
+                        <button onClick={() => { setGuideFilter('kr'); setDropdownOpen(false); }} className={`w-full text-left px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-colors ${guideFilter === 'kr' ? 'bg-primary-50 dark:bg-primary-900/10 text-primary-600' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>
+                          <img src="https://flagcdn.com/w20/kr.png" className="w-4 h-3 object-cover rounded-[2px]" alt="Korean" />
+                          <span>한국어</span>
+                        </button>
+                        <button onClick={() => { setGuideFilter('vn'); setDropdownOpen(false); }} className={`w-full text-left px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-colors ${guideFilter === 'vn' ? 'bg-primary-50 dark:bg-primary-900/10 text-primary-600' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>
+                          <img src="https://flagcdn.com/w20/vn.png" className="w-4 h-3 object-cover rounded-[2px]" alt="Vietnamese" />
+                          <span>Tiếng Việt</span>
+                        </button>
+                        <button onClick={() => { setGuideFilter('ph'); setDropdownOpen(false); }} className={`w-full text-left px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-colors ${guideFilter === 'ph' ? 'bg-primary-50 dark:bg-primary-900/10 text-primary-600' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>
+                          <img src="https://flagcdn.com/w20/ph.png" className="w-4 h-3 object-cover rounded-[2px]" alt="Tagalog" />
+                          <span>Tagalog</span>
+                        </button>
+                        <button onClick={() => { setGuideFilter('id'); setDropdownOpen(false); }} className={`w-full text-left px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-colors ${guideFilter === 'id' ? 'bg-primary-50 dark:bg-primary-900/10 text-primary-600' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>
+                          <img src="https://flagcdn.com/w20/id.png" className="w-4 h-3 object-cover rounded-[2px]" alt="Indonesian" />
+                          <span>Bahasa Indonesia</span>
                         </button>
                       </div>
                     )}

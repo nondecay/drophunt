@@ -22,6 +22,7 @@ import { Faucets } from './pages/Faucets';
 import { VerificationModal } from './components/VerificationModal';
 import { UsernameModal } from './components/UsernameModal';
 
+
 // RainbowKit & Wagmi Imports
 import '@rainbow-me/rainbowkit/styles.css';
 import { getDefaultConfig, RainbowKitProvider, darkTheme, lightTheme } from '@rainbow-me/rainbowkit';
@@ -76,7 +77,7 @@ const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (user?.role === 'admin' || user?.memberStatus === 'Admin') ? <>{children}</> : <Navigate to="/" />;
 };
 
-import { UsernameModal } from './components/UsernameModal';
+
 
 // ... (imports remain)
 
