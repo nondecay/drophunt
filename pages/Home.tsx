@@ -41,7 +41,7 @@ const CustomSelect: React.FC<{ value: string, options: { label: string, value: s
     <div className="relative" ref={dropdownRef}>
       <button onClick={() => setOpen(!open)} className="flex items-center justify-between gap-3 px-4 py-3 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl font-bold text-xs shadow-sm hover:border-primary-500 transition-all min-w-[140px]">
         <div className="flex items-center gap-2">
-          {active?.logo ? <img src={active.logo} className="w-4 h-4 object-contain" /> : icon}
+          {active?.logo ? <img src={getImgUrl(active.logo)} className="w-4 h-4 object-contain" /> : icon}
           <span className="truncate">{active?.label || value}</span>
         </div>
         <ChevronDown size={14} className={`text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} />
@@ -51,7 +51,7 @@ const CustomSelect: React.FC<{ value: string, options: { label: string, value: s
           {options.map(opt => (
             <button key={opt.value} onClick={() => { onChange(opt.value); setOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-xl text-[11px] font-black uppercase transition-all flex items-center justify-between ${value === opt.value ? 'bg-primary-600 text-white shadow-lg' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>
               <div className="flex items-center gap-2">
-                {opt.logo && <img src={opt.logo} className="w-4 h-4 object-contain" />}
+                {opt.logo && <img src={getImgUrl(opt.logo)} className="w-4 h-4 object-contain" />}
                 {opt.label}
               </div>
               {value === opt.value && <Check size={12} />}
@@ -123,7 +123,7 @@ const MobileProjectCard: React.FC<{ project: Airdrop, isTracked: boolean, onTrac
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-5 border border-slate-200 dark:border-slate-800 shadow-lg relative overflow-hidden">
       <Link to={`/project/${project.id}`} className="flex items-start gap-4 mb-4">
-        <img src={project.icon || 'https://picsum.photos/200'} className="w-16 h-16 rounded-2xl object-cover shadow-md" alt="" />
+        <img src={getImgUrl(project.icon) || 'https://picsum.photos/200'} className="w-16 h-16 rounded-2xl object-cover shadow-md" alt="" />
         <div className="flex-1 min-w-0">
           <div className="flex justify-between items-start">
             <div>
@@ -159,7 +159,7 @@ const MobileProjectCard: React.FC<{ project: Airdrop, isTracked: boolean, onTrac
           <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl col-span-2 flex items-center justify-between">
             <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Platform</p>
             <div className="flex items-center gap-2">
-              {platformObj?.logo && <img src={platformObj.logo} className="w-4 h-4 object-contain" />}
+              {platformObj?.logo && <img src={getImgUrl(platformObj.logo)} className="w-4 h-4 object-contain" />}
               <span className="font-bold text-xs uppercase">{project.platform}</span>
             </div>
           </div>

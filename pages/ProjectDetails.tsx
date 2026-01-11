@@ -18,6 +18,13 @@ const ensureHttp = (url: string) => {
   return `https://${url}`;
 };
 
+// Image Proxy Helper
+const getImgUrl = (path: string) => {
+  if (!path) return '';
+  if (path.startsWith('http') || path.startsWith('data:')) return path;
+  return `https://bxklsejtopzevituoaxk.supabase.co/storage/v1/object/public/${path}`;
+};
+
 const RankBadge = ({ rank }: { rank: number }) => {
   const colors = rank === 1 ? 'bg-yellow-400 text-white' : rank === 2 ? 'bg-slate-300 text-slate-700' : rank === 3 ? 'bg-amber-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-400';
   return <div className={`w-6 h-6 flex items-center justify-center rounded-md shadow-sm font-black text-[10px] ${colors}`}>{rank}</div>;
@@ -269,7 +276,7 @@ export const ProjectDetails: React.FC = () => {
         <div className="lg:col-span-8 space-y-8">
           <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border dark:border-slate-800 shadow-xl relative overflow-hidden">
             <div className="flex flex-col md:flex-row md:items-center gap-6 relative z-10">
-              <img src={project.icon || 'https://picsum.photos/200'} className="w-24 h-24 rounded-3xl object-cover ring-4 ring-primary-50 dark:ring-slate-800 shadow-md" alt="" />
+              <img src={getImgUrl(project.icon) || 'https://picsum.photos/200'} className="w-24 h-24 rounded-3xl object-cover ring-4 ring-primary-50 dark:ring-slate-800 shadow-md" alt="" />
               <div className="flex-1">
                 <h1 className="text-3xl font-black tracking-tighter mb-1 uppercase leading-none">{project.name}</h1>
                 <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -287,7 +294,7 @@ export const ProjectDetails: React.FC = () => {
                     <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{t('backers')}:</span>
                     {backerList.map(backer => backer && (
                       <Link key={backer.id} to={`/investor/${backer.id}`} className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 hover:bg-primary-50 dark:hover:bg-primary-900/30 border dark:border-slate-700 rounded-xl transition-all shadow-sm">
-                        <img src={backer.logo} className="w-4 h-4 rounded-md object-cover" />
+                        <img src={getImgUrl(backer.logo)} className="w-4 h-4 rounded-md object-cover" />
                         <span className="text-[10px] font-black uppercase text-slate-600 dark:text-slate-300">{backer.name}</span>
                       </Link>
                     ))}
