@@ -72,7 +72,7 @@ const GMCard: React.FC<{ activity: any, isExecuting: boolean, onAction: (activit
             </button>
           ) : (
             <button
-              onClick={handleAction}
+              onClick={() => onAction(activity)}
               disabled={!canPeform || isExecuting || isWrongChain} // Changed isPending to isExecuting based on original code
               className={`mt-auto w-full py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg transition-all flex items-center justify-center gap-2 ${isWrongChain
                 ? 'bg-red-500 text-white cursor-not-allowed'
