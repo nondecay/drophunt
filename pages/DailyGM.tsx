@@ -2,7 +2,7 @@
 // Add missing useMemo import from React.
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useApp } from '../AppContext';
-import { Sun, Loader2, Send, Search, Wallet, Globe, ChevronDown, Check, Clock } from 'lucide-react';
+import { Sun, Loader2, Send, Search, Wallet, Globe, ChevronDown, Check, Clock, Zap, Rocket } from 'lucide-react';
 import { useAccount, useSwitchChain, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { parseEther } from 'viem';
@@ -75,10 +75,10 @@ const GMCard: React.FC<{ activity: any, isExecuting: boolean, onAction: (activit
               onClick={handleAction}
               disabled={!canPeform || isExecuting || isWrongChain} // Changed isPending to isExecuting based on original code
               className={`mt-auto w-full py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg transition-all flex items-center justify-center gap-2 ${isWrongChain
-                  ? 'bg-red-500 text-white cursor-not-allowed'
-                  : !canPeform
-                    ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-primary-500/30 hover:shadow-primary-500/50 hover:scale-[1.02] active:scale-95'
+                ? 'bg-red-500 text-white cursor-not-allowed'
+                : !canPeform
+                  ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-primary-500/30 hover:shadow-primary-500/50 hover:scale-[1.02] active:scale-95'
                 }`}
             >
               {isExecuting ? <Loader2 size={14} className="animate-spin" /> : ( // Changed isPending to isExecuting

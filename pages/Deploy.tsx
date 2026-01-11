@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useApp } from '../AppContext';
-import { ArrowUpCircle, Search, Loader2, Wallet, Globe, ChevronDown, Check, Clock } from 'lucide-react';
+import { ArrowUpCircle, Search, Loader2, Wallet, Globe, ChevronDown, Check, Clock, Rocket } from 'lucide-react';
 import { useAccount, useSwitchChain, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { parseEther } from 'viem';

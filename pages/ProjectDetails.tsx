@@ -56,7 +56,7 @@ export const ProjectDetails: React.FC = () => {
   const [captchaAnswer, setCaptchaAnswer] = useState("");
 
   const [showGuideModal, setShowGuideModal] = useState(false);
-  const [guideData, setGuideData] = useState({ author: '', url: '', platform: 'youtube', countryCode: 'us' });
+  const [guideData, setGuideData] = useState({ author: '', url: '', platform: 'twitter', countryCode: 'us' });
 
   const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
 
@@ -694,8 +694,17 @@ export const ProjectDetails: React.FC = () => {
                 <div>
                   <label className="text-[9px] font-black uppercase text-slate-400 block mb-1">Language</label>
                   <select className="w-full p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 font-bold outline-none text-[10px]" value={guideData.countryCode} onChange={e => setGuideData({ ...guideData, countryCode: e.target.value as any })}>
-                    <option value="us">English</option>
-                    <option value="tr">Türkçe</option>
+                    <option value="us">🇺🇸 English</option>
+                    <option value="tr">🇹🇷 TÜRKÇE</option>
+                    <option value="es">🇪🇸 Español</option>
+                    <option value="ru">🇷🇺 Русский</option>
+                    <option value="in">🇮🇳 हिन्दी</option>
+                    <option value="cn">🇨🇳 中文</option>
+                    <option value="jp">🇯🇵 日本語</option>
+                    <option value="kr">🇰🇷 한국어</option>
+                    <option value="vn">🇻🇳 Tiếng Việt</option>
+                    <option value="ph">🇵🇭 Tagalog</option>
+                    <option value="id">🇮🇩 Bahasa Indonesia</option>
                   </select>
                 </div>
               </div>
