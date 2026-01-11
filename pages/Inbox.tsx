@@ -88,6 +88,8 @@ export const Inbox: React.FC = () => {
           <h1 className="text-5xl font-black tracking-tighter mb-2">{t('hunterInbox')}</h1>
           <p className="text-slate-500 font-medium tracking-wide">{t('inboxSub')}</p>
         </div>
+        {inbox.length > 0 && (
+          <button onClick={clearInbox} className="text-xs font-black uppercase tracking-widest text-red-500 hover:underline flex items-center gap-2">
             <Trash2 size={16} /> {t('clearAll')}
           </button>
         )}
