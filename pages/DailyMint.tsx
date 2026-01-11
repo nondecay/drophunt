@@ -7,6 +7,13 @@ import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { parseEther } from 'viem';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 
+// Image Proxy Helper
+const getImgUrl = (path: string) => {
+   if (!path) return '';
+   if (path.startsWith('http') || path.startsWith('data:')) return path;
+   return `https://bxklsejtopzevituoaxk.supabase.co/storage/v1/object/public/${path}`;
+};
+
 export const DailyMint: React.FC = () => {
    const { activities = [], addToast, chains = [], t, logActivity, isDataLoaded } = useApp();
 
@@ -111,12 +118,12 @@ export const DailyMint: React.FC = () => {
             {activeMint ? (
                <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-5 border dark:border-slate-800 shadow-2xl relative overflow-hidden">
                   <div className="relative aspect-square rounded-[2.2rem] overflow-hidden mb-5 shadow-xl">
-                     <img src={activeMint.nftImage || 'https://picsum.photos/seed/protocol/500/500'} className="w-full h-full object-cover" />
+                     <img src={getImgUrl(activeMint.nftImage || activeMint.logo) || 'https://picsum.photos/seed/protocol/500/500'} className="w-full h-full object-cover" />
                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-40"></div>
                      <div className="absolute bottom-5 left-5 right-5 text-white">
                         <p className="text-lg font-black uppercase tracking-tight leading-none mb-1">{activeMint.name}</p>
                         <div className="flex items-center gap-1.5">
-                           {activeChainObj?.logo && <img src={activeChainObj.logo} className="w-3 h-3 object-contain opacity-80" />}
+                           {activeChainObj?.logo && <img src={getImgUrl(activeChainObj.logo)} className="w-3 h-3 object-contain opacity-80" />}
                            <p className="text-[10px] font-bold text-white/70 uppercase tracking-widest leading-none">{activeChainObj?.name || 'Protocol Node'}</p>
                         </div>
                      </div>
@@ -140,7 +147,7 @@ export const DailyMint: React.FC = () => {
                   <div className="relative" ref={chainDropdownRef}>
                      <button onClick={() => setIsChainDropdownOpen(!isChainDropdownOpen)} className="w-full px-5 py-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border dark:border-slate-800 flex items-center justify-between font-black text-xs uppercase tracking-widest transition-all hover:border-primary-500/50 mb-2">
                         <div className="flex items-center gap-3">
-                           {activeChainObj?.logo ? <img src={activeChainObj.logo} className="w-5 h-5 object-contain" /> : <Globe size={16} className="text-slate-400" />}
+                           {activeChainObj?.logo ? <img src={getImgUrl(activeChainObj.logo)} className="w-5 h-5 object-contain" /> : <Globe size={16} className="text-slate-400" />}
                            <span>{activeChainObj?.name || t('selectHub')}</span>
                         </div>
                         <ChevronDown size={14} className={`transition-transform ${isChainDropdownOpen ? 'rotate-180' : ''}`} />
@@ -163,7 +170,7 @@ export const DailyMint: React.FC = () => {
                               {filteredChains.map(c => (
                                  <button key={c.id} onClick={() => { setSelectedChainId(c.chainId); setIsChainDropdownOpen(false); setChainSearchTerm(''); }} className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${selectedChainId === c.chainId ? 'bg-primary-600 text-white shadow-lg' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>
                                     <div className="flex items-center gap-3">
-                                       {c.logo ? <img src={c.logo} className="w-4 h-4 object-contain" /> : <Globe size={12} />}
+                                       {c.logo ? <img src={getImgUrl(c.logo)} className="w-4 h-4 object-contain" /> : <Globe size={12} />}
                                        <span>{c.name}</span>
                                     </div>
                                     {selectedChainId === c.chainId && <Check size={14} />}
