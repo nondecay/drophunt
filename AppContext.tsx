@@ -43,6 +43,7 @@ interface AppContextType {
   setGuides: React.Dispatch<React.SetStateAction<Guide[]>>;
   inbox: InboxMessage[];
   setInbox: React.Dispatch<React.SetStateAction<InboxMessage[]>>;
+  unreadCount?: number;
   requests: AirdropRequest[];
   setRequests: React.Dispatch<React.SetStateAction<AirdropRequest[]>>;
   infofiPlatforms: InfoFiPlatform[];

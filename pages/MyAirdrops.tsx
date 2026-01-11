@@ -32,6 +32,28 @@ export const MyAirdrops: React.FC = () => {
     );
   }
 
+  // Verification Gate
+  const { isVerified, verifyWallet } = useApp();
+  if (isConnected && !isVerified) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-8 animate-in fade-in zoom-in duration-500">
+        <div className="w-24 h-24 bg-amber-50 dark:bg-amber-900/20 text-amber-500 rounded-full flex items-center justify-center mb-8 shadow-inner ring-8 ring-white dark:ring-slate-900">
+          <ShieldAlert size={48} />
+        </div>
+        <h2 className="text-4xl font-black tracking-tighter mb-4">Restricted Access</h2>
+        <p className="text-slate-500 font-medium max-w-md mx-auto mb-8 text-lg">
+          This section contains sensitive hunter data. You must verify your wallet ownership to proceed.
+        </p>
+        <button
+          onClick={() => verifyWallet()}
+          className="px-10 py-4 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-amber-500/20 active:scale-95 transition-all flex items-center gap-3"
+        >
+          <Zap size={20} /> Sign & Verify Access
+        </button>
+      </div>
+    );
+  }
+
   const [newTask, setNewTask] = useState({ note: '', airdropId: 'custom', reminder: 'none' as any, deadline: '' });
   const [newClaim, setNewClaim] = useState({ projectName: '', expense: 0, claimedToken: '', tokenCount: 0, earning: 0, claimedDate: new Date().toISOString().split('T')[0] });
   const [claimMonthFilter, setClaimMonthFilter] = useState('all');

@@ -20,6 +20,28 @@ export const OnChainRPG: React.FC = () => {
    const [countdown, setCountdown] = useState('');
    const missionDropdownRef = useRef<HTMLDivElement>(null);
 
+   const { isVerified } = useApp(); // Destructure isVerified
+
+   if (isConnected && !isVerified) {
+      return (
+         <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-8 animate-in fade-in zoom-in duration-500">
+            <div className="w-24 h-24 bg-amber-50 dark:bg-amber-900/20 text-amber-500 rounded-full flex items-center justify-center mb-8 shadow-inner ring-8 ring-white dark:ring-slate-900">
+               <ShieldAlert size={48} />
+            </div>
+            <h2 className="text-4xl font-black tracking-tighter mb-4">Restricted Zone</h2>
+            <p className="text-slate-500 font-medium max-w-md mx-auto mb-8 text-lg">
+               The RPG Zone requires verified hunter status. Identify yourself to enter.
+            </p>
+            <button
+               onClick={() => verifyWallet()}
+               className="px-10 py-4 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-amber-500/20 active:scale-95 transition-all flex items-center gap-3"
+            >
+               <Zap size={20} /> Sign & Verify
+            </button>
+         </div>
+      );
+   }
+
    const rankPerPage = 10;
 
    useEffect(() => {
