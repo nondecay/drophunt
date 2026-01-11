@@ -17,6 +17,7 @@ const getImgUrl = (path: string) => {
 const DeployCard: React.FC<{ activity: any, isExecuting: boolean, onAction: (activity: any) => void }> = ({ activity, isExecuting, onAction }) => {
   const { user, chains, t } = useApp();
   const { isConnected, chainId: currentChainId } = useAccount();
+  const { openConnectModal } = useConnectModal();
 
   const lastTime = user?.lastActivities?.[activity.id] || 0;
   const COOLDOWN_MS = 12 * 60 * 60 * 1000;

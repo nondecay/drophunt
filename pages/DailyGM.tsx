@@ -17,6 +17,7 @@ const getImgUrl = (path: string) => {
 const GMCard: React.FC<{ activity: any, isExecuting: boolean, onAction: (activity: any) => void }> = ({ activity, isExecuting, onAction }) => {
   const { user, chains, t } = useApp();
   const { isConnected, chainId: currentChainId } = useAccount();
+  const { openConnectModal } = useConnectModal();
 
   const lastTime = user?.lastActivities?.[activity.id] || 0;
   const COOLDOWN_MS = 12 * 60 * 60 * 1000;
@@ -42,6 +43,7 @@ const GMCard: React.FC<{ activity: any, isExecuting: boolean, onAction: (activit
   }, [isCooldown, lastTime]);
 
   const isWrongChain = isConnected && currentChainId !== activity.chainId;
+  const canPeform = !isCooldown;
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 flex flex-col items-center text-center group hover:shadow-xl transition-all relative overflow-hidden">
