@@ -188,11 +188,16 @@ export const Layout: React.FC = () => {
               </>
             )}
 
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mb-2 mt-6">{t('onChainActivities')}</p>
-            <SidebarLink to="/daily-gm" icon={<SunIcon size={18} />} label={t('dailyGm')} active={location.pathname === '/daily-gm'} onClick={() => setSidebarOpen(false)} />
-            <SidebarLink to="/daily-mint" icon={<Sparkles size={18} />} label={t('dailyMint')} active={location.pathname === '/daily-mint'} onClick={() => setSidebarOpen(false)} />
-            <SidebarLink to="/deploy" icon={<ArrowUpCircle size={18} />} label={t('deploy')} active={location.pathname === '/deploy'} onClick={() => setSidebarOpen(false)} />
-            <SidebarLink to="/rpg" icon={<Sword size={18} />} label={t('onChainRpg')} active={location.pathname === '/rpg'} onClick={() => setSidebarOpen(false)} />
+            {user && (
+              <>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mb-2 mt-6">{t('onChainActivities')}</p>
+                <SidebarLink to="/daily-gm" icon={<SunIcon size={18} />} label={t('dailyGm')} active={location.pathname === '/daily-gm'} onClick={() => setSidebarOpen(false)} />
+                <SidebarLink to="/daily-mint" icon={<Sparkles size={18} />} label={t('dailyMint')} active={location.pathname === '/daily-mint'} onClick={() => setSidebarOpen(false)} />
+                <SidebarLink to="/deploy" icon={<ArrowUpCircle size={18} />} label={t('deploy')} active={location.pathname === '/deploy'} onClick={() => setSidebarOpen(false)} />
+                <SidebarLink to="/rpg" icon={<Sword size={18} />} label={t('onChainRpg')} active={location.pathname === '/rpg'} onClick={() => setSidebarOpen(false)} />
+              </>
+            )}
+
             <SidebarLink to="/faucets" icon={<Droplets size={18} />} label={t('faucets')} active={location.pathname === '/faucets'} onClick={() => setSidebarOpen(false)} />
 
             {(user?.role === 'admin' || user?.memberStatus === 'Admin') && (

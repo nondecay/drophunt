@@ -156,8 +156,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         supabase.from('announcements').select('*'),
         supabase.from('tools').select('*'),
         supabase.from('users').select('*'),
-        supabase.from('events').select('*'),
-        supabase.from('messages').select('*').order('createdAt', { ascending: false })
+        supabase.from('events').select('*')
+        // Messages are now fetched per-user in fetchUserData to ensure privacy
       ]);
 
       if (results[0].data) setAirdrops(results[0].data as any);
@@ -172,25 +172,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (results[9].data) setTools(results[9].data as any);
       if (results[10].data) setUsersList(results[10].data as any);
       if (results[11].data) setEvents(results[11].data as any);
-      if (results[12].data) {
-        const readIds = JSON.parse(localStorage.getItem('read_messages') || '[]');
-
-        // Filter messages for privacy:
-        // 1. If user is logged in, show messages after their registration OR personal messages
-        // 2. If not logged in, maybe show nothing or just system (we'll filter in UI or here)
-        // Correct implementation: AppContext has user state. But refreshData might run before user is set.
-        // It uses the FETCHED data. We should filter in the UI or update 'inbox' state when user logs in.
-        // For now, load all, and we'll filter in Inbox.tsx OR here if we have user.
-        // BETTER: Filter here if possible, but 'user' state might be stale in this closure if not careful.
-        // Actually, just loading all is risky for privacy if we care about "network tab" privacy.
-        // But user request implies "view" privacy. 
-
-        const processedInbox = (results[12].data as any[]).map(m => ({
-          ...m,
-          isRead: readIds.includes(m.id)
-        }));
-        setInbox(processedInbox);
-      }
 
       setIsDataLoaded(true);
 
@@ -208,19 +189,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // 3. User Sync (Upsert on Connect)
   const syncUser = async (addr: string) => {
-    const { data: existing, error } = await supabase.from('users').select('*').eq('address', addr).single();
-
+    // We only check existence here, NOT login. Login requires signature.
+    const { data: existing } = await supabase.from('users').select('*').eq('address', addr).single();
     if (existing) {
-      setUser(existing as any);
-      fetchUserData(existing.id);
-      setIsVerified(true);
-      return;
+      // User exists, but we wait for valid session to login
     }
-
-    // Do NOT auto-create here. Verify wallet flow handles creation.
-    // However, if we are ALREADY verified in session, we might want to sync?
-    // But syncUser is called in useEffect on connect.
-    // If user exists, fine. If not, do nothing (wait for verify).
   };
 
   const registerUsername = async (username: string) => {
@@ -241,6 +214,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setUser(created as any);
       fetchUserData(created.id);
       setShowUsernameModal(false);
+      // Auto-verify on registration since they just signed to verify (context dependant, but usually safe if flow assumes verify first)
+      sessionStorage.setItem(`verified_session_${address.toLowerCase()}`, 'true');
+      setIsVerified(true);
       addToast("Welcome, Hunter!", "success");
     } else {
       console.error("User Creation Failed", insertErr);
@@ -255,9 +231,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
 
   const fetchUserData = async (uid: string) => {
-    const [tData, cData] = await Promise.all([
+    const [tData, cData, mData] = await Promise.all([
       supabase.from('todos').select('*').eq('user_id', uid),
-      supabase.from('user_claims').select('*').eq('user_id', uid)
+      supabase.from('user_claims').select('*').eq('user_id', uid),
+      supabase.from('inbox_messages').select('*').eq('userId', uid).order('timestamp', { ascending: false })
     ]);
     if (tData.data) {
       setUserTasks(tData.data as any);
@@ -277,6 +254,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setUserClaims(normalizedClaims as any);
     } else {
       console.error("Fetched Claims Error or Empty:", cData.error);
+    }
+    if (mData.data) {
+      const readIds = JSON.parse(localStorage.getItem('read_messages') || '[]');
+      const processedInbox = (mData.data as any[]).map(m => ({
+        ...m,
+        isRead: readIds.includes(m.id) || m.isRead
+      }));
+      setInbox(processedInbox);
     }
   };
 
@@ -374,25 +359,43 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   useEffect(() => {
-    if (isConnected && address) {
-      syncUser(address.toLowerCase());
-      // Check session
-      const sessionKey = `verified_session_${address.toLowerCase()}`;
-      const verified = sessionStorage.getItem(sessionKey) === 'true';
-      setIsVerified(verified);
+    const checkSession = async () => {
+      if (isConnected && address) {
+        const sessionKey = `verified_session_${address.toLowerCase()}`;
+        const verified = sessionStorage.getItem(sessionKey) === 'true';
 
-      // Auto-trigger verification if not verified
-      if (!verified) {
-        // Short delay to ensure connection is stable and avoid race conditions
-        setTimeout(() => verifyWallet(), 1500);
+        if (verified) {
+          // Restore Session
+          const { data: existing } = await supabase.from('users').select('*').eq('address', address.toLowerCase()).single();
+          if (existing) {
+            setUser(existing as any);
+            fetchUserData(existing.id);
+            setIsVerified(true);
+          } else {
+            // Verified but no user? Anomalous, ask to verify/register again
+            setIsVerified(false);
+            sessionStorage.removeItem(sessionKey);
+            // If user is verified but not in DB, something is wrong. Re-verify.
+            verifyWallet();
+          }
+        } else {
+          // Not verified - User must sign.
+          // Do NOT set user.
+          setIsVerified(false);
+          setUser(null);
+          // Prompt verification immediately
+          verifyWallet();
+        }
+      } else {
+        setUser(null);
+        setUserTasks([]);
+        setUserClaims([]);
+        setInbox([]); // Clear messages on disconnect
+        setIsVerified(false);
+        setShowUsernameModal(false);
       }
-    } else {
-      setUser(null);
-      setUserTasks([]);
-      setUserClaims([]);
-      setIsVerified(false);
-      setShowUsernameModal(false);
-    }
+    };
+    checkSession();
   }, [isConnected, address]);
 
 
@@ -439,6 +442,7 @@ Expires At: ${expires}`;
           const { data: created, error } = await supabase.from('users').insert(newUser).select().single();
           if (created) {
             setUser(created as any);
+            fetchUserData(created.id);
             // Show optional username change modal
             setShowUsernameModal(true);
           } else {
@@ -454,6 +458,9 @@ Expires At: ${expires}`;
     } catch (err: any) {
       console.error(err);
       addToast(t('verificationFailed') || "Verification failed.", "error");
+      // If failed, disconnect to prevent 'connected but unverified' confusion state
+      // disconnect(); 
+      // Actually keeping them connected but unverified ('Guest') is better UX, just restrict access.
     }
   };
 
