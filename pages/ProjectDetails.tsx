@@ -114,7 +114,7 @@ export const ProjectDetails: React.FC = () => {
     .filter(Boolean);
 
   const handlePostComment = async () => {
-    if (!user) return addToast("Connect wallet to broadcast intel.", "warning");
+    if (!user) return addToast("Connect your wallet to post a comment", "warning");
 
     // 24-hour project-specific cooldown check
     const COOLDOWN_24H = 24 * 60 * 60 * 1000;

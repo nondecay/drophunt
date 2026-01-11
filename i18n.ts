@@ -238,8 +238,9 @@ export const translations = {
     totalProjects: 'Total Projects',
     latestInvestment: 'Latest Investment',
     investorSearch: 'Search investor...',
-    allCategories: 'All',
-    allMonths: 'All Months'
+    allMonths: 'All Months',
+    walletVerified: 'Wallet Verified.',
+    verificationFailed: 'Verification failed.'
   },
   tr: {
     // Nav & Sekmeler

@@ -132,7 +132,7 @@ const MobileProjectCard: React.FC<{ project: Airdrop, isTracked: boolean, onTrac
       <Link to={`/project/${project.id}`} className="flex items-start gap-4 mb-4">
         <img src={getImgUrl(project.icon) || 'https://picsum.photos/200'} className="w-16 h-16 rounded-2xl object-cover shadow-md" alt="" />
         <div className="flex-1 min-w-0">
-          <div className="flex justify-between items-start">
+          <div className="flex justify-between items-center">
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <h3 className="font-black text-lg uppercase tracking-tight leading-none text-slate-900 dark:text-white truncate">{project.name}</h3>
@@ -427,7 +427,7 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
                       </td>
                       <td className="px-6 py-5 text-[11px] font-bold text-slate-500 whitespace-nowrap">{new Date(a.createdAt || Date.now()).toLocaleDateString()}</td>
                       <td className="px-6 py-5">
-                        <div className="flex items-center text-slate-950 dark:text-white font-black font-mono tracking-tighter gap-0.5">
+                        <div className="flex items-center text-emerald-600 dark:text-emerald-400 font-black gap-0.5">
                           <span className="text-2xl">$</span>
                           <span className="text-2xl">{a.investment}</span>
                         </div>
