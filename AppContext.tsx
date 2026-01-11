@@ -412,45 +412,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // 4. Actions (Updated to Async / DB)
 
-  const verifyWallet = async () => {
-    if (!address) return;
-    try {
-      const nonce = Math.random().toString(36).substring(2, 15);
-      const now = new Date();
-      const isoNow = now.toISOString();
-      const expires = new Date(now.getTime() + 5 * 60000).toISOString();
 
-      const message = `Welcome to drophunt.io!
-
-Please sign this message to verify that you are the owner of this wallet.
-This signature does not initiate any blockchain transaction and does not cost any gas.
-
-Purpose: Account authentication
-Nonce: ${nonce}
-Issued At: ${isoNow}
-Expires At: ${expires}`;
-
-      const signature = await signMessageAsync({ account: address as `0x${string}`, message });
-      const isValid = await verifyMessage({ address: address as `0x${string}`, message, signature });
-
-      if (isValid) {
-        sessionStorage.setItem(`verified_session_${address.toLowerCase()}`, 'true');
-        setIsVerified(true);
-        addToast(t('walletVerified') || "Wallet verified.");
-
-        // Force sync user to ensure they are logged in DB-wise
-        await syncUser(address.toLowerCase());
-
-        // Check if username needs setting
-        if (user && user.username && user.username.startsWith('Hunter_')) {
-          setShowUsernameModal(true);
-        }
-      }
-    } catch (err: any) {
-      console.error(err);
-      addToast(t('verificationFailed') || "Verification failed.", "error");
-    }
-  };
 
   const setUsername = async (name: string) => {
     if (!user) return false;
