@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useApp } from '../AppContext';
-import { Sword, Shield, Trophy, Zap, Heart, Star, Compass, Loader2, Wallet, Globe, Target, MapPin, Check, ChevronDown, Search, ShieldCheck, AlertCircle, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
+import { Sword, Shield, Trophy, Zap, Heart, Star, Compass, Loader2, Wallet, Globe, Target, MapPin, Check, ChevronDown, Search, ShieldCheck, AlertCircle, ChevronLeft, ChevronRight, Clock, ShieldAlert } from 'lucide-react';
 import { useAccount, useSwitchChain, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseEther } from 'viem';
 import { LoadingSpinner } from '../components/LoadingSpinner';
