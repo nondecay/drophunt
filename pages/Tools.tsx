@@ -5,6 +5,13 @@ import { ExternalLink, Search, Filter } from 'lucide-react';
 import { ToolCategory } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 
+// Image Proxy Helper
+const getImgUrl = (path: string) => {
+  if (!path) return '';
+  if (path.startsWith('http') || path.startsWith('data:')) return path;
+  return `https://bxklsejtopzevituoaxk.supabase.co/storage/v1/object/public/${path}`;
+};
+
 export const Tools: React.FC = () => {
   const { tools, t, isDataLoaded } = useApp();
   const [search, setSearch] = useState('');
@@ -64,7 +71,7 @@ export const Tools: React.FC = () => {
         {filteredTools.map(tool => (
           <div key={tool.id} className="bg-white dark:bg-slate-900 rounded-[2rem] p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center text-center group hover:shadow-xl transition-all border-b-4 border-b-primary-600 h-[300px]">
             <div className="w-16 h-16 rounded-2xl bg-slate-50 dark:bg-slate-800 p-3 mb-4 group-hover:scale-110 transition-transform shadow-inner flex items-center justify-center">
-              <img src={tool.logo || '/logo.png'} className="w-full h-full object-contain" />
+              <img src={getImgUrl(tool.logo) || '/logo.png'} className="w-full h-full object-contain" />
             </div>
             <span className="text-[9px] font-black uppercase text-primary-600 tracking-[0.2em] mb-2">{tool.category}</span>
             <h3 className="text-lg font-black mb-2 line-clamp-1">{tool.name}</h3>

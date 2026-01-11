@@ -4,6 +4,13 @@ import { useApp } from '../AppContext';
 import { ExternalLink, Clock, AlertTriangle, ArrowRight, ShieldCheck, Calendar } from 'lucide-react';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 
+// Image Proxy Helper
+const getImgUrl = (path: string) => {
+  if (!path) return '';
+  if (path.startsWith('http') || path.startsWith('data:')) return path;
+  return `https://bxklsejtopzevituoaxk.supabase.co/storage/v1/object/public/${path}`;
+};
+
 export const Claims: React.FC<{ type: 'claims' | 'presales' }> = ({ type }) => {
   const { claims, t, isDataLoaded } = useApp();
 
@@ -32,7 +39,7 @@ export const Claims: React.FC<{ type: 'claims' | 'presales' }> = ({ type }) => {
           data.map((item: any) => (
             <div key={item.id} className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 flex flex-col h-full group hover:shadow-2xl transition-all border-b-8 border-b-primary-600">
               <div className="flex items-center gap-4 mb-6">
-                <img src={item.icon} className="w-16 h-16 rounded-2xl object-cover ring-4 ring-primary-50 dark:ring-slate-800 shadow-xl" alt="" />
+                <img src={getImgUrl(item.icon)} className="w-16 h-16 rounded-2xl object-cover ring-4 ring-primary-50 dark:ring-slate-800 shadow-xl" alt="" />
                 <div>
                   <h3 className="text-xl font-black tracking-tight">{item.projectName}</h3>
                   <div className="flex flex-col gap-1">
