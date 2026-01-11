@@ -251,24 +251,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  const verifyWallet = async () => {
-    if (!isConnected || !address) return;
-    try {
-      const message = `Verify ownership of ${address} for Trackdropz access. Timestamp: ${Date.now()}`;
-      await signMessageAsync({ message });
 
-      // After signing, if user doesn't exist, we show username modal to complete registration.
-      // We check existence again to be sure? Or just proceed to registration flow.
-      // Since syncUser runs on connect, if we are here, 'user' is null.
-
-      // Show username selection modal
-      setShowUsernameModal(true);
-
-    } catch (e) {
-      console.error(e);
-      addToast("Verification cancelled", "error");
-    }
-  };
 
   const fetchUserData = async (uid: string) => {
     const [tData, cData] = await Promise.all([
