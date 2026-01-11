@@ -66,13 +66,29 @@ const GMCard: React.FC<{ activity: any, isExecuting: boolean, onAction: (activit
             <span className="text-[9px] font-bold font-mono">{timeLeft}</span>
           </div>
         ) : (
-          <button
-            onClick={() => onAction(activity)}
-            disabled={isExecuting}
-            className={`w-full py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${!isConnected ? 'bg-primary-600 text-white shadow-primary-500/20' : isWrongChain ? 'bg-amber-500 text-white shadow-amber-500/20' : 'bg-primary-600 text-white shadow-primary-500/20'}`}
-          >
-            {isExecuting ? <Loader2 className="animate-spin" size={14} /> : (!isConnected ? "Connect Wallet" : isWrongChain ? t('syncNetwork') : t('broadcastGm'))}
-          </button>
+          !isConnected ? (
+            <button onClick={openConnectModal} className="mt-auto w-full py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-slate-900/20 hover:scale-[1.02] active:scale-95 transition-all">
+              Connect Wallet
+            </button>
+          ) : (
+            <button
+              onClick={handleAction}
+              disabled={!canPeform || isExecuting || isWrongChain} // Changed isPending to isExecuting based on original code
+              className={`mt-auto w-full py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg transition-all flex items-center justify-center gap-2 ${isWrongChain
+                  ? 'bg-red-500 text-white cursor-not-allowed'
+                  : !canPeform
+                    ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-primary-500/30 hover:shadow-primary-500/50 hover:scale-[1.02] active:scale-95'
+                }`}
+            >
+              {isExecuting ? <Loader2 size={14} className="animate-spin" /> : ( // Changed isPending to isExecuting
+                <>
+                  {isWrongChain ? 'Wrong Network' : canPeform ? 'Say GM' : 'Cooldown'}
+                  {!isWrongChain && canPeform && <Zap size={14} fill="currentColor" />}
+                </>
+              )}
+            </button>
+          )
         )}
       </div>
     </div>

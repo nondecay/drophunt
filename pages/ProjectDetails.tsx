@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useApp } from '../AppContext';
 import { ChevronLeft, Youtube, Twitter, MessageSquare, Star, Zap, Plus, Globe, Trophy, ExternalLink, ShieldCheck, Github, Trash2, Medal, X, Lock, Info, Rocket, DollarSign, Users, Edit3, ChevronRight, CheckCircle, AlertCircle, ChevronDown } from 'lucide-react';
@@ -34,6 +34,18 @@ export const ProjectDetails: React.FC = () => {
   const { id } = useParams();
   const { user, airdrops = [], comments = [], setComments, guides = [], setGuides, investors = [], addToast, toggleTrackProject, logActivity, setUsersList, t, refreshData, isDataLoaded } = useApp();
   const [guideFilter, setGuideFilter] = useState<'tr' | 'us'>('us');
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Missing State Definitions
   const [commentPage, setCommentPage] = useState(1);
@@ -392,17 +404,43 @@ export const ProjectDetails: React.FC = () => {
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-lg font-black uppercase tracking-tighter">{t('guides')}</h2>
                 <div className="flex gap-2">
-                  <div className="relative group">
-                    <select
-                      value={guideFilter}
-                      onChange={(e) => setGuideFilter(e.target.value)}
-                      className="appearance-none pl-8 pr-8 py-2 bg-slate-100 dark:bg-slate-950 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 outline-none focus:ring-2 focus:ring-primary-500/20 cursor-pointer"
+                  <div className="relative z-10" ref={dropdownRef}>
+                    <button
+                      onClick={() => setDropdownOpen(!isDropdownOpen)}
+                      className="flex items-center gap-2 pl-3 pr-4 py-2 bg-slate-100 dark:bg-slate-950 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-900 transition-colors"
                     >
-                      <option value="us">Select Language (English)</option>
-                      <option value="tr">Turkish</option>
-                    </select>
-                    <Globe size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                    <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                      {guideFilter === 'us' ? (
+                        <>
+                          <img src="https://flagcdn.com/w20/us.png" className="w-4 h-3 object-cover rounded-[2px]" alt="English" />
+                          <span>English</span>
+                        </>
+                      ) : (
+                        <>
+                          <img src="https://flagcdn.com/w20/tr.png" className="w-4 h-3 object-cover rounded-[2px]" alt="Turkish" />
+                          <span>Turkish</span>
+                        </>
+                      )}
+                      <ChevronDown size={14} className={`text-slate-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {isDropdownOpen && (
+                      <div className="absolute right-0 top-full mt-2 w-32 bg-white dark:bg-slate-950 rounded-xl shadow-xl border border-slate-100 dark:border-slate-800 p-1 animate-in zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 origin-top-right">
+                        <button
+                          onClick={() => { setGuideFilter('us'); setDropdownOpen(false); }}
+                          className={`w-full text-left px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-colors ${guideFilter === 'us' ? 'bg-primary-50 dark:bg-primary-900/10 text-primary-600' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}
+                        >
+                          <img src="https://flagcdn.com/w20/us.png" className="w-4 h-3 object-cover rounded-[2px]" alt="English" />
+                          <span>English</span>
+                        </button>
+                        <button
+                          onClick={() => { setGuideFilter('tr'); setDropdownOpen(false); }}
+                          className={`w-full text-left px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-colors ${guideFilter === 'tr' ? 'bg-primary-50 dark:bg-primary-900/10 text-primary-600' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}
+                        >
+                          <img src="https://flagcdn.com/w20/tr.png" className="w-4 h-3 object-cover rounded-[2px]" alt="Turkish" />
+                          <span>Turkish</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                   <button onClick={() => setShowGuideModal(true)} className="p-2 bg-primary-600 text-white rounded-lg shadow-md active:scale-95"><Plus size={16} /></button>
                 </div>

@@ -193,9 +193,7 @@ export const Layout: React.FC = () => {
             <SidebarLink to="/daily-mint" icon={<Sparkles size={18} />} label={t('dailyMint')} active={location.pathname === '/daily-mint'} onClick={() => setSidebarOpen(false)} />
             <SidebarLink to="/deploy" icon={<ArrowUpCircle size={18} />} label={t('deploy')} active={location.pathname === '/deploy'} onClick={() => setSidebarOpen(false)} />
 
-            {user && (
-              <SidebarLink to="/rpg" icon={<Sword size={18} />} label={t('onChainRpg')} active={location.pathname === '/rpg'} onClick={() => setSidebarOpen(false)} />
-            )}
+            <SidebarLink to="/rpg" icon={<Sword size={18} />} label={t('onChainRpg')} active={location.pathname === '/rpg'} onClick={() => setSidebarOpen(false)} />
 
             <SidebarLink to="/faucets" icon={<Droplets size={18} />} label={t('faucets')} active={location.pathname === '/faucets'} onClick={() => setSidebarOpen(false)} />
 

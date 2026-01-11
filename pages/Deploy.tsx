@@ -66,13 +66,21 @@ const DeployCard: React.FC<{ activity: any, isExecuting: boolean, onAction: (act
             <span className="text-[9px] font-bold font-mono">{timeLeft}</span>
           </div>
         ) : (
-          <button
-            onClick={() => onAction(activity)}
-            disabled={isExecuting}
-            className={`w-full py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${!isConnected ? 'bg-primary-600 text-white shadow-primary-500/20' : isWrongChain ? 'bg-amber-500 text-white shadow-amber-500/20' : 'bg-primary-600 text-white shadow-primary-500/20'}`}
-          >
-            {isExecuting ? <Loader2 className="animate-spin" size={14} /> : (!isConnected ? "Connect Wallet" : isWrongChain ? t('syncNetwork') : t('executeDeploy'))}
-          </button>
+          <>
+            {!isConnected ? (
+              <button onClick={openConnectModal} className="w-full py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg bg-primary-600 text-white shadow-primary-500/20">
+                Connect Wallet
+              </button>
+            ) : (
+              <button
+                onClick={() => onAction(activity)}
+                disabled={isExecuting}
+                className={`w-full py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${isWrongChain ? 'bg-amber-500 text-white shadow-amber-500/20' : 'bg-primary-600 text-white shadow-primary-500/20'}`}
+              >
+                {isExecuting ? <Loader2 className="animate-spin" size={14} /> : (isWrongChain ? t('syncNetwork') : t('executeDeploy'))}
+              </button>
+            )}
+          </>
         )}
       </div>
     </div>
