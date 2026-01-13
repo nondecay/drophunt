@@ -80,17 +80,15 @@ const GMCard: React.FC<{ activity: any, isExecuting: boolean, onAction: (activit
             <button
               onClick={() => onAction(activity)}
               disabled={(!canPeform && !isWrongChain) || isExecuting}
-              className={`mt-auto w-full py-3 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-lg transition-all flex items-center justify-center gap-2 ${isWrongChain
-                ? 'bg-amber-500 text-white shadow-amber-500/20 hover:bg-amber-600'
-                : !canPeform
-                  ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
-                  : 'bg-primary-600 text-white shadow-primary-500/30 hover:bg-primary-700 hover:shadow-primary-500/50 hover:scale-[1.02] active:scale-95'
+              className={`mt-auto w-full py-3 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-lg transition-all flex items-center justify-center gap-2 ${!canPeform
+                ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+                : 'bg-primary-600 text-white shadow-primary-500/30 hover:bg-primary-700 hover:shadow-primary-500/50 hover:scale-[1.02] active:scale-95'
                 }`}
             >
               {isExecuting ? <Loader2 size={14} className="animate-spin" /> : (
                 <>
-                  {isWrongChain ? 'Change Network' : canPeform ? 'Send GM' : 'Cooldown'}
-                  {!isWrongChain && canPeform && <Zap size={14} fill="currentColor" />}
+                  {canPeform ? 'Send GM' : 'Cooldown'}
+                  {canPeform && <Zap size={14} fill="currentColor" />}
                 </>
               )}
             </button>
@@ -165,8 +163,8 @@ export const DailyGM: React.FC = () => {
       if (currentChainId !== activity.chainId) {
         addToast(`Switching to ${activity.name} node...`, "info");
         await switchChainAsync({ chainId: activity.chainId });
-        setIsExecuting(false);
-        return;
+        // Allow state to propagate
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
       const rawFee = activity.mintFee || '0.00035';
