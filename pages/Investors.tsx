@@ -89,103 +89,102 @@ export const Investors: React.FC = () => {
       </div>
 
       <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-2xl mb-8">
-        <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-2xl mb-8">
 
-          {/* Mobile View (Cards) */}
-          <div className="md:hidden flex flex-col divide-y divide-slate-100 dark:divide-slate-800">
-            {currentItems.length === 0 ? (
-              <div className="p-10 text-center text-slate-400 font-black uppercase tracking-widest">No capital entities found.</div>
-            ) : (
-              currentItems.map((inv, index) => (
-                <div key={inv.id} className="p-6 bg-white dark:bg-slate-900 flex flex-col gap-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">#{(currentPage - 1) * itemsPerPage + index + 1}</span>
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{inv.latestInvestmentDate}</span>
-                  </div>
-                  <Link to={`/investor/${inv.id}`} className="flex items-center gap-4 group">
-                    <img src={getImgUrl(inv.logo) || 'https://picsum.photos/seed/' + inv.id + '/200'} className="w-16 h-16 rounded-2xl object-cover shadow-lg ring-4 ring-slate-50 dark:ring-slate-800" alt="" />
-                    <div>
-                      <h3 className="text-lg font-black uppercase text-slate-800 dark:text-white group-hover:text-primary-600 transition-colors">{inv.name}</h3>
-                      <div className="inline-flex mt-1 items-center px-2 py-0.5 bg-primary-50 dark:bg-primary-900/20 rounded-lg font-black text-[10px] text-primary-600">
-                        {inv.projectCount} Projects
-                      </div>
-                    </div>
-                  </Link>
-                  <Link to={`/investor/${inv.id}`} className="mt-2 w-full py-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-500 font-black text-xs uppercase flex items-center justify-center gap-2 hover:bg-primary-600 hover:text-white transition-all">
-                    View Profile <ExternalLink size={14} />
-                  </Link>
+        {/* Mobile View (Cards) */}
+        <div className="md:hidden flex flex-col divide-y divide-slate-100 dark:divide-slate-800">
+          {currentItems.length === 0 ? (
+            <div className="p-10 text-center text-slate-400 font-black uppercase tracking-widest">No capital entities found.</div>
+          ) : (
+            currentItems.map((inv, index) => (
+              <div key={inv.id} className="p-6 bg-white dark:bg-slate-900 flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">#{(currentPage - 1) * itemsPerPage + index + 1}</span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{inv.latestInvestmentDate}</span>
                 </div>
-              ))
-            )}
-          </div>
-
-          {/* Desktop View (Table) */}
-          <div className="hidden md:block overflow-x-auto">
-            <table className="w-full text-left border-collapse table-auto min-w-[800px]">
-              <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
-                  <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] w-16"># Rank</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">{t('investors')}</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">{t('totalProjects')}</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">{t('latestInvestment')}</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] text-right">View Profile</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {currentItems.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="p-20 text-center text-slate-400 font-black uppercase tracking-widest">No capital entities found.</td>
-                  </tr>
-                ) : (
-                  currentItems.map((inv, index) => (
-                    <tr key={inv.id} className="group hover:bg-primary-50/30 dark:hover:bg-primary-900/5 transition-all">
-                      <td className="px-6 py-5">
-                        <span className="font-black text-slate-400 text-xs tracking-tight">#{(currentPage - 1) * itemsPerPage + index + 1}</span>
-                      </td>
-                      <td className="px-6 py-5">
-                        <Link to={`/investor/${inv.id}`} className="flex items-center gap-4">
-                          <img src={getImgUrl(inv.logo) || 'https://picsum.photos/seed/' + inv.id + '/200'} className="w-12 h-12 rounded-xl object-cover shadow-lg group-hover:scale-110 transition-transform" alt="" />
-                          <span className="font-black text-base uppercase group-hover:text-primary-600 transition-colors">{inv.name}</span>
-                        </Link>
-                      </td>
-                      <td className="px-6 py-5">
-                        <div className="inline-flex items-center px-4 py-1.5 bg-slate-50 dark:bg-slate-800 rounded-xl font-black text-xs text-primary-600">
-                          {inv.projectCount} Projects
-                        </div>
-                      </td>
-                      <td className="px-6 py-5">
-                        <span className="text-xs font-black text-slate-400 uppercase">{inv.latestInvestmentDate}</span>
-                      </td>
-                      <td className="px-6 py-5 text-right">
-                        <Link to={`/investor/${inv.id}`} className="p-3 inline-flex rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary-600 transition-all shadow-sm">
-                          <ExternalLink size={18} />
-                        </Link>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                <Link to={`/investor/${inv.id}`} className="flex items-center gap-4 group">
+                  <img src={getImgUrl(inv.logo) || 'https://picsum.photos/seed/' + inv.id + '/200'} className="w-16 h-16 rounded-2xl object-cover shadow-lg ring-4 ring-slate-50 dark:ring-slate-800" alt="" />
+                  <div>
+                    <h3 className="text-lg font-black uppercase text-slate-800 dark:text-white group-hover:text-primary-600 transition-colors">{inv.name}</h3>
+                    <div className="inline-flex mt-1 items-center px-2 py-0.5 bg-primary-50 dark:bg-primary-900/20 rounded-lg font-black text-[10px] text-primary-600">
+                      {inv.projectCount} Projects
+                    </div>
+                  </div>
+                </Link>
+                <Link to={`/investor/${inv.id}`} className="mt-2 w-full py-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-500 font-black text-xs uppercase flex items-center justify-center gap-2 hover:bg-primary-600 hover:text-white transition-all">
+                  View Profile <ExternalLink size={14} />
+                </Link>
+              </div>
+            ))
+          )}
         </div>
 
-        {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2">
-            <button onClick={() => { setCurrentPage(p => Math.max(1, p - 1)); window.scrollTo(0, 0); }} className="p-3 rounded-2xl bg-white dark:bg-slate-900 border dark:border-slate-800 text-slate-400 hover:text-primary-600 shadow-sm transition-all"><ChevronLeft size={20} /></button>
-            <div className="flex gap-1.5">
-              {Array.from({ length: totalPages }, (_, i) => (
-                <button
-                  key={i}
-                  onClick={() => { setCurrentPage(i + 1); window.scrollTo(0, 0); }}
-                  className={`w-11 h-11 rounded-2xl font-black text-xs transition-all ${currentPage === i + 1 ? 'bg-primary-600 text-white shadow-xl shadow-primary-500/30 scale-110' : 'bg-white dark:bg-slate-900 border dark:border-slate-800 text-slate-400'}`}
-                >
-                  {i + 1}
-                </button>
-              ))}
-            </div>
-            <button onClick={() => { setCurrentPage(p => Math.min(totalPages, p + 1)); window.scrollTo(0, 0); }} className="p-3 rounded-2xl bg-white dark:bg-slate-900 border dark:border-slate-800 text-slate-400 hover:text-primary-600 shadow-sm transition-all"><ChevronRight size={20} /></button>
-          </div>
-        )}
+        {/* Desktop View (Table) */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-left border-collapse table-auto min-w-[800px]">
+            <thead>
+              <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] w-16"># Rank</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">{t('investors')}</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">{t('totalProjects')}</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">{t('latestInvestment')}</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] text-right">View Profile</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              {currentItems.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="p-20 text-center text-slate-400 font-black uppercase tracking-widest">No capital entities found.</td>
+                </tr>
+              ) : (
+                currentItems.map((inv, index) => (
+                  <tr key={inv.id} className="group hover:bg-primary-50/30 dark:hover:bg-primary-900/5 transition-all">
+                    <td className="px-6 py-5">
+                      <span className="font-black text-slate-400 text-xs tracking-tight">#{(currentPage - 1) * itemsPerPage + index + 1}</span>
+                    </td>
+                    <td className="px-6 py-5">
+                      <Link to={`/investor/${inv.id}`} className="flex items-center gap-4">
+                        <img src={getImgUrl(inv.logo) || 'https://picsum.photos/seed/' + inv.id + '/200'} className="w-12 h-12 rounded-xl object-cover shadow-lg group-hover:scale-110 transition-transform" alt="" />
+                        <span className="font-black text-base uppercase group-hover:text-primary-600 transition-colors">{inv.name}</span>
+                      </Link>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="inline-flex items-center px-4 py-1.5 bg-slate-50 dark:bg-slate-800 rounded-xl font-black text-xs text-primary-600">
+                        {inv.projectCount} Projects
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <span className="text-xs font-black text-slate-400 uppercase">{inv.latestInvestmentDate}</span>
+                    </td>
+                    <td className="px-6 py-5 text-right">
+                      <Link to={`/investor/${inv.id}`} className="p-3 inline-flex rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary-600 transition-all shadow-sm">
+                        <ExternalLink size={18} />
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
-      );
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2">
+          <button onClick={() => { setCurrentPage(p => Math.max(1, p - 1)); window.scrollTo(0, 0); }} className="p-3 rounded-2xl bg-white dark:bg-slate-900 border dark:border-slate-800 text-slate-400 hover:text-primary-600 shadow-sm transition-all"><ChevronLeft size={20} /></button>
+          <div className="flex gap-1.5">
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i}
+                onClick={() => { setCurrentPage(i + 1); window.scrollTo(0, 0); }}
+                className={`w-11 h-11 rounded-2xl font-black text-xs transition-all ${currentPage === i + 1 ? 'bg-primary-600 text-white shadow-xl shadow-primary-500/30 scale-110' : 'bg-white dark:bg-slate-900 border dark:border-slate-800 text-slate-400'}`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+          <button onClick={() => { setCurrentPage(p => Math.min(totalPages, p + 1)); window.scrollTo(0, 0); }} className="p-3 rounded-2xl bg-white dark:bg-slate-900 border dark:border-slate-800 text-slate-400 hover:text-primary-600 shadow-sm transition-all"><ChevronRight size={20} /></button>
+        </div>
+      )}
+    </div>
+  );
 };
