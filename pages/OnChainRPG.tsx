@@ -76,7 +76,7 @@ export const OnChainRPG: React.FC = () => {
          const s = Math.floor((diff % (1000 * 60)) / 1000);
          setCountdown(`${d}d ${h}h ${m}m ${s}s`);
       };
-      updateTimer();
+      if (activeMission) updateTimer(); // Guard with activeMission check if needed, though timer is global.
       const timer = setInterval(updateTimer, 1000);
       return () => clearInterval(timer);
    }, []);
@@ -120,6 +120,7 @@ export const OnChainRPG: React.FC = () => {
 
          if (mission.chainId && currentChainId !== mission.chainId) {
             await switchChainAsync({ chainId: mission.chainId });
+            await new Promise(resolve => setTimeout(resolve, 1000));
          }
 
          if (mission.contractAddress && mission.abi) {

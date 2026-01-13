@@ -1,4 +1,4 @@
-
+```
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useApp } from '../AppContext';
@@ -183,6 +183,19 @@ export const ProjectDetails: React.FC = () => {
       // Since we don't have setUser exposed directly in the snippet I saw, we might need to rely on the side-effect or add it.
       // However, we updated 'usersList' which might cascade if 'user' is derived from it.
       // Let's assume we need to force a sync.
+    }
+  };
+
+  const handleDeleteGuide = async (guideId: string) => {
+    if (!confirm('Are you sure you want to delete this guide?')) return;
+    try {
+      const { error } = await supabase.from('guides').delete().eq('id', guideId);
+      if (error) throw error;
+      addToast('Guide deleted successfully', 'success');
+      // Optimistic update
+      setGuides(prev => prev.filter(g => g.id !== guideId));
+    } catch (error: any) {
+      addToast(error.message, 'error');
     }
   };
 
@@ -550,9 +563,14 @@ export const ProjectDetails: React.FC = () => {
                     </a>
                     <div className="flex items-center gap-2">
                       {isAdmin && (
-                        <button onClick={() => openEditGuide(guide)} className="p-1.5 text-slate-400 hover:text-primary-600 transition-colors">
-                          <Edit3 size={14} />
-                        </button>
+                        <div className="flex gap-2">
+                          <button onClick={() => openEditGuide(guide)} className="p-1.5 text-slate-400 hover:text-primary-600 transition-colors">
+                            <Edit3 size={14} />
+                          </button>
+                          <button onClick={() => handleDeleteGuide(guide.id)} className="p-1.5 text-rose-500 hover:text-rose-700 transition-colors">
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
                       )}
                       <ExternalLink size={10} className="text-slate-300 group-hover:text-primary-600" />
                     </div>

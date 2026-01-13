@@ -76,9 +76,9 @@ const DeployCard: React.FC<{ activity: any, isExecuting: boolean, onAction: (act
               <button
                 onClick={() => onAction(activity)}
                 disabled={isExecuting}
-                className={`w-full py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${isWrongChain ? 'bg-amber-500 text-white shadow-amber-500/20' : 'bg-primary-600 text-white shadow-primary-500/20'}`}
+                className={`w-full py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed bg-primary-600 text-white shadow-primary-500/20`}
               >
-                {isExecuting ? <Loader2 className="animate-spin" size={14} /> : (isWrongChain ? t('syncNetwork') : t('executeDeploy'))}
+                {isExecuting ? <Loader2 className="animate-spin" size={14} /> : t('executeDeploy')}
               </button>
             )}
           </>
@@ -150,8 +150,7 @@ export const Deploy: React.FC = () => {
       if (currentChainId !== activity.chainId) {
         addToast(`Switching to ${activity.name} network...`, "info");
         await switchChainAsync({ chainId: activity.chainId });
-        setIsExecuting(false);
-        return;
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
       setActiveActivityId(activity.id);

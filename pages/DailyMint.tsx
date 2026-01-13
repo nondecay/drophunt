@@ -54,8 +54,37 @@ export const DailyMint: React.FC = () => {
    const activeMint = (activities || []).find(a => a && a.type === 'mint' && a.chainId === selectedChainId);
    const activeChainObj = (chains || []).find(c => c.chainId === selectedChainId);
 
+   const lastTime = activeMint && user?.lastActivities?.[activeMint.id] ? user.lastActivities[activeMint.id] : 0;
+   const COOLDOWN_MS = 12 * 60 * 60 * 1000;
+   const isCooldown = Date.now() - lastTime < COOLDOWN_MS;
+
+   const calculateTimeLeft = () => {
+      if (!isCooldown) return '';
+      const remaining = COOLDOWN_MS - (Date.now() - lastTime);
+      if (remaining <= 0) return '';
+      const hours = Math.floor(remaining / (60 * 60 * 1000));
+      const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
+      return `${hours}h ${minutes}m`;
+   };
+
+   const [timeLeft, setTimeLeft] = useState<string>(calculateTimeLeft());
+
+   useEffect(() => {
+      if (!isCooldown) {
+         if (timeLeft) setTimeLeft('');
+         return;
+      }
+      const interval = setInterval(() => {
+         const newTime = calculateTimeLeft();
+         if (!newTime) clearInterval(interval);
+         setTimeLeft(newTime);
+      }, 1000);
+      return () => clearInterval(interval);
+   }, [isCooldown, lastTime]);
+
    const handleMint = async () => {
       if (!activeMint) return;
+      if (isCooldown) return addToast("Cooldown active for this chain.", "error");
       if (!isConnected) {
          if (openConnectModal) openConnectModal();
          return;
@@ -67,9 +96,7 @@ export const DailyMint: React.FC = () => {
          if (currentChainId !== activeMint.chainId) {
             addToast(`Switching to ${activeMint.name} network...`, "info");
             await switchChainAsync({ chainId: activeMint.chainId });
-            addToast("Network synced. Click to confirm action.", "success");
-            setIsProcessing(false);
-            return;
+            await new Promise(resolve => setTimeout(resolve, 1000));
          }
 
          const rawFee = activeMint.mintFee || '0.00035';
@@ -129,8 +156,12 @@ export const DailyMint: React.FC = () => {
                      </div>
                   </div>
 
-                  <button onClick={handleMint} disabled={isLoading} className={`w-full py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${!isConnected ? 'bg-primary-600 text-white shadow-primary-500/20' : currentChainId !== activeMint.chainId ? 'bg-amber-500 text-white shadow-amber-500/20' : 'bg-primary-600 text-white shadow-primary-500/20'}`}
-                  >           {isLoading ? <Loader2 className="animate-spin" size={20} /> : (!isConnected ? <><Wallet size={18} /> Connect Wallet</> : currentChainId !== activeMint.chainId ? <><Globe size={18} /> {t('syncNetwork')}</> : <>{t('forgeArtifact')}</>)}
+                  <button onClick={handleMint} disabled={isLoading || isCooldown} className={`w-full py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${isCooldown ? 'bg-slate-100 text-slate-400' : 'bg-primary-600 text-white shadow-primary-500/20'}`}
+                  >
+                     {isLoading ? <Loader2 className="animate-spin" size={20} /> :
+                        isCooldown ? <><Clock size={16} /> Cooldown {timeLeft}</> :
+                           (!isConnected ? <><Wallet size={18} /> Connect Wallet</> : <>{t('forgeArtifact')}</>)
+                     }
                   </button>
                </div>
             ) : (
