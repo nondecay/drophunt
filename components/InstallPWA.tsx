@@ -27,11 +27,12 @@ export const InstallPWA: React.FC = () => {
 
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-        // iOS Detection
+        // iOS Detection - Safari Only (exclude Chrome/Firefox on iOS)
         const userAgent = window.navigator.userAgent.toLowerCase();
         const isIOS = /iphone|ipad|ipod/.test(userAgent);
+        const isSafari = userAgent.includes('safari') && !userAgent.includes('crios') && !userAgent.includes('fxios');
 
-        if (isIOS && !isStandalone) {
+        if (isIOS && isSafari && !isStandalone) {
             // Check if user dismissed it recently
             const dismissed = localStorage.getItem('install_dismissed_ts');
             if (!dismissed || Date.now() - parseInt(dismissed) > 86400000) {
@@ -66,13 +67,11 @@ export const InstallPWA: React.FC = () => {
         <>
             {/* iOS Prompt */}
             {showIOSPrompt && (
-                <div className="fixed bottom-4 left-4 right-4 z-50 animate-bounce-in-up">
+                <div className="fixed bottom-4 left-4 right-4 z-[250] animate-bounce-in-up">
                     <div className="bg-slate-900/90 backdrop-blur-md text-white p-4 rounded-3xl shadow-2xl border border-white/10 relative">
                         <button onClick={dismiss} className="absolute top-2 right-2 p-1 text-slate-400 hover:text-white"><X size={16} /></button>
                         <div className="flex items-start gap-4 pr-6">
-                            <div className="bg-primary-600 p-3 rounded-2xl shrink-0">
-                                <Phone size={24} fill="currentColor" />
-                            </div>
+                            <img src="/logo.jpg" className="w-12 h-12 rounded-2xl shrink-0 shadow-lg object-cover" alt="App Icon" />
                             <div>
                                 <h4 className="font-bold text-sm mb-1">Install App</h4>
                                 <p className="text-xs text-slate-300 leading-relaxed mb-3">
@@ -92,12 +91,10 @@ export const InstallPWA: React.FC = () => {
 
             {/* Android / Chrome Prompt */}
             {showAndroidPrompt && (
-                <div className="fixed bottom-4 left-4 right-4 z-50">
+                <div className="fixed bottom-4 left-4 right-4 z-[250]">
                     <div className="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-2xl border dark:border-slate-700 flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
-                            <div className="bg-primary-100 dark:bg-primary-900/30 p-2 rounded-xl text-primary-600">
-                                <Phone size={20} />
-                            </div>
+                            <img src="/logo.jpg" className="w-10 h-10 rounded-xl shrink-0 object-cover" alt="App Icon" />
                             <div>
                                 <p className="font-bold text-sm dark:text-white">Add to Home Screen</p>
                                 <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Get the App</p>
