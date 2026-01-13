@@ -15,7 +15,7 @@ const getImgUrl = (path: string) => {
 };
 
 export const DailyMint: React.FC = () => {
-   const { activities = [], addToast, chains = [], t, logActivity, isDataLoaded } = useApp();
+   const { activities = [], addToast, chains = [], t, logActivity, isDataLoaded, user } = useApp();
 
    if (!isDataLoaded) return <LoadingSpinner />;
    const { isConnected, chainId: currentChainId } = useAccount();
