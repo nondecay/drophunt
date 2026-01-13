@@ -174,7 +174,7 @@ const MobileProjectCard: React.FC<{ project: Airdrop, isTracked: boolean, onTrac
       </div>
 
       <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
-        <div className="text-[10px] font-bold text-slate-400">{new Date(project.createdAt || Date.now()).toLocaleDateString()}</div>
+        <div className="text-[10px] font-bold text-slate-400"><span className="uppercase tracking-widest mr-2">Date Added:</span>{new Date(project.createdAt || Date.now()).toLocaleDateString()}</div>
         <div className="flex items-center gap-1"><PartialStar rating={project.rating} /><span className="text-[10px] font-bold text-slate-400">{(project.rating || 0).toFixed(1)}</span></div>
       </div>
     </div>

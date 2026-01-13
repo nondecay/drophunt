@@ -77,8 +77,9 @@ export const Calendar: React.FC = () => {
         <h2 className="text-xl font-black mb-6 uppercase text-center">{monthNames[month]} {year}</h2>
 
         {/* Mobile Scroll Wrapper */}
-        <div className="overflow-x-auto pb-2">
-          <div className="min-w-[800px] grid grid-cols-7 gap-px bg-slate-100 dark:bg-slate-800 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800">
+        {/* Mobile Calendar Grid */}
+        <div className="pb-2">
+          <div className="grid grid-cols-7 gap-px bg-slate-100 dark:bg-slate-800 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800">
             {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
               <div key={day} className="bg-slate-50 dark:bg-slate-950 p-3 text-center font-black text-[9px] uppercase text-slate-400 tracking-widest">{day}</div>
             ))}
