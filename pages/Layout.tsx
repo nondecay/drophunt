@@ -1,5 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
+import { InstallPWA } from '../components/InstallPWA';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useApp } from '../AppContext';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
