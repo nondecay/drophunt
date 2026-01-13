@@ -67,6 +67,21 @@ export const OnChainRPG: React.FC = () => {
       return () => document.removeEventListener('mousedown', handleClickOutside);
    }, []);
 
+   const rankedHunters = useMemo(() => {
+      if (!usersList) return [];
+      return [...usersList].sort((a, b) => ((b.level - 1) * 100 + b.xp) - ((a.level - 1) * 100 + a.xp));
+   }, [usersList]);
+
+   const userRank = useMemo(() => {
+      if (!user || !usersList) return 'N/A';
+      const sorted = [...usersList].sort((a, b) => ((b.level - 1) * 100 + b.xp) - ((a.level - 1) * 100 + a.xp));
+      const index = sorted.findIndex(u => u.id === user.id);
+      return index >= 0 ? index + 1 : 'N/A';
+   }, [user, usersList]);
+
+   const totalPages = Math.ceil(rankedHunters.length / rankPerPage);
+   const currentRanked = rankedHunters.slice((rankingPage - 1) * rankPerPage, rankingPage * rankPerPage);
+
    if (!isConnected) {
       return (
          <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-8 animate-in fade-in zoom-in duration-500">
@@ -103,13 +118,7 @@ export const OnChainRPG: React.FC = () => {
 
 
 
-   const rankedHunters = useMemo(() => {
-      if (!usersList) return [];
-      return [...usersList].sort((a, b) => ((b.level - 1) * 100 + b.xp) - ((a.level - 1) * 100 + a.xp));
-   }, [usersList]);
 
-   const totalPages = Math.ceil(rankedHunters.length / rankPerPage);
-   const currentRanked = rankedHunters.slice((rankingPage - 1) * rankPerPage, rankingPage * rankPerPage);
 
    const handleAdventure = async () => {
       if (!selectedMissionId || !user) return;
@@ -143,12 +152,7 @@ export const OnChainRPG: React.FC = () => {
       }
    };
 
-   const userRank = useMemo(() => {
-      if (!user || !usersList) return 'N/A';
-      const sorted = [...usersList].sort((a, b) => ((b.level - 1) * 100 + b.xp) - ((a.level - 1) * 100 + a.xp));
-      const index = sorted.findIndex(u => u.id === user.id);
-      return index >= 0 ? index + 1 : 'N/A';
-   }, [user, usersList]);
+
 
    if (!isDataLoaded) return <LoadingSpinner />;
 
