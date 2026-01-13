@@ -99,22 +99,19 @@ export const App: React.FC = () => {
                   <Route path="/rpg" element={<OnChainRPG />} />
                   <Route path="/faucets" element={<Faucets />} />
                   <Route path="/project/:id" element={<ErrorBoundary><ProjectDetails /></ErrorBoundary>} />
+
                   <Route path="/my-airdrops" element={<ProtectedRoute><MyAirdrops /></ProtectedRoute>} />
                   <Route path="/inbox" element={<ProtectedRoute><Inbox /></ProtectedRoute>} />
                   <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-                  <Route path="/claims" element={<Claims />} />
-                  <Route path="/tools" element={<Tools />} />
-                  <Route path="/investors" element={<Investors />} />
 
-                  <Route path="/investors" element={<Investors />} />
-                  <Route path="/investor/:id" element={<InvestorDetails />} />
-                  <Route path="/tools" element={<Tools />} />
-                  <Route path="/my-airdrops" element={<ProtectedRoute><MyAirdrops /></ProtectedRoute>} />
                   <Route path="/calendar" element={<Calendar />} />
                   <Route path="/claims" element={<Claims type="claims" />} />
                   <Route path="/presales" element={<Claims type="presales" />} />
-                  <Route path="/inbox" element={<ProtectedRoute><Inbox /></ProtectedRoute>} />
-                  <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+
+                  <Route path="/tools" element={<Tools />} />
+                  <Route path="/investors" element={<Investors />} />
+                  <Route path="/investor/:id" element={<InvestorDetails />} />
+
                   <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
                 </Route>
               </Routes>
