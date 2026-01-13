@@ -23,21 +23,25 @@ const GMCard: React.FC<{ activity: any, isExecuting: boolean, onAction: (activit
   const COOLDOWN_MS = 12 * 60 * 60 * 1000;
   const isCooldown = Date.now() - lastTime < COOLDOWN_MS;
 
-  const [timeLeft, setTimeLeft] = useState<string>('');
+  const calculateTimeLeft = () => {
+    const remaining = COOLDOWN_MS - (Date.now() - lastTime);
+    if (remaining <= 0) return '';
+    const hours = Math.floor(remaining / (60 * 60 * 1000));
+    const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
+    const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+    return `${hours}h ${minutes}m ${seconds}s`;
+  };
+
+  const [timeLeft, setTimeLeft] = useState<string>(calculateTimeLeft());
 
   useEffect(() => {
     if (!isCooldown) return;
     const interval = setInterval(() => {
-      const remaining = COOLDOWN_MS - (Date.now() - lastTime);
-      if (remaining <= 0) {
-        setTimeLeft('');
+      const newTime = calculateTimeLeft();
+      if (!newTime) {
         clearInterval(interval);
-      } else {
-        const hours = Math.floor(remaining / (60 * 60 * 1000));
-        const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
-        const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
-        setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
       }
+      setTimeLeft(newTime);
     }, 1000);
     return () => clearInterval(interval);
   }, [isCooldown, lastTime]);
@@ -75,17 +79,17 @@ const GMCard: React.FC<{ activity: any, isExecuting: boolean, onAction: (activit
           ) : (
             <button
               onClick={() => onAction(activity)}
-              disabled={!canPeform || isExecuting || isWrongChain} // Changed isPending to isExecuting based on original code
-              className={`mt-auto w-full py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg transition-all flex items-center justify-center gap-2 ${isWrongChain
-                ? 'bg-red-500 text-white cursor-not-allowed'
+              disabled={(!canPeform && !isWrongChain) || isExecuting}
+              className={`mt-auto w-full py-3 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-lg transition-all flex items-center justify-center gap-2 ${isWrongChain
+                ? 'bg-amber-500 text-white shadow-amber-500/20 hover:bg-amber-600'
                 : !canPeform
                   ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-primary-500/30 hover:shadow-primary-500/50 hover:scale-[1.02] active:scale-95'
+                  : 'bg-primary-600 text-white shadow-primary-500/30 hover:bg-primary-700 hover:shadow-primary-500/50 hover:scale-[1.02] active:scale-95'
                 }`}
             >
-              {isExecuting ? <Loader2 size={14} className="animate-spin" /> : ( // Changed isPending to isExecuting
+              {isExecuting ? <Loader2 size={14} className="animate-spin" /> : (
                 <>
-                  {isWrongChain ? 'Wrong Network' : canPeform ? 'Say GM' : 'Cooldown'}
+                  {isWrongChain ? 'Change Network' : canPeform ? 'Send GM' : 'Cooldown'}
                   {!isWrongChain && canPeform && <Zap size={14} fill="currentColor" />}
                 </>
               )}
@@ -114,6 +118,10 @@ export const DailyGM: React.FC = () => {
   const [activeActivityId, setActiveActivityId] = useState<string | null>(null);
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>();
   const { isLoading: isWaitingForTx, isSuccess: isTxSuccess } = useWaitForTransactionReceipt({ hash: txHash });
+
+  const sortedAllChains = useMemo(() => {
+    return [...(chains || [])].sort((a, b) => (a.isTestnet === b.isTestnet ? 0 : a.isTestnet ? 1 : -1));
+  }, [chains]);
 
   const availableChains = (chains || []).filter(c => (mode === 'mainnet' ? !c.isTestnet : c.isTestnet));
 
@@ -213,7 +221,7 @@ export const DailyGM: React.FC = () => {
             <button onClick={() => setDropdownOpen(!isDropdownOpen)} className="w-full px-5 py-4 rounded-3xl bg-white dark:bg-slate-900 border dark:border-slate-800 flex items-center justify-between shadow-sm transition-all hover:border-primary-500/50">
               <div className="flex items-center gap-3">
                 <div className="w-5 h-5 flex items-center justify-center">
-                  {activeChainObj?.logo ? <img src={activeChainObj.logo} className="w-full h-full object-contain" /> : <Globe size={16} className="text-slate-400" />}
+                  {activeChainObj?.logo ? <img src={getImgUrl(activeChainObj.logo)} className="w-full h-full object-contain" /> : <Globe size={16} className="text-slate-400" />}
                 </div>
                 <span className="font-black text-xs uppercase tracking-widest">{activeChainObj?.name || t('allChains')}</span>
               </div>
@@ -224,11 +232,11 @@ export const DailyGM: React.FC = () => {
                 <button onClick={() => { setSelectedChainId('all'); setDropdownOpen(false); }} className={`w-full text-left px-4 py-3 rounded-2xl text-xs font-black uppercase transition-all ${selectedChainId === 'all' ? 'bg-primary-600 text-white' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>
                   <div className="flex items-center gap-3"><Globe size={16} /> <span>{t('allChains')}</span></div>
                 </button>
-                {availableChains.map(c => (
+                {sortedAllChains.map(c => (
                   <button key={c.id} onClick={() => { setSelectedChainId(c.chainId); setDropdownOpen(false); }} className={`w-full text-left px-4 py-3 rounded-2xl text-xs font-black uppercase transition-all ${selectedChainId === c.chainId ? 'bg-primary-600 text-white' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>
                     <div className="flex items-center gap-3">
                       <div className="w-5 h-5 flex items-center justify-center">
-                        {c.logo ? <img src={c.logo} className="w-full h-full object-contain" /> : <Globe size={16} />}
+                        {c.logo ? <img src={getImgUrl(c.logo)} className="w-full h-full object-contain" /> : <Globe size={16} />}
                       </div>
                       <span>{c.name}</span>
                     </div>
@@ -252,7 +260,7 @@ export const DailyGM: React.FC = () => {
               <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border dark:border-slate-800 p-1 z-50 animate-in fade-in">
                 {chainSuggestions.map(s => (
                   <button key={s.id} onClick={() => { setSelectedChainId(s.chainId); setSearch(s.name); setShowChainDrop(false); }} className="w-full text-left px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl text-[10px] font-black uppercase flex items-center gap-2">
-                    <img src={s.logo} className="w-4 h-4 object-contain" /> {s.name}
+                    <img src={getImgUrl(s.logo)} className="w-4 h-4 object-contain" /> {s.name}
                   </button>
                 ))}
               </div>
@@ -268,7 +276,7 @@ export const DailyGM: React.FC = () => {
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
         {gmActivities.map((activity) => (
-          <GMCard key={activity.id} activity={activity} isExecuting={globalLoading} onAction={handleSendGM} />
+          <GMCard key={activity.id} activity={activity} isExecuting={globalLoading && activeActivityId === activity.id} onAction={handleSendGM} />
         ))}
         {gmActivities.length === 0 && (
           <div className="col-span-full py-20 text-center border-4 border-dashed border-slate-100 dark:border-slate-800 rounded-[3rem]">
