@@ -75,28 +75,32 @@ export const Calendar: React.FC = () => {
 
       <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-4 border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
         <h2 className="text-xl font-black mb-6 uppercase text-center">{monthNames[month]} {year}</h2>
-        <div className="grid grid-cols-7 gap-px bg-slate-100 dark:bg-slate-800 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800">
-          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-            <div key={day} className="bg-slate-50 dark:bg-slate-950 p-3 text-center font-black text-[9px] uppercase text-slate-400 tracking-widest">{day}</div>
-          ))}
-          {prefixDays.map((_, i) => <div key={`p-${i}`} className="bg-white dark:bg-slate-900/50 min-h-[80px]" />)}
-          {days.map(day => {
-            const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-            const dayEvents = events.filter(e => e.date === dateStr);
-            const isToday = new Date().toDateString() === new Date(year, month, day).toDateString();
-            return (
-              <div key={day} className="min-h-[100px] p-1.5 bg-white dark:bg-slate-900 flex flex-col gap-1 border-t border-slate-50 dark:border-slate-800">
-                <span className={`text-[10px] font-black w-6 h-6 flex items-center justify-center rounded-lg ${isToday ? 'bg-primary-600 text-white shadow-sm' : 'text-slate-400'}`}>{day}</span>
-                <div className="flex flex-col gap-1 overflow-y-auto max-h-[60px]">
-                  {dayEvents.map((ev) => (
-                    <div key={ev.id} className="px-1.5 py-1 bg-primary-50 dark:bg-primary-900/40 rounded-md text-[8px] font-black text-primary-600 truncate border border-primary-100 dark:border-primary-800/50">
-                      {ev.url ? <a href={ensureHttp(ev.url)} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between"><span>{ev.title}</span><ExternalLink size={6} /></a> : ev.title}
-                    </div>
-                  ))}
+
+        {/* Mobile Scroll Wrapper */}
+        <div className="overflow-x-auto pb-2">
+          <div className="min-w-[800px] grid grid-cols-7 gap-px bg-slate-100 dark:bg-slate-800 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800">
+            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
+              <div key={day} className="bg-slate-50 dark:bg-slate-950 p-3 text-center font-black text-[9px] uppercase text-slate-400 tracking-widest">{day}</div>
+            ))}
+            {prefixDays.map((_, i) => <div key={`p-${i}`} className="bg-white dark:bg-slate-900/50 min-h-[80px]" />)}
+            {days.map(day => {
+              const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+              const dayEvents = events.filter(e => e.date === dateStr);
+              const isToday = new Date().toDateString() === new Date(year, month, day).toDateString();
+              return (
+                <div key={day} className="min-h-[100px] p-1.5 bg-white dark:bg-slate-900 flex flex-col gap-1 border-t border-slate-50 dark:border-slate-800">
+                  <span className={`text-[10px] font-black w-6 h-6 flex items-center justify-center rounded-lg ${isToday ? 'bg-primary-600 text-white shadow-sm' : 'text-slate-400'}`}>{day}</span>
+                  <div className="flex flex-col gap-1 overflow-y-auto max-h-[60px] custom-scrollbar">
+                    {dayEvents.map((ev) => (
+                      <div key={ev.id} className="px-1.5 py-1 bg-primary-50 dark:bg-primary-900/40 rounded-md text-[8px] font-black text-primary-600 truncate border border-primary-100 dark:border-primary-800/50">
+                        {ev.url ? <a href={ensureHttp(ev.url)} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between gap-1"><span>{ev.title}</span><ExternalLink size={8} /></a> : ev.title}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
 
