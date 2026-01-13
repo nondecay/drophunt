@@ -29,6 +29,44 @@ export const OnChainRPG: React.FC = () => {
 
    const { isVerified } = useApp(); // Destructure isVerified
 
+   const missions = useMemo(() => {
+      return activities.filter(a => a.type === 'rpg');
+   }, [activities]);
+
+   const filteredMissions = useMemo(() => {
+      return missions.filter(m => m.name.toLowerCase().includes(missionSearch.toLowerCase()));
+   }, [missions, missionSearch]);
+
+   const activeMission = useMemo(() => (missions || []).find(m => m.id === selectedMissionId), [missions, selectedMissionId]);
+
+   const rankPerPage = 10;
+
+   useEffect(() => {
+      const updateTimer = () => {
+         const now = new Date();
+         const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+         const diff = nextMonth.getTime() - now.getTime();
+         const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+         const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+         const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+         const s = Math.floor((diff % (1000 * 60)) / 1000);
+         setCountdown(`${d}d ${h}h ${m}m ${s}s`);
+      };
+      if (activeMission) updateTimer();
+      const timer = setInterval(updateTimer, 1000);
+      return () => clearInterval(timer);
+   }, [activeMission]);
+
+   useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+         if (missionDropdownRef.current && !missionDropdownRef.current.contains(event.target as Node)) {
+            setIsMissionDropdownOpen(false);
+         }
+      };
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+   }, []);
+
    if (!isConnected) {
       return (
          <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-8 animate-in fade-in zoom-in duration-500">
@@ -62,42 +100,6 @@ export const OnChainRPG: React.FC = () => {
          </div>
       );
    }
-
-   const rankPerPage = 10;
-
-   useEffect(() => {
-      const updateTimer = () => {
-         const now = new Date();
-         const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-         const diff = nextMonth.getTime() - now.getTime();
-         const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-         const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-         const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-         const s = Math.floor((diff % (1000 * 60)) / 1000);
-         setCountdown(`${d}d ${h}h ${m}m ${s}s`);
-      };
-      if (activeMission) updateTimer(); // Guard with activeMission check if needed, though timer is global.
-      const timer = setInterval(updateTimer, 1000);
-      return () => clearInterval(timer);
-   }, []);
-
-   useEffect(() => {
-      const handleClickOutside = (event: MouseEvent) => {
-         if (missionDropdownRef.current && !missionDropdownRef.current.contains(event.target as Node)) {
-            setIsMissionDropdownOpen(false);
-         }
-      };
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-   }, []);
-
-   const missions = useMemo(() => {
-      return activities.filter(a => a.type === 'rpg');
-   }, [activities]);
-
-   const filteredMissions = useMemo(() => {
-      return missions.filter(m => m.name.toLowerCase().includes(missionSearch.toLowerCase()));
-   }, [missions, missionSearch]);
 
    const activeMission = useMemo(() => {
       return missions.find(m => m.id === selectedMissionId);
