@@ -128,54 +128,53 @@ const MobileProjectCard: React.FC<{ project: Airdrop, isTracked: boolean, onTrac
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-5 border border-slate-200 dark:border-slate-800 shadow-lg relative overflow-hidden">
       <Link to={`/project/${project.id}`} className="flex items-start gap-4 mb-4">
-        <Link to={`/project/${project.id}`} className="flex items-start gap-4 mb-4">
-          <Image src={project.icon} fallback="https://picsum.photos/200" className="w-16 h-16 rounded-2xl shadow-md shrink-0" alt="" />
-          <div className="flex-1 min-w-0">
-            <div className="flex justify-between items-center min-w-0">
-              <div className="min-w-0 flex-1 mr-2">
-                <div className="flex items-center gap-2 mb-1 min-w-0">
-                  <h3 className="font-black text-lg uppercase tracking-tight leading-none text-slate-900 dark:text-white truncate block w-full">{project.name}</h3>
-                  {(project.createdAt || 0) > Date.now() - 7 * 24 * 60 * 60 * 1000 && (
-                    <span className="bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded animate-pulse shrink-0">NEW</span>
-                  )}
-                </div>
-                <span className={`inline-block text-[9px] font-black uppercase px-2 py-0.5 rounded-md mb-2 ${getTypeStyle(project.type)}`}>{project.type}</span>
+        <Image src={project.icon} fallback="https://picsum.photos/200" className="w-16 h-16 rounded-2xl shadow-md shrink-0" alt="" />
+        <div className="flex-1 min-w-0">
+          <div className="flex justify-between items-center min-w-0">
+            <div className="min-w-0 flex-1 mr-2">
+              <div className="flex items-center gap-2 mb-1 min-w-0">
+                <h3 className="font-black text-lg uppercase tracking-tight leading-none text-slate-900 dark:text-white truncate block w-full">{project.name}</h3>
+                {(project.createdAt || 0) > Date.now() - 7 * 24 * 60 * 60 * 1000 && (
+                  <span className="bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded animate-pulse shrink-0">NEW</span>
+                )}
               </div>
-              {user?.username ? (
-                <button onClick={(e) => { e.preventDefault(); onTrack(); }} className={`p-2 rounded-xl transition-all shadow-sm active:scale-95 shrink-0 ${isTracked ? 'bg-primary-600 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary-600'}`}>
-                  <Plus size={16} className={isTracked ? 'rotate-45' : ''} />
-                </button>
-              ) : (
-                <div className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-300 rounded-xl shrink-0"><Lock size={16} /></div>
-              )}
+              <span className={`inline-block text-[9px] font-black uppercase px-2 py-0.5 rounded-md mb-2 ${getTypeStyle(project.type)}`}>{project.type}</span>
+            </div>
+            {user?.username ? (
+              <button onClick={(e) => { e.preventDefault(); onTrack(); }} className={`p-2 rounded-xl transition-all shadow-sm active:scale-95 shrink-0 ${isTracked ? 'bg-primary-600 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary-600'}`}>
+                <Plus size={16} className={isTracked ? 'rotate-45' : ''} />
+              </button>
+            ) : (
+              <div className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-300 rounded-xl shrink-0"><Lock size={16} /></div>
+            )}
+          </div>
+        </div>
+      </Link>
+
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl">
+          <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">Raise</p>
+          <p className="font-black text-sm dark:text-white">${project.investment}</p>
+        </div>
+        <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl">
+          <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">Status</p>
+          <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded ${getStatusStyle(project.status)}`}>{project.status}</span>
+        </div>
+        {project.hasInfoFi && (
+          <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl col-span-2 flex items-center justify-between">
+            <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Platform</p>
+            <div className="flex items-center gap-2">
+              {platformObj?.logo && <img src={getImgUrl(platformObj.logo)} className="w-4 h-4 object-contain" />}
+              <span className="font-bold text-xs uppercase">{project.platform}</span>
             </div>
           </div>
-        </Link>
+        )}
+      </div>
 
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl">
-            <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">Raise</p>
-            <p className="font-black text-sm dark:text-white">${project.investment}</p>
-          </div>
-          <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl">
-            <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">Status</p>
-            <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded ${getStatusStyle(project.status)}`}>{project.status}</span>
-          </div>
-          {project.hasInfoFi && (
-            <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl col-span-2 flex items-center justify-between">
-              <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Platform</p>
-              <div className="flex items-center gap-2">
-                {platformObj?.logo && <img src={getImgUrl(platformObj.logo)} className="w-4 h-4 object-contain" />}
-                <span className="font-bold text-xs uppercase">{project.platform}</span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
-          <div className="text-[10px] font-bold text-slate-400"><span className="uppercase tracking-widest mr-2">Date Added:</span>{new Date(project.createdAt || Date.now()).toLocaleDateString()}</div>
-          <div className="flex items-center gap-1"><PartialStar rating={project.rating} /><span className="text-[10px] font-bold text-slate-400">{(project.rating || 0).toFixed(1)}</span></div>
-        </div>
+      <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
+        <div className="text-[10px] font-bold text-slate-400"><span className="uppercase tracking-widest mr-2">Date Added:</span>{new Date(project.createdAt || Date.now()).toLocaleDateString()}</div>
+        <div className="flex items-center gap-1"><PartialStar rating={project.rating} /><span className="text-[10px] font-bold text-slate-400">{(project.rating || 0).toFixed(1)}</span></div>
+      </div>
     </div>
   );
 };
