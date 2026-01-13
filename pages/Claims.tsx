@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useApp } from '../AppContext';
-import { ExternalLink, Clock, AlertTriangle, ArrowRight, ShieldCheck, Calendar } from 'lucide-react';
+import { ExternalLink, Clock, AlertTriangle, ArrowRight, ShieldCheck, Calendar, Coins } from 'lucide-react';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 
 // Image Proxy Helper
@@ -24,10 +24,10 @@ export const Claims: React.FC<{ type: 'claims' | 'presales' }> = ({ type }) => {
     <div className="max-w-7xl mx-auto pb-20">
       <div className="mb-12">
         <h1 className="text-4xl sm:text-5xl font-black tracking-tighter mb-3">
-          {type === 'claims' ? t('claimPortalTitle') : t('presalePortalTitle')}
+          {type === 'claims' ? t('claimPortalTitle') : 'Claims'}
         </h1>
         <p className="text-slate-500 font-medium text-lg tracking-wide">
-          {type === 'claims' ? t('claimPortalSub') : t('presalePortalSub')}
+          {type === 'claims' ? t('claimPortalSub') : 'Explore Airdrop Claims'}
         </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -44,8 +44,8 @@ export const Claims: React.FC<{ type: 'claims' | 'presales' }> = ({ type }) => {
                   <h3 className="text-xl font-black tracking-tight">{item.projectName}</h3>
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-1 text-[9px] font-black text-slate-400 uppercase">
-                      <Clock size={10} />
-                      {item.isUpcoming ? 'Starting Soon' : (item.deadline ? `Ending: ${item.deadline}` : (type === 'claims' ? 'Open Now' : t('goPresaleSite')))}
+                      <Coins size={10} />
+                      {item.isUpcoming ? 'Starting Soon' : (item.deadline ? `Ending: ${item.deadline}` : 'Claim Available')}
                     </div>
                     {type === 'presales' && item.startDate && (
                       <div className="flex items-center gap-1 text-[9px] font-black text-primary-500 uppercase">
@@ -80,7 +80,7 @@ export const Claims: React.FC<{ type: 'claims' | 'presales' }> = ({ type }) => {
                     : 'bg-primary-600 text-white hover:bg-primary-700 shadow-primary-500/20 active:scale-95'
                     }`}
                 >
-                  {item.isUpcoming ? 'Upcoming' : (type === 'claims' ? 'Go Claim' : 'Join Presale')}
+                  {item.isUpcoming ? 'Upcoming' : (type === 'claims' ? 'Go Claim' : 'Go Claim Site')}
                   {!item.isUpcoming && <ExternalLink size={14} />}
                 </a>
               </div>

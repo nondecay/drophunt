@@ -74,7 +74,7 @@ const GMCard: React.FC<{ activity: any, isExecuting: boolean, onAction: (activit
         ) : (
           !isConnected ? (
             <button onClick={openConnectModal} disabled={isExecuting} className="w-full py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed bg-primary-600 text-white shadow-primary-500/20">
-              <Wallet size={18} /> Connect Wallet
+              Connect Wallet
             </button>
           ) : (
             <button
@@ -88,7 +88,6 @@ const GMCard: React.FC<{ activity: any, isExecuting: boolean, onAction: (activit
               {isExecuting ? <Loader2 size={14} className="animate-spin" /> : (
                 <>
                   {canPeform ? 'Send GM' : 'Cooldown'}
-                  {canPeform && <Zap size={14} fill="currentColor" />}
                 </>
               )}
             </button>
