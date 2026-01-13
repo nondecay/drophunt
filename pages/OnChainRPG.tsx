@@ -101,9 +101,7 @@ export const OnChainRPG: React.FC = () => {
       );
    }
 
-   const activeMission = useMemo(() => {
-      return missions.find(m => m.id === selectedMissionId);
-   }, [missions, selectedMissionId]);
+
 
    const rankedHunters = useMemo(() => {
       if (!usersList) return [];
