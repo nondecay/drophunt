@@ -134,7 +134,7 @@ export const Layout: React.FC = () => {
 
   return (
     <div className="min-h-screen flex bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300 font-sans">
-
+      <InstallPWA />
       <div className="fixed top-6 right-6 z-[200] flex flex-col gap-3">
         {toasts.map(toast => (
           <ToastItem key={toast.id} toast={toast} onRemove={removeToast} />
