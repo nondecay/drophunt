@@ -12,6 +12,12 @@ const getImgUrl = (path: string) => {
   return `https://bxklsejtopzevituoaxk.supabase.co/storage/v1/object/public/${path}`;
 };
 
+const ensureHttp = (url: string) => {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  return `https://${url}`;
+};
+
 export const Tools: React.FC = () => {
   const { tools, t, isDataLoaded } = useApp();
   const [search, setSearch] = useState('');
@@ -80,7 +86,7 @@ export const Tools: React.FC = () => {
             </p>
             <div className="mt-auto w-full">
               <a
-                href={tool.link}
+                href={ensureHttp(tool.link)}
                 target="_blank"
                 rel="noreferrer"
                 className="w-full py-4 bg-primary-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-primary-500/20 hover:bg-primary-700 active:scale-95 transition-all"

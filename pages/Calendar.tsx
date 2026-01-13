@@ -4,6 +4,12 @@ import { supabase } from '../supabaseClient';
 import { ChevronLeft, ChevronRight, Plus, X, ExternalLink } from 'lucide-react';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 
+const ensureHttp = (url: string) => {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  return `https://${url}`;
+};
+
 export const Calendar: React.FC = () => {
   const { events, user, setEvents, addToast, t, isDataLoaded } = useApp();
   const [showAdd, setShowAdd] = useState(false);
@@ -84,7 +90,7 @@ export const Calendar: React.FC = () => {
                 <div className="flex flex-col gap-1 overflow-y-auto max-h-[60px]">
                   {dayEvents.map((ev) => (
                     <div key={ev.id} className="px-1.5 py-1 bg-primary-50 dark:bg-primary-900/40 rounded-md text-[8px] font-black text-primary-600 truncate border border-primary-100 dark:border-primary-800/50">
-                      {ev.url ? <a href={ev.url} target="_blank" className="flex items-center justify-between"><span>{ev.title}</span><ExternalLink size={6} /></a> : ev.title}
+                      {ev.url ? <a href={ensureHttp(ev.url)} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between"><span>{ev.title}</span><ExternalLink size={6} /></a> : ev.title}
                     </div>
                   ))}
                 </div>

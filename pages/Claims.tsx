@@ -11,6 +11,12 @@ const getImgUrl = (path: string) => {
   return `https://bxklsejtopzevituoaxk.supabase.co/storage/v1/object/public/${path}`;
 };
 
+const ensureHttp = (url: string) => {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  return `https://${url}`;
+};
+
 export const Claims: React.FC<{ type: 'claims' | 'presales' }> = ({ type }) => {
   const { claims, t, isDataLoaded } = useApp();
 
@@ -24,10 +30,10 @@ export const Claims: React.FC<{ type: 'claims' | 'presales' }> = ({ type }) => {
     <div className="max-w-7xl mx-auto pb-20">
       <div className="mb-12">
         <h1 className="text-4xl sm:text-5xl font-black tracking-tighter mb-3">
-          {type === 'claims' ? t('claimPortalTitle') : 'Claims'}
+          {type === 'claims' ? 'Claims' : t('presalePortalTitle')}
         </h1>
         <p className="text-slate-500 font-medium text-lg tracking-wide">
-          {type === 'claims' ? t('claimPortalSub') : 'Explore Airdrop Claims'}
+          {type === 'claims' ? 'Explore Airdrop Claims' : t('presalePortalSub')}
         </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -44,8 +50,8 @@ export const Claims: React.FC<{ type: 'claims' | 'presales' }> = ({ type }) => {
                   <h3 className="text-xl font-black tracking-tight">{item.projectName}</h3>
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-1 text-[9px] font-black text-slate-400 uppercase">
-                      <Coins size={10} />
-                      {item.isUpcoming ? 'Starting Soon' : (item.deadline ? `Ending: ${item.deadline}` : 'Claim Available')}
+                      {type === 'claims' ? <Coins size={10} /> : <Clock size={10} />}
+                      {item.isUpcoming ? 'Starting Soon' : (item.deadline ? `Ending: ${item.deadline}` : (type === 'claims' ? 'Claim Available' : t('goPresaleSite')))}
                     </div>
                     {type === 'presales' && item.startDate && (
                       <div className="flex items-center gap-1 text-[9px] font-black text-primary-500 uppercase">
@@ -72,7 +78,7 @@ export const Claims: React.FC<{ type: 'claims' | 'presales' }> = ({ type }) => {
 
               <div className="mt-auto">
                 <a
-                  href={item.isUpcoming ? undefined : item.link}
+                  href={item.isUpcoming ? undefined : ensureHttp(item.link)}
                   target="_blank"
                   rel="noreferrer"
                   className={`w-full py-3.5 rounded-xl font-black flex items-center justify-center gap-2 transition-all shadow-xl text-[10px] uppercase tracking-widest ${item.isUpcoming
@@ -80,7 +86,7 @@ export const Claims: React.FC<{ type: 'claims' | 'presales' }> = ({ type }) => {
                     : 'bg-primary-600 text-white hover:bg-primary-700 shadow-primary-500/20 active:scale-95'
                     }`}
                 >
-                  {item.isUpcoming ? 'Upcoming' : (type === 'claims' ? 'Go Claim' : 'Go Claim Site')}
+                  {item.isUpcoming ? 'Upcoming' : (type === 'claims' ? 'Go Claim Site' : 'Join Presale')}
                   {!item.isUpcoming && <ExternalLink size={14} />}
                 </a>
               </div>
