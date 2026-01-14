@@ -285,7 +285,10 @@ const AdminPanelContent: React.FC = () => {
 
             const { data, error } = await supabase.storage
                .from(bucketName)
-               .upload(filePath, file);
+               .upload(filePath, file, {
+                  cacheControl: '3600',
+                  upsert: false
+               });
 
             if (error) throw error;
 
@@ -810,15 +813,51 @@ const AdminPanelContent: React.FC = () => {
                                        theme="snow"
                                        value={formData.editorsGuide}
                                        onChange={(content) => setFormData({ ...formData, editorsGuide: content })}
-                                       modules={{
-                                          toolbar: [
-                                             [{ 'header': [1, 2, 3, false] }],
-                                             ['bold', 'italic', 'underline', 'strike'],
-                                             [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                                             ['link', 'image'],
-                                             ['clean']
-                                          ],
-                                       }}
+                                       modules={useMemo(() => ({
+                                          toolbar: {
+                                             container: [
+                                                [{ 'header': [1, 2, 3, false] }],
+                                                ['bold', 'italic', 'underline', 'strike'],
+                                                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                                                ['link', 'image'],
+                                                ['clean']
+                                             ],
+                                             handlers: {
+                                                image: function (this: any) {
+                                                   const quill = this.quill;
+                                                   const input = document.createElement('input');
+                                                   input.setAttribute('type', 'file');
+                                                   input.setAttribute('accept', 'image/*');
+                                                   input.click();
+                                                   input.onchange = async () => {
+                                                      const file = input.files?.[0];
+                                                      if (file) {
+                                                         try {
+                                                            const fileExt = file.name.split('.').pop();
+                                                            const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+                                                            const filePath = `assets/${fileName}`;
+                                                            const { error } = await supabase.storage.from('images').upload(filePath, file, { cacheControl: '3600', upsert: false });
+                                                            if (error) throw error;
+                                                            const url = `https://bxklsejtopzevituoaxk.supabase.co/storage/v1/object/public/images/${filePath}`;
+
+                                                            const range = quill.getSelection(true);
+                                                            if (range) {
+                                                               quill.insertEmbed(range.index, 'image', url);
+                                                            } else {
+                                                               // Fallback if no selection, append to end
+                                                               const len = quill.getLength();
+                                                               quill.insertEmbed(len, 'image', url);
+                                                            }
+                                                         } catch (err: any) {
+                                                            console.error(err);
+                                                            alert("Upload failed: " + err.message);
+                                                         }
+                                                      }
+                                                   };
+                                                }
+                                             }
+                                          }
+                                       }), [])}
                                        className="h-64 mb-12"
                                     />
                                  </div>

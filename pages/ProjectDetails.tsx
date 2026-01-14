@@ -4,6 +4,7 @@ import { useApp } from '../AppContext';
 import { ChevronLeft, Youtube, Twitter, MessageSquare, Star, Zap, Plus, Globe, Trophy, ExternalLink, ShieldCheck, Github, Trash2, Medal, X, Lock, Info, Rocket, DollarSign, Users, Edit3, ChevronRight, CheckCircle, AlertCircle, ChevronDown } from 'lucide-react';
 import { Guide, Comment } from '../types';
 import { supabase } from '../supabaseClient';
+import { OptimizedImage } from '../components/OptimizedImage';
 
 const DiscordIcon = ({ size = 18, className = "" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
@@ -300,7 +301,7 @@ export const ProjectDetails: React.FC = () => {
         <div className="lg:col-span-8 space-y-8">
           <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border dark:border-slate-800 shadow-xl relative overflow-hidden">
             <div className="flex flex-col md:flex-row md:items-center gap-6 relative z-10">
-              <img src={getImgUrl(project.icon) || 'https://picsum.photos/200'} className="w-24 h-24 rounded-3xl object-cover ring-4 ring-primary-50 dark:ring-slate-800 shadow-md" alt="" />
+              <OptimizedImage src={getImgUrl(project.icon) || 'https://picsum.photos/200'} className="w-24 h-24 rounded-3xl object-cover ring-4 ring-primary-50 dark:ring-slate-800 shadow-md" alt="" />
               <div className="flex-1">
                 <h1 className="text-3xl font-black tracking-tighter mb-1 uppercase leading-none">{project.name}</h1>
                 <div className="flex flex-wrap items-center gap-2 mb-4">
