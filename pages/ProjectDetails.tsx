@@ -398,7 +398,7 @@ export const ProjectDetails: React.FC = () => {
                 <h2 className="text-xl font-black uppercase tracking-tighter text-purple-600 dark:text-purple-400">Editor's Guide</h2>
               </div>
               <div
-                className="prose dark:prose-invert max-w-none font-medium text-slate-600 dark:text-slate-300 [&>p]:!my-0 [&>p]:!leading-6 [&>a]:!text-[#d8b4fe] [&>a]:!underline [&>a]:!decoration-[#d8b4fe] [&>h1]:text-xl [&>h1]:font-black [&>h1]:uppercase [&>h2]:text-lg [&>h2]:font-black [&>h2]:uppercase [&>img]:rounded-xl [&>img]:shadow-md"
+                className="prose dark:prose-invert max-w-none font-medium text-slate-600 dark:text-slate-300 [&_p]:!my-1 [&_p]:!leading-6 [&_a]:!text-[#ac7ef4] dark:[&_a]:!text-[#d8b4fe] [&_a]:!underline [&_a]:!decoration-[#d8b4fe] [&_h1]:text-xl [&_h1]:font-black [&_h1]:uppercase [&_h2]:text-lg [&_h2]:font-black [&_h2]:uppercase [&_img]:rounded-xl [&_img]:shadow-md [&_img]:bg-slate-200 dark:[&_img]:bg-slate-800 [&_img]:min-h-[200px] [&_img]:object-cover"
                 dangerouslySetInnerHTML={{ __html: project.editorsGuide }}
               />
               <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none text-purple-600">

@@ -824,33 +824,43 @@ const AdminPanelContent: React.FC = () => {
                                              ],
                                              handlers: {
                                                 image: function (this: any) {
+                                                   // Capture 'this' which is the toolbar instance
                                                    const quill = this.quill;
                                                    const input = document.createElement('input');
                                                    input.setAttribute('type', 'file');
                                                    input.setAttribute('accept', 'image/*');
                                                    input.click();
+
                                                    input.onchange = async () => {
                                                       const file = input.files?.[0];
                                                       if (file) {
                                                          try {
+                                                            // Show a loader or placeholder? For now just upload.
                                                             const fileExt = file.name.split('.').pop();
                                                             const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
                                                             const filePath = `assets/${fileName}`;
+
+                                                            // Optimistic: Insert placeholder? 
+                                                            // No, let's just upload fast.
+
                                                             const { error } = await supabase.storage.from('images').upload(filePath, file, { cacheControl: '3600', upsert: false });
                                                             if (error) throw error;
+
                                                             const url = `https://bxklsejtopzevituoaxk.supabase.co/storage/v1/object/public/images/${filePath}`;
 
+                                                            // Insert image
                                                             const range = quill.getSelection(true);
                                                             if (range) {
                                                                quill.insertEmbed(range.index, 'image', url);
+                                                               // Move cursor after image
+                                                               quill.setSelection(range.index + 1);
                                                             } else {
-                                                               // Fallback if no selection, append to end
                                                                const len = quill.getLength();
                                                                quill.insertEmbed(len, 'image', url);
                                                             }
                                                          } catch (err: any) {
-                                                            console.error(err);
-                                                            alert("Upload failed: " + err.message);
+                                                            console.error("Upload Error:", err);
+                                                            alert("Upload failed: " + (err.message || "Unknown error"));
                                                          }
                                                       }
                                                    };
