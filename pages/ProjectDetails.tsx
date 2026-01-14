@@ -397,7 +397,7 @@ export const ProjectDetails: React.FC = () => {
                 <h2 className="text-xl font-black uppercase tracking-tighter text-purple-600 dark:text-purple-400">Editor's Guide</h2>
               </div>
               <div
-                className="prose dark:prose-invert max-w-none font-medium text-slate-600 dark:text-slate-300 [&>p]:mb-4 [&>a]:text-purple-600 dark:[&>a]:text-purple-400 [&>h1]:text-xl [&>h1]:font-black [&>h1]:uppercase [&>h2]:text-lg [&>h2]:font-black [&>h2]:uppercase [&>img]:rounded-xl [&>img]:shadow-md"
+                className="prose dark:prose-invert max-w-none font-medium text-slate-600 dark:text-slate-300 [&>p]:mb-2 [&>a]:text-purple-600 dark:[&>a]:text-purple-400 [&>a]:underline [&>h1]:text-xl [&>h1]:font-black [&>h1]:uppercase [&>h2]:text-lg [&>h2]:font-black [&>h2]:uppercase [&>img]:rounded-xl [&>img]:shadow-md"
                 dangerouslySetInnerHTML={{ __html: project.editorsGuide }}
               />
               <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none text-purple-600">
