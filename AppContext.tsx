@@ -426,17 +426,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const nonce = Math.random().toString(36).substring(2, 15);
       const now = new Date();
       const isoNow = now.toISOString();
-      const expires = new Date(now.getTime() + 5 * 60000).toISOString();
+      const expirationDate = new Date(now.getTime() + 10 * 60000); // 10 minutes
+      const isoExpiration = expirationDate.toISOString();
 
-      const message = `Welcome to drophunt.io!
+      const domain = window.location.host;
+      const origin = window.location.origin;
+      const chainId = 1; // Default to mainnet for signature or use current chainId from wagmi if available
 
-Please sign this message to verify that you are the owner of this wallet.
-This signature does not initiate any blockchain transaction and does not cost any gas.
+      // EIP-4361 Format
+      const message = `${domain} wants you to sign in with your Ethereum account:
+${address}
 
-Purpose: Account authentication
+Welcome to drophunt.io! Please sign this message to verify your identity.
+
+URI: ${origin}
+Version: 1
+Chain ID: ${chainId}
 Nonce: ${nonce}
 Issued At: ${isoNow}
-Expires At: ${expires}`;
+Expiration Time: ${isoExpiration}`;
 
       const signature = await signMessageAsync({ account: address as `0x${string}`, message });
       const isValid = await verifyMessage({ address: address as `0x${string}`, message, signature });
