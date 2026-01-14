@@ -21,6 +21,7 @@ interface AppContextType {
   setUsername: (username: string) => Promise<boolean>;
 
   isDataLoaded: boolean;
+  isAuthLoading: boolean;
 
   // Data States
   airdrops: Airdrop[];
@@ -140,6 +141,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Inside AppProvider
   const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
 
   // 2. Fetch All Data from Supabase
   const refreshData = async () => {
@@ -360,39 +362,56 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   useEffect(() => {
     const checkSession = async () => {
-      if (isConnected && address) {
-        const sessionKey = `verified_session_${address.toLowerCase()}`;
-        const verified = sessionStorage.getItem(sessionKey) === 'true';
-
-        if (verified) {
-          // Restore Session
-          const { data: existing } = await supabase.from('users').select('*').eq('address', address.toLowerCase()).single();
-          if (existing) {
-            setUser(existing as any);
-            fetchUserData(existing.id);
-            setIsVerified(true);
-          } else {
-            // Verified but no user? Anomalous, ask to verify/register again
-            setIsVerified(false);
-            sessionStorage.removeItem(sessionKey);
-            // If user is verified but not in DB, something is wrong. Re-verify.
-            verifyWallet();
-          }
-        } else {
-          // Not verified - User must sign.
-          // Do NOT set user.
-          setIsVerified(false);
-          setUser(null);
-          // Prompt verification immediately
-          verifyWallet();
-        }
-      } else {
+      // If we're not connected, we aren't "loading auth" in the sense of verifying a user.
+      // But if we ARE connected, we are verifying.
+      if (!isConnected) {
+        setIsAuthLoading(false);
+        // Clear user state
         setUser(null);
         setUserTasks([]);
         setUserClaims([]);
-        setInbox([]); // Clear messages on disconnect
+        setInbox([]);
         setIsVerified(false);
         setShowUsernameModal(false);
+        return;
+      }
+
+      setIsAuthLoading(true);
+
+      if (isConnected && address) {
+        try {
+          const sessionKey = `verified_session_${address.toLowerCase()}`;
+          const verified = sessionStorage.getItem(sessionKey) === 'true';
+
+          if (verified) {
+            // Restore Session
+            const { data: existing } = await supabase.from('users').select('*').eq('address', address.toLowerCase()).single();
+            if (existing) {
+              setUser(existing as any);
+              fetchUserData(existing.id);
+              setIsVerified(true);
+            } else {
+              // Verified but no user? Anomalous, ask to verify/register again
+              setIsVerified(false);
+              sessionStorage.removeItem(sessionKey);
+              // If user is verified but not in DB, something is wrong. Re-verify.
+              verifyWallet();
+            }
+          } else {
+            // Not verified - User must sign.
+            // Do NOT set user.
+            setIsVerified(false);
+            setUser(null);
+            // Prompt verification immediately
+            verifyWallet();
+          }
+        } catch (e) {
+          console.error("Auth check failed", e);
+        } finally {
+          setIsAuthLoading(false);
+        }
+      } else {
+        setIsAuthLoading(false);
       }
     };
     checkSession();
@@ -529,7 +548,7 @@ Expires At: ${expires}`;
   return (
     <AppContext.Provider value={{
       theme, toggleTheme: () => setTheme(t => t === 'light' ? 'dark' : 'light'),
-      lang, setLang, t, isDataLoaded,
+      lang, setLang, t, isDataLoaded, isAuthLoading,
       user, isVerified, verifyWallet, logout: () => { disconnect(); },
       setUsername, updateAvatar, banUser, toggleTrackProject, gainXP, logActivity, resetAllXPs, refreshData, manageTodo, manageUserClaim, showUsernameModal, markMessageRead,
 

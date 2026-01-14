@@ -5,11 +5,11 @@ import { useApp } from '../AppContext';
 import { useAccount } from 'wagmi';
 
 export const VerificationModal: React.FC = () => {
-    const { user, verifyWallet } = useApp();
+    const { user, verifyWallet, isAuthLoading } = useApp();
     const { isConnected } = useAccount();
 
-    // If user is loaded (logged in) OR wallet not connected, don't show.
-    if (user || !isConnected) return null;
+    // If loading, or user logged in, or validation disconnected, don't show
+    if (isAuthLoading || user || !isConnected) return null;
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/90 backdrop-blur-md animate-in fade-in duration-300 p-4">
@@ -21,7 +21,7 @@ export const VerificationModal: React.FC = () => {
                     <ShieldCheck size={40} />
                 </div>
 
-                <h2 className="text-2xl font-black uppercase tracking-tighter mb-3">Verification Required</h2>
+                <h2 className="text-2xl font-black uppercase tracking-tighter mb-3 text-slate-900 dark:text-white">Verification Required</h2>
                 <p className="text-slate-500 font-medium mb-8 leading-relaxed">
                     Please sign a message to verify your wallet ownership and access the protocol.
                 </p>
@@ -33,10 +33,6 @@ export const VerificationModal: React.FC = () => {
                     <Wallet size={20} />
                     Sign & Verify
                 </button>
-
-                <p className="text-xs text-slate-400 font-bold mt-6 uppercase tracking-wider">
-                    Secure Authentication
-                </p>
             </div>
         </div>
     );
