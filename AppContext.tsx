@@ -494,13 +494,25 @@ Expiration Time: ${isoExpiration}`;
 
   const setUsername = async (name: string) => {
     if (!user) return false;
+
+    // Check 24-hour Cooldown
+    if (user.lastUsernameChange) {
+      const msSinceLastChange = Date.now() - user.lastUsernameChange;
+      const hoursSinceLastChange = msSinceLastChange / (1000 * 60 * 60);
+      if (hoursSinceLastChange < 24) {
+        addToast("You can change your username every 24 hours.", "error");
+        return false;
+      }
+    }
+
     const { error } = await supabase.from('users').update({ username: name, "lastUsernameChange": Date.now() }).eq('id', user.id);
     if (error) {
       addToast("Username taken or limit reached.", "error");
       return false;
     }
-    setUser({ ...user, username: name });
-    addToast("Identity established.");
+    // Update local state with new name and new timestamp
+    setUser({ ...user, username: name, lastUsernameChange: Date.now() });
+    addToast("Username changed.", "success");
     setShowUsernameModal(false);
     return true;
   };
