@@ -6,6 +6,7 @@ import { Sun, Loader2, Send, Search, Wallet, Globe, ChevronDown, Check, Clock, Z
 import { useAccount, useSwitchChain, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { parseEther } from 'viem';
+import { LoadingSpinner } from '../components/LoadingSpinner';
 
 // Image Proxy Helper
 const getImgUrl = (path: string) => {
@@ -18,6 +19,8 @@ const GMCard: React.FC<{ activity: any, isExecuting: boolean, onAction: (activit
   const { user, chains, t } = useApp();
   const { isConnected, chainId: currentChainId } = useAccount();
   const { openConnectModal } = useConnectModal();
+
+  // ... (rest of GMCard)
 
   const lastTime = user?.lastActivities?.[activity.id] || 0;
   const COOLDOWN_MS = 12 * 60 * 60 * 1000;
@@ -99,7 +102,8 @@ const GMCard: React.FC<{ activity: any, isExecuting: boolean, onAction: (activit
 };
 
 export const DailyGM: React.FC = () => {
-  const { activities, addToast, logActivity, chains, t } = useApp();
+  const { activities, addToast, logActivity, chains, t, isDataLoaded } = useApp();
+  if (!isDataLoaded) return <LoadingSpinner />;
   const { isConnected, chainId: currentChainId } = useAccount();
   const { openConnectModal } = useConnectModal();
   const { switchChainAsync } = useSwitchChain();

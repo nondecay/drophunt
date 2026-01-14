@@ -88,6 +88,7 @@ export const App: React.FC = () => {
         <AppProvider>
           <RainbowKitProvider theme={darkTheme({ accentColor: '#7c3aed' })}>
             <BrowserRouter>
+              <VerificationModal />
               <UsernameModal />
               <Routes>
                 <Route element={<Layout />}>

@@ -2,12 +2,14 @@
 import React from 'react';
 import { ShieldCheck, Wallet } from 'lucide-react';
 import { useApp } from '../AppContext';
+import { useAccount } from 'wagmi';
 
 export const VerificationModal: React.FC = () => {
     const { user, verifyWallet } = useApp();
+    const { isConnected } = useAccount();
 
-    // If user is loaded (logged in), don't show.
-    if (user) return null;
+    // If user is loaded (logged in) OR wallet not connected, don't show.
+    if (user || !isConnected) return null;
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/90 backdrop-blur-md animate-in fade-in duration-300 p-4">
