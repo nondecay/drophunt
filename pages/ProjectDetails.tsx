@@ -388,6 +388,24 @@ export const ProjectDetails: React.FC = () => {
               <Globe size={120} />
             </div>
           </section>
+          {project.editorsGuide && (
+            <section className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border dark:border-slate-800 shadow-sm relative overflow-hidden mt-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-purple-50 dark:bg-purple-900/20 rounded-xl flex items-center justify-center text-purple-600 shadow-inner">
+                  <Edit3 size={20} />
+                </div>
+                <h2 className="text-xl font-black uppercase tracking-tighter text-purple-600 dark:text-purple-400">Editor's Guide</h2>
+              </div>
+              <div
+                className="prose dark:prose-invert max-w-none font-medium text-slate-600 dark:text-slate-300 [&>p]:mb-4 [&>a]:text-purple-600 dark:[&>a]:text-purple-400 [&>h1]:text-xl [&>h1]:font-black [&>h1]:uppercase [&>h2]:text-lg [&>h2]:font-black [&>h2]:uppercase [&>img]:rounded-xl [&>img]:shadow-md"
+                dangerouslySetInnerHTML={{ __html: project.editorsGuide }}
+              />
+              <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none text-purple-600">
+                <Edit3 size={120} />
+              </div>
+            </section>
+          )}
+
 
           {project.hasInfoFi ? (
             <section className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-6 border dark:border-slate-800 shadow-sm">

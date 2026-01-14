@@ -8,6 +8,8 @@ import {
    Layers, Search, Info, Megaphone, TrendingUp, ChevronRight, Lock, Clock, History, ChevronLeft, Wrench
 } from 'lucide-react';
 import { OnChainActivity, Airdrop, Claim, Guide, Comment, TopUser, Chain, User, InfoFiPlatform, Announcement, Investor, Tool, ToolCategory } from '../types';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 // Image Proxy Helper
 const getImgUrl = (path: string) => {
@@ -795,6 +797,33 @@ const AdminPanelContent: React.FC = () => {
                            )}
 
                            <div className="col-span-2"><label className="text-[10px] font-black uppercase text-slate-400 block mb-2">Project Info / Details</label><textarea className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-xs h-32 outline-none" value={formData.projectInfo || ''} onChange={e => setFormData({ ...formData, projectInfo: e.target.value })} /></div>
+
+                           <div className="col-span-2 space-y-2">
+                              <label className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400 tracking-widest">
+                                 <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500" checked={!!formData.editorsGuide} onChange={e => setFormData({ ...formData, editorsGuide: e.target.checked ? '<p>Write your guide here...</p>' : undefined })} />
+                                 Enable Editor's Guide
+                              </label>
+
+                              {formData.editorsGuide !== undefined && (
+                                 <div className="bg-slate-50 dark:bg-slate-950 rounded-2xl overflow-hidden border dark:border-slate-800">
+                                    <ReactQuill
+                                       theme="snow"
+                                       value={formData.editorsGuide}
+                                       onChange={(content) => setFormData({ ...formData, editorsGuide: content })}
+                                       modules={{
+                                          toolbar: [
+                                             [{ 'header': [1, 2, 3, false] }],
+                                             ['bold', 'italic', 'underline', 'strike'],
+                                             [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                                             ['link', 'image'],
+                                             ['clean']
+                                          ],
+                                       }}
+                                       className="h-64 mb-12"
+                                    />
+                                 </div>
+                              )}
+                           </div>
 
 
 

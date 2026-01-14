@@ -117,6 +117,7 @@ export interface Airdrop {
   campaignUrl?: string;
   claimUrl?: string; // Link for Claim Available button
   potentialReward?: string; // New field for InfoFi rewards
+  editorsGuide?: string; // Rich text content for Editor's Guide
 }
 
 export interface Guide {
