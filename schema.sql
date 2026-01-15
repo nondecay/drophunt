@@ -48,17 +48,17 @@ ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.admin_secrets ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Public profiles are viewable by everyone" ON public.users FOR SELECT USING (true);
-CREATE POLICY "Users can create their profile" ON public.users FOR INSERT WITH CHECK (auth.uid() = id);
-CREATE POLICY "Users can update their own profile" ON public.users FOR UPDATE USING (auth.uid() = id); 
+CREATE POLICY "Users can create their profile" ON public.users FOR INSERT WITH CHECK ((select auth.uid()) = id);
+CREATE POLICY "Users can update their own profile" ON public.users FOR UPDATE USING ((select auth.uid()) = id); 
 CREATE POLICY "Admins can update everything" ON public.users FOR UPDATE USING (
-  EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin')
+  EXISTS (SELECT 1 FROM public.users WHERE id = (select auth.uid()) AND role = 'admin')
 );
 CREATE POLICY "Admins can delete users" ON public.users FOR DELETE USING (
-  EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin')
+  EXISTS (SELECT 1 FROM public.users WHERE id = (select auth.uid()) AND role = 'admin')
 );
 
-CREATE POLICY "Admins can view their own secrets" ON public.admin_secrets FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Admins can manage secrets" ON public.admin_secrets FOR ALL USING (auth.uid() = user_id); 
+CREATE POLICY "Admins can view their own secrets" ON public.admin_secrets FOR SELECT USING ((select auth.uid()) = user_id);
+CREATE POLICY "Admins can manage secrets" ON public.admin_secrets FOR ALL USING ((select auth.uid()) = user_id); 
 
 
 -- AIRDROPS TABLE
@@ -195,7 +195,7 @@ CREATE TABLE public.comments (
 );
 ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Comments are public" ON public.comments FOR SELECT USING (true);
-CREATE POLICY "Authenticated users can comment" ON public.comments FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Authenticated users can comment" ON public.comments FOR INSERT WITH CHECK ((select auth.role()) = 'authenticated');
 CREATE POLICY "Admins can manage comments" ON public.comments FOR ALL USING (public.is_admin());
 
 -- TODO ITEMS
@@ -210,7 +210,7 @@ CREATE TABLE public.todos (
   deadline TEXT
 );
 ALTER TABLE public.todos ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can manage their own todos" ON public.todos USING (auth.uid() = "userId");
+CREATE POLICY "Users can manage their own todos" ON public.todos USING ((select auth.uid()) = "userId");
 
 -- USER CLAIMS (Tracked Claims / UserClaim)
 CREATE TABLE public.user_claims (
@@ -225,7 +225,7 @@ CREATE TABLE public.user_claims (
   "claimedDate" TEXT
 );
 ALTER TABLE public.user_claims ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can manage their own claims" ON public.user_claims USING (auth.uid() = "userId");
+CREATE POLICY "Users can manage their own claims" ON public.user_claims USING ((select auth.uid()) = "userId");
 
 -- GUIDES
 CREATE TABLE public.guides (
@@ -242,7 +242,7 @@ CREATE TABLE public.guides (
 );
 ALTER TABLE public.guides ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Guides are public" ON public.guides FOR SELECT USING (true);
-CREATE POLICY "Users can submit guides" ON public.guides FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Users can submit guides" ON public.guides FOR INSERT WITH CHECK ((select auth.role()) = 'authenticated');
 CREATE POLICY "Admins can manage guides" ON public.guides FOR ALL USING (public.is_admin());
 
 -- INBOX MESSAGES
@@ -257,7 +257,7 @@ CREATE TABLE public.inbox_messages (
   "relatedAirdropId" TEXT
 );
 ALTER TABLE public.inbox_messages ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view their inbox" ON public.inbox_messages FOR SELECT USING (auth.uid() = "userId");
+CREATE POLICY "Users can view their inbox" ON public.inbox_messages FOR SELECT USING ((select auth.uid()) = "userId");
 CREATE POLICY "Admins can send messages" ON public.inbox_messages FOR INSERT WITH CHECK (public.is_admin());
 
 -- AIRDROP REQUESTS
