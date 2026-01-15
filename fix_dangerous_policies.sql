@@ -47,10 +47,23 @@ DROP POLICY IF EXISTS "Public Infofi All" ON public.infofi_platforms;
 -- INVESTORS
 DROP POLICY IF EXISTS "Public Investors All" ON public.investors;
 
--- MESSAGES (Assuming 'inbox_messages' or old 'messages' table)
+-- MESSAGES (Legacy/Ghost table)
+DROP POLICY IF EXISTS "Nuclear Allow All Messages" ON public.messages;
 DROP POLICY IF EXISTS "Nuclear Allow All Messages" ON public.inbox_messages;
--- If there is a ghost table 'messages', drop policy there too if exists (commented out to avoid error if table missing)
--- DROP POLICY IF EXISTS "Nuclear Allow All Messages" ON public.messages;
+
+-- AIRDROP REQUESTS
+-- Replacing overly permissive "Anyone can submit" (true) with "Authenticated users"
+DROP POLICY IF EXISTS "Anyone can submit requests" ON public.airdrop_requests;
+DROP POLICY IF EXISTS "Public Requests All" ON public.airdrop_requests;
+-- Re-creating safe policy (if not exists, error suppressed by IF NOT EXISTS logic in DROP, but we need CREATE)
+-- We will add a separate creation step or just run this to clean and rely on schema.sql to have the 'right' one? 
+-- No, schema.sql had the BAD one. I need to CREATE the GOOD one here or user loses functionality.
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'airdrop_requests' AND policyname = 'Authenticated can submit requests') THEN
+        CREATE POLICY "Authenticated can submit requests" ON public.airdrop_requests FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+    END IF;
+END $$;
 
 -- TODOS
 DROP POLICY IF EXISTS "Nuclear Allow All Todos" ON public.todos;
