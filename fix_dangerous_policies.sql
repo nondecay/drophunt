@@ -67,3 +67,10 @@ DROP POLICY IF EXISTS "User Manage Own Claims" ON public.user_claims;
 -- USERS
 DROP POLICY IF EXISTS "Insert Users" ON public.users;
 DROP POLICY IF EXISTS "Public users access" ON public.users;
+DROP POLICY IF EXISTS "Public Users All" ON public.users; -- Newly reported
+
+-- TODOS
+DROP POLICY IF EXISTS "Public todos access" ON public.todos; -- Newly reported
+
+-- USER CLAIMS
+DROP POLICY IF EXISTS "Public claims access" ON public.user_claims; -- Newly reported
