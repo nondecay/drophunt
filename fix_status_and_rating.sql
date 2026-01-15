@@ -29,7 +29,7 @@ BEGIN
 
     RETURN NULL;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Re-create the trigger to ensure it captures UPDATEs (like when a comment gets approved)
 DROP TRIGGER IF EXISTS trigger_update_rating ON comments;

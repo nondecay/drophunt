@@ -24,7 +24,7 @@ BEGIN
 
     RETURN NULL;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Create the trigger
 DROP TRIGGER IF EXISTS trigger_update_rating ON comments;
