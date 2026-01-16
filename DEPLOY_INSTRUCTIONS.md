@@ -25,7 +25,7 @@ supabase link --project-ref bxklsejtopzevituoaxk
 ## Step 4: Deploy the Function
 Run this command in your project folder:
 ```bash
-supabase functions deploy siwe-login
+supabase functions deploy siwe-login --no-verify-jwt
 ```
 
 ## Step 5: Set Environment Variables
@@ -42,3 +42,10 @@ supabase secrets set SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
 
 ## Step 6: Verify
 Once deployed, refresh your site and try connecting your wallet. It should now verify through the server!
+
+## Troubleshooting: "Script is disabled" Error
+If you see an error like `cannot be loaded because running scripts is disabled`, run this command in your terminal first:
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+Then try the `npm install` or `supabase` commands again.
