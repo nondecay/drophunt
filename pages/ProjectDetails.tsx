@@ -203,7 +203,7 @@ export const ProjectDetails: React.FC = () => {
     if (!user) return addToast("Connect wallet.", "warning");
     const lastGuideAt = user.lastActivities?.['guide_suggest'] || 0;
     if (Date.now() - lastGuideAt < 8 * 60 * 60 * 1000) {
-      return addToast("Protocol sync active. Wait 8 hours between guides.", "error");
+      return addToast("You can suggest 1 guide every 8 hours.", "error");
     }
 
     if (!guideData.author || !guideData.url) return addToast("Details required.", "error");

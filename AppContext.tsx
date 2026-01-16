@@ -424,70 +424,85 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!address) return;
     try {
       const nonce = Math.random().toString(36).substring(2, 15);
-      const now = new Date();
-      const isoNow = now.toISOString();
-      const expirationDate = new Date(now.getTime() + 10 * 60000); // 10 minutes
-      const isoExpiration = expirationDate.toISOString();
+      const chainId = 1;
 
-      const domain = window.location.host;
-      const origin = window.location.origin;
-      const chainId = 1; // Default to mainnet for signature or use current chainId from wagmi if available
-
-      // EIP-4361 Format
-      const message = `${domain} wants you to sign in with your Ethereum account:
+      // EIP-4361 Message Format
+      const message = `${window.location.host} wants you to sign in with your Ethereum account:
 ${address}
 
 Welcome to drophunt.io! Please sign this message to verify your identity.
 
-URI: ${origin}
+URI: ${window.location.origin}
 Version: 1
 Chain ID: ${chainId}
 Nonce: ${nonce}
-Issued At: ${isoNow}
-Expiration Time: ${isoExpiration}`;
+Issued At: ${new Date().toISOString()}`;
 
       const signature = await signMessageAsync({ account: address as `0x${string}`, message });
-      const isValid = await verifyMessage({ address: address as `0x${string}`, message, signature });
 
-      if (isValid) {
-        sessionStorage.setItem(`verified_session_${address.toLowerCase()}`, 'true');
-        setIsVerified(true);
-        addToast(t('walletVerified') || "Wallet verified.");
+      // Call Supabase Edge Function to Verify & Log In
+      const { data: session, error: funcError } = await supabase.functions.invoke('siwe-login', {
+        body: { message, signature, address }
+      });
 
-        // Check if user exists, if not AUTO-REGISTER
-        const { data: existing } = await supabase.from('users').select('*').eq('address', address.toLowerCase()).single();
-
-        if (!existing) {
-          const newUser = {
-            address: address.toLowerCase(),
-            avatar: RANDOM_AVATARS[Math.floor(Math.random() * RANDOM_AVATARS.length)],
-            username: `Hunter_${address.substring(2, 6)}`,
-            role: 'user',
-            "memberStatus": "Hunter",
-            registeredAt: Date.now()
-          };
-          const { data: created, error } = await supabase.from('users').insert(newUser).select().single();
-          if (created) {
-            setUser(created as any);
-            fetchUserData(created.id);
-            // Show optional username change modal
-            setShowUsernameModal(true);
-          } else {
-            console.error("Auto-reg failed", error);
-            addToast("Registration failed", "error");
-          }
-        } else {
-          // Existing user
-          setUser(existing as any);
-          fetchUserData(existing.id);
-        }
+      if (funcError || !session) {
+        throw new Error(funcError?.message || "Login failed");
       }
+
+      // Set Supabase Session (True Auth)
+      const { error: authError } = await supabase.auth.setSession(session);
+      if (authError) throw authError;
+
+      setIsVerified(true);
+      addToast(t('walletVerified') || "Wallet verified securely.", "success");
+
+      // Check User Profile in DB
+      const { data: existing } = await supabase.from('users').select('*').eq('address', address.toLowerCase()).single();
+
+      if (!existing) {
+        // Auto-Register via DB if not exists (Note: Edge function might have created the Auth User, but maybe not the Public Profile if triggers aren't set up perfectly. 
+        // We tried to create user in Edge Function, so Auth User exists. 
+        // Let's ensure Public Profile exists.)
+        const newUser = {
+          id: session.user.id, // Important: Match Auth ID
+          address: address.toLowerCase(),
+          avatar: RANDOM_AVATARS[Math.floor(Math.random() * RANDOM_AVATARS.length)],
+          username: `Hunter_${address.substring(2, 6)}`,
+          role: 'user',
+          "memberStatus": "Hunter",
+          registeredAt: Date.now()
+        };
+
+        // Try insert public profile
+        const { data: created, error } = await supabase.from('users').insert(newUser).select().single();
+
+        if (created) {
+          setUser(created as any);
+          fetchUserData(created.id);
+          setShowUsernameModal(true);
+        } else {
+          // If insert failed, maybe it already exists (race condition with edge function logic?)
+          // Fetch again
+          const { data: retry } = await supabase.from('users').select('*').eq('address', address.toLowerCase()).single();
+          if (retry) {
+            setUser(retry as any);
+            fetchUserData(retry.id);
+          }
+        }
+      } else {
+        setUser(existing as any);
+        fetchUserData(existing.id);
+      }
+
     } catch (err: any) {
-      console.error(err);
-      addToast(t('verificationFailed') || "Verification failed.", "error");
-      // If failed, disconnect to prevent 'connected but unverified' confusion state
-      // disconnect(); 
-      // Actually keeping them connected but unverified ('Guest') is better UX, just restrict access.
+      console.error("SIWE Error:", err);
+      // Safe guard: Do NOT disconnect here, as it triggers the useEffect loop again if verification fails.
+      // Just showing the error toast is sufficient. User can retry manually.
+      addToast("Verification failed: " + (err.message || "Unknown"), "error");
+
+      // If we really want to reset state:
+      setIsVerified(false);
+      setUser(null);
     }
   };
 
