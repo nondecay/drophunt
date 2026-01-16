@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, createContext, useContext, useCallback } from 'react';
-import { useAccount, useDisconnect, useSignMessage } from 'wagmi';
+import { useAccount, useDisconnect, useWalletClient } from 'wagmi';
 import { verifyMessage } from 'viem';
 import { Language, User, Airdrop, Claim, CalendarEvent, Comment, TodoItem, UserClaim, Guide, InboxMessage, Toast, AirdropRequest, OnChainActivity, Chain, InfoFiPlatform, Announcement, Investor, Tool } from './types';
 import { RANDOM_AVATARS } from './constants';
@@ -88,7 +88,7 @@ export const useApp = () => {
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
-  const { signMessageAsync } = useSignMessage();
+  const { data: walletClient } = useWalletClient();
 
   const [theme, setTheme] = useState<'light' | 'dark'>(() => (localStorage.getItem('theme') as any) || 'dark');
   const [lang, setLang] = useState<Language>(() => (localStorage.getItem('lang') as any) || 'en');
@@ -421,7 +421,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // 4. Actions (Updated to Async / DB)
 
   const verifyWallet = async () => {
-    if (!address) return;
+    if (!address || !walletClient) return;
     try {
       const nonce = Math.random().toString(36).substring(2, 15);
       const chainId = 1;
@@ -438,7 +438,7 @@ Chain ID: ${chainId}
 Nonce: ${nonce}
 Issued At: ${new Date().toISOString()}`;
 
-      const signature = await signMessageAsync({ message });
+      const signature = await walletClient.signMessage({ message });
 
       // Call Supabase Edge Function to Verify & Log In
       const { data: session, error: funcError } = await supabase.functions.invoke('siwe-login', {
