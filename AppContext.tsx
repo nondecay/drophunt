@@ -364,7 +364,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const checkSession = async () => {
       // If we're not connected, we aren't "loading auth" in the sense of verifying a user.
       // But if we ARE connected, we are verifying.
-      if (!isConnected) {
+      // If we're not connected AND not trying to connect, then we clear state.
+      // We must check isReconnecting/isConnecting to avoid wiping state during page reload/initialization.
+      if (!isConnected && !isReconnecting && !isConnecting) {
         setIsAuthLoading(false);
         // Clear user state
         setUser(null);
