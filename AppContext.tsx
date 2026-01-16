@@ -360,64 +360,70 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  // 3.5 Debounced Session Check
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
     const checkSession = async () => {
-      // If we're not connected, we aren't "loading auth" in the sense of verifying a user.
-      // But if we ARE connected, we are verifying.
-      // If we're not connected AND not trying to connect, then we clear state.
-      // We must check isReconnecting/isConnecting to avoid wiping state during page reload/initialization.
-      if (!isConnected && !isReconnecting && !isConnecting) {
-        setIsAuthLoading(false);
-        // Clear user state
-        setUser(null);
-        setUserTasks([]);
-        setUserClaims([]);
-        setInbox([]);
-        setIsVerified(false);
-        setShowUsernameModal(false);
-        return;
-      }
+      // If connected, we are verifying/loading
+      if (isConnected) {
+        setIsAuthLoading(true);
+        if (address) {
+          try {
+            const sessionKey = `verified_session_${address.toLowerCase()}`;
+            const verified = sessionStorage.getItem(sessionKey) === 'true';
 
-      setIsAuthLoading(true);
-
-      if (isConnected && address) {
-        try {
-          const sessionKey = `verified_session_${address.toLowerCase()}`;
-          const verified = sessionStorage.getItem(sessionKey) === 'true';
-
-          if (verified) {
-            // Restore Session
-            const { data: existing } = await supabase.from('users').select('*').eq('address', address.toLowerCase()).single();
-            if (existing) {
-              setUser(existing as any);
-              fetchUserData(existing.id);
-              setIsVerified(true);
+            if (verified) {
+              const { data: existing } = await supabase.from('users').select('*').eq('address', address.toLowerCase()).single();
+              if (existing) {
+                setUser(existing as any);
+                fetchUserData(existing.id);
+                setIsVerified(true);
+              } else {
+                // Verified locally but not in DB?
+                setIsVerified(false);
+                sessionStorage.removeItem(sessionKey);
+                verifyWallet();
+              }
             } else {
-              // Verified but no user? Anomalous, ask to verify/register again
+              // Connected but not verified
               setIsVerified(false);
-              sessionStorage.removeItem(sessionKey);
-              // If user is verified but not in DB, something is wrong. Re-verify.
+              setUser(null);
               verifyWallet();
             }
-          } else {
-            // Not verified - User must sign.
-            // Do NOT set user.
-            setIsVerified(false);
-            setUser(null);
-            // Prompt verification immediately
-            verifyWallet();
+          } catch (e) {
+            console.error("Auth Check Error", e);
+          } finally {
+            setIsAuthLoading(false);
           }
-        } catch (e) {
-          console.error("Auth check failed", e);
-        } finally {
-          setIsAuthLoading(false);
         }
       } else {
-        setIsAuthLoading(false);
+        // Not Connected - Debounce logout to handle page reloads / extension delays
+        // If we are NOT connecting and NOT reconnecting, we start a timer.
+        if (!isReconnecting && !isConnecting) {
+          timeoutId = setTimeout(() => {
+            // Double check status inside timeout (though closure captures isConnected=false)
+            // Ideally we'd check a Ref, but since this Effect runs on dependency change, 
+            // if it becomes Connected, this effect Cleanup runs and clears timeout.
+            console.log("Wallet disconnected for >1s, clearing session.");
+            setIsAuthLoading(false);
+            setUser(null);
+            setUserTasks([]);
+            setUserClaims([]);
+            setInbox([]);
+            setIsVerified(false);
+            setShowUsernameModal(false);
+          }, 1000); // 1s grace period
+        }
       }
     };
+
     checkSession();
-  }, [isConnected, address]);
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [isConnected, address, isReconnecting, isConnecting]);
 
 
   // 4. Actions (Updated to Async / DB)
