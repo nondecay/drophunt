@@ -175,7 +175,7 @@ export const Layout: React.FC = () => {
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mb-2 mt-4">DROPHUNT.IO</p>
 
             <SidebarLink to="/" icon={<LayoutDashboard size={18} />} label={t('airdrops')} active={location.pathname === '/'} onClick={() => setSidebarOpen(false)} />
-            <SidebarLink to="/infofi" icon={<Zap size={18} />} label={t('infofi')} active={location.pathname === '/infofi'} onClick={() => setSidebarOpen(false)} />
+            {/* <SidebarLink to="/infofi" icon={<Zap size={18} />} label={t('infofi')} active={location.pathname === '/infofi'} onClick={() => setSidebarOpen(false)} /> */}
             <SidebarLink to="/calendar" icon={<CalendarIcon size={18} />} label={t('calendar')} active={location.pathname === '/calendar'} onClick={() => setSidebarOpen(false)} />
             <SidebarLink to="/claims" icon={<Bell size={18} />} label={t('claims')} active={location.pathname === '/claims'} onClick={() => setSidebarOpen(false)} />
             <SidebarLink to="/presales" icon={<Ticket size={18} />} label={t('presales')} active={location.pathname === '/presales'} onClick={() => setSidebarOpen(false)} />

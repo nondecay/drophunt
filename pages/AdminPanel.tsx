@@ -395,7 +395,7 @@ const AdminPanelContent: React.FC = () => {
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 py-2">{t('monitor')}</p>
                   {canSee('dash') && <NavBtn icon={<BarChart3 size={18} />} label={t('dashboard')} active={activeTab === 'dash'} onClick={() => setActiveTab('dash')} />}
                   {canSee('airdrops') && <NavBtn icon={<LayoutDashboard size={18} />} label={t('airdrops')} active={activeTab === 'airdrops'} onClick={() => { setActiveTab('airdrops'); setProjectPage(1); setProjectSearch(''); }} />}
-                  {canSee('infofi') && <NavBtn icon={<Zap size={18} />} label={t('infofi')} active={activeTab === 'infofi'} onClick={() => { setActiveTab('infofi'); setProjectPage(1); setProjectSearch(''); }} />}
+                  {/* {canSee('infofi') && <NavBtn icon={<Zap size={18} />} label={t('infofi')} active={activeTab === 'infofi'} onClick={() => { setActiveTab('infofi'); setProjectPage(1); setProjectSearch(''); }} />} */}
                   {canSee('platforms') && <NavBtn icon={<Layers size={18} />} label={t('platforms')} active={activeTab === 'platforms'} onClick={() => setActiveTab('platforms')} />}
                   {canSee('investors') && <NavBtn icon={<Users size={18} />} label={t('investors')} active={activeTab === 'investors'} onClick={() => setActiveTab('investors')} />}
                   {canSee('claims') && <NavBtn icon={<Bell size={18} />} label={t('claims')} active={activeTab === 'claims'} onClick={() => setActiveTab('claims')} />}
@@ -424,7 +424,7 @@ const AdminPanelContent: React.FC = () => {
                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
                         <StatBox label="Total Hunters" value={stats.totalUsers} icon={<Users className="text-primary-600" />} />
                         <StatBox label="Airdrop Nodes" value={stats.totalAirdrops} icon={<LayoutDashboard className="text-emerald-500" />} />
-                        <StatBox label="InfoFi Hubs" value={stats.totalInfoFi} icon={<Zap className="text-amber-500" />} />
+                        {/* <StatBox label="InfoFi Hubs" value={stats.totalInfoFi} icon={<Zap className="text-amber-500" />} /> */}
                         <StatBox label="Protocol Intel" value={stats.totalComments} icon={<MessageSquare className="text-sky-500" />} />
                         <StatBox label="Live Chains" value={stats.totalChains} icon={<Link2 className="text-rose-500" />} />
                      </div>
