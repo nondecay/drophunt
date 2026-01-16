@@ -86,7 +86,7 @@ export const useApp = () => {
 };
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, isReconnecting, isConnecting } = useAccount();
   const { disconnect } = useDisconnect();
   const { data: walletClient } = useWalletClient();
 
