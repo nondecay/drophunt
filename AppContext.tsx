@@ -453,6 +453,9 @@ Issued At: ${new Date().toISOString()}`;
       const { error: authError } = await supabase.auth.setSession(session);
       if (authError) throw authError;
 
+      // Persist Verified State (Vital for Refresh)
+      sessionStorage.setItem(`verified_session_${address.toLowerCase()}`, 'true');
+
       setIsVerified(true);
       addToast(t('walletVerified') || "Wallet verified securely.", "success");
 
