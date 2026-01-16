@@ -438,7 +438,7 @@ Chain ID: ${chainId}
 Nonce: ${nonce}
 Issued At: ${new Date().toISOString()}`;
 
-      const signature = await signMessageAsync({ account: address as `0x${string}`, message });
+      const signature = await signMessageAsync({ message });
 
       // Call Supabase Edge Function to Verify & Log In
       const { data: session, error: funcError } = await supabase.functions.invoke('siwe-login', {
