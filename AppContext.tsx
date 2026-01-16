@@ -315,7 +315,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!user) return;
 
     if (action === 'add') {
-      const newTodo = { ...payload, user_id: user.id };
+      const newTodo = { ...payload, "userId": user.id };
       const { data, error } = await supabase.from('todos').insert(newTodo).select().single();
       if (!error && data) {
         setUserTasks(prev => [data as any, ...prev]);
@@ -346,7 +346,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!user) return;
 
     if (action === 'add') {
-      const newClaim = { ...payload, user_id: user.id };
+      const newClaim = { ...payload, "userId": user.id };
       const { data, error } = await supabase.from('user_claims').insert(newClaim).select().single();
       if (!error && data) {
         setUserClaims(prev => [data as any, ...prev]);
