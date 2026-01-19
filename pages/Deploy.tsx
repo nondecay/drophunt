@@ -51,7 +51,7 @@ const DeployCard: React.FC<{ activity: any, isExecuting: boolean, onAction: (act
       )}
 
       <div className="w-14 h-14 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
-        <img src={getImgUrl(activity.logo)} className="w-full h-full object-contain" alt="" />
+        <img src={getImgUrl(activity.logo, { width: 64 })} className="w-full h-full object-contain" alt="" />
       </div>
 
       <h3 className="text-xs font-black tracking-tight mb-4 uppercase leading-none truncate w-full px-2">{activity.name}</h3>

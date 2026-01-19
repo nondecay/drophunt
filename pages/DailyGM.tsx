@@ -59,7 +59,7 @@ const GMCard: React.FC<{ activity: any, isExecuting: boolean, onAction: (activit
       )}
 
       <div className="w-14 h-14 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
-        <img src={getImgUrl(activity.logo)} className="w-full h-full object-contain" alt="" />
+        <img src={getImgUrl(activity.logo, { width: 64 })} className="w-full h-full object-contain" alt="" />
       </div>
 
       <h3 className="text-xs font-black tracking-tight mb-4 uppercase leading-none truncate w-full px-2">{activity.name}</h3>
@@ -233,7 +233,7 @@ export const DailyGM: React.FC = () => {
                   <button key={c.id} onClick={() => { setSelectedChainId(c.chainId); setDropdownOpen(false); }} className={`w-full text-left px-4 py-3 rounded-2xl text-xs font-black uppercase transition-all ${selectedChainId === c.chainId ? 'bg-primary-600 text-white' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>
                     <div className="flex items-center gap-3">
                       <div className="w-5 h-5 flex items-center justify-center">
-                        {c.logo ? <img src={getImgUrl(c.logo)} className="w-full h-full object-contain" /> : <Globe size={16} />}
+                        {c.logo ? <img src={getImgUrl(c.logo, { width: 40 })} className="w-full h-full object-contain" /> : <Globe size={16} />}
                       </div>
                       <span>{c.name}</span>
                     </div>
@@ -257,7 +257,7 @@ export const DailyGM: React.FC = () => {
               <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border dark:border-slate-800 p-1 z-50 animate-in fade-in">
                 {chainSuggestions.map(s => (
                   <button key={s.id} onClick={() => { setSelectedChainId(s.chainId); setSearch(s.name); setShowChainDrop(false); }} className="w-full text-left px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl text-[10px] font-black uppercase flex items-center gap-2">
-                    <img src={getImgUrl(s.logo)} className="w-4 h-4 object-contain" /> {s.name}
+                    <img src={getImgUrl(s.logo, { width: 40 })} className="w-4 h-4 object-contain" /> {s.name}
                   </button>
                 ))}
               </div>
