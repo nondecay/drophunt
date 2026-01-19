@@ -115,6 +115,55 @@ const AdminPanelContent: React.FC = () => {
       return () => clearInterval(interval);
    }, []);
 
+   const quillModules = useMemo(() => ({
+      toolbar: {
+         container: [
+            [{ 'header': [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            ['link', 'image'],
+            ['clean']
+         ],
+         handlers: {
+            image: function (this: any) {
+               const quill = this.quill;
+               const input = document.createElement('input');
+               input.setAttribute('type', 'file');
+               input.setAttribute('accept', 'image/*');
+               input.click();
+
+               input.onchange = async () => {
+                  const file = input.files?.[0];
+                  if (file) {
+                     try {
+                        const fileExt = file.name.split('.').pop();
+                        const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+                        const filePath = `assets/${fileName}`;
+
+                        const { error } = await supabase.storage.from('images').upload(filePath, file, { cacheControl: '3600', upsert: false });
+                        if (error) throw error;
+
+                        const url = `https://bxklsejtopzevituoaxk.supabase.co/storage/v1/object/public/images/${filePath}`;
+
+                        const range = quill.getSelection(true);
+                        if (range) {
+                           quill.insertEmbed(range.index, 'image', url);
+                           quill.setSelection(range.index + 1);
+                        } else {
+                           const len = quill.getLength();
+                           quill.insertEmbed(len, 'image', url);
+                        }
+                     } catch (err: any) {
+                        console.error("Upload Error:", err);
+                        alert("Upload failed: " + (err.message || "Unknown error"));
+                     }
+                  }
+               };
+            }
+         }
+      }
+   }), []);
+
    const sendBroadcast = async () => {
       if (!msgData.title || !msgData.content) return addToast("Comms incomplete.", "error");
 
@@ -605,7 +654,7 @@ const AdminPanelContent: React.FC = () => {
                                  {/* FIX: Show Selected Project */}
                                  {msgData.projectId && (
                                     <div className="mb-3 flex items-center gap-3 p-3 bg-primary-50 dark:bg-slate-800 border border-primary-500 rounded-xl">
-                                       <img src={airdrops.find(a => a.id === msgData.projectId)?.icon} className="w-8 h-8 rounded-lg object-cover" />
+                                       <img src={getImgUrl(airdrops.find(a => a.id === msgData.projectId)?.icon)} className="w-8 h-8 rounded-lg object-cover" />
                                        <div className="flex-1">
                                           <p className="text-[9px] font-black uppercase text-primary-600">Selected Target</p>
                                           <p className="text-xs font-black">{airdrops.find(a => a.id === msgData.projectId)?.name || 'Unknown Project'}</p>
@@ -828,61 +877,7 @@ const AdminPanelContent: React.FC = () => {
                                        theme="snow"
                                        value={formData.editorsGuide}
                                        onChange={(content) => setFormData(prev => ({ ...prev, editorsGuide: content }))}
-                                       modules={useMemo(() => ({
-                                          toolbar: {
-                                             container: [
-                                                [{ 'header': [1, 2, 3, false] }],
-                                                ['bold', 'italic', 'underline', 'strike'],
-                                                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                                                ['link', 'image'],
-                                                ['clean']
-                                             ],
-                                             handlers: {
-                                                image: function (this: any) {
-                                                   // Capture 'this' which is the toolbar instance
-                                                   const quill = this.quill;
-                                                   const input = document.createElement('input');
-                                                   input.setAttribute('type', 'file');
-                                                   input.setAttribute('accept', 'image/*');
-                                                   input.click();
-
-                                                   input.onchange = async () => {
-                                                      const file = input.files?.[0];
-                                                      if (file) {
-                                                         try {
-                                                            // Show a loader or placeholder? For now just upload.
-                                                            const fileExt = file.name.split('.').pop();
-                                                            const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
-                                                            const filePath = `assets/${fileName}`;
-
-                                                            // Optimistic: Insert placeholder? 
-                                                            // No, let's just upload fast.
-
-                                                            const { error } = await supabase.storage.from('images').upload(filePath, file, { cacheControl: '3600', upsert: false });
-                                                            if (error) throw error;
-
-                                                            const url = `https://bxklsejtopzevituoaxk.supabase.co/storage/v1/object/public/images/${filePath}`;
-
-                                                            // Insert image
-                                                            const range = quill.getSelection(true);
-                                                            if (range) {
-                                                               quill.insertEmbed(range.index, 'image', url);
-                                                               // Move cursor after image
-                                                               quill.setSelection(range.index + 1);
-                                                            } else {
-                                                               const len = quill.getLength();
-                                                               quill.insertEmbed(len, 'image', url);
-                                                            }
-                                                         } catch (err: any) {
-                                                            console.error("Upload Error:", err);
-                                                            alert("Upload failed: " + (err.message || "Unknown error"));
-                                                         }
-                                                      }
-                                                   };
-                                                }
-                                             }
-                                          }
-                                       }), [])}
+                                       modules={quillModules}
                                        className="h-64 mb-12"
                                     />
                                  </div>

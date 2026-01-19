@@ -134,7 +134,9 @@ export const ProjectDetails: React.FC = () => {
     const lastCommentAt = projectTimestamps[project.id] || 0;
     const now = Date.now();
 
-    if (now - lastCommentAt < COOLDOWN_24H) {
+    const isAdmin = user?.memberStatus === 'Admin' || user?.memberStatus === 'Super Admin' || user?.memberStatus === 'Moderator' || user?.role === 'admin';
+
+    if (!isAdmin && (now - lastCommentAt < COOLDOWN_24H)) {
       return addToast(t('commentLimit'), "error");
     }
 
@@ -201,8 +203,11 @@ export const ProjectDetails: React.FC = () => {
 
   const handleSuggestGuide = async () => {
     if (!user) return addToast("Connect wallet.", "warning");
+
+    const isAdmin = user?.memberStatus === 'Admin' || user?.memberStatus === 'Super Admin' || user?.memberStatus === 'Moderator' || user?.role === 'admin';
     const lastGuideAt = user.lastActivities?.['guide_suggest'] || 0;
-    if (Date.now() - lastGuideAt < 8 * 60 * 60 * 1000) {
+
+    if (!isAdmin && Date.now() - lastGuideAt < 8 * 60 * 60 * 1000) {
       return addToast("You can suggest 1 guide every 8 hours.", "error");
     }
 

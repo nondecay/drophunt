@@ -436,7 +436,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             setInbox([]);
             setIsVerified(false);
             setShowUsernameModal(false);
-          }, 1000); // 1s grace period
+          }, 3000); // 3s grace period for stability
         }
       }
     };
