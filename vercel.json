@@ -8,10 +8,6 @@
             "destination": "https://bxklsejtopzevituoaxk.supabase.co/storage/v1/object/public/$1"
         },
         {
-            "source": "/optimize/(.*)",
-            "destination": "https://bxklsejtopzevituoaxk.supabase.co/storage/v1/render/image/public/$1"
-        },
-        {
             "source": "/api/(.*)",
             "destination": "/api/$1"
         },
@@ -23,15 +19,6 @@
     "headers": [
         {
             "source": "/image/(.*)",
-            "headers": [
-                {
-                    "key": "Cache-Control",
-                    "value": "public, max-age=31536000, immutable"
-                }
-            ]
-        },
-        {
-            "source": "/optimize/(.*)",
             "headers": [
                 {
                     "key": "Cache-Control",

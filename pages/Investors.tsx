@@ -98,7 +98,7 @@ export const Investors: React.FC = () => {
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{inv.latestInvestmentDate}</span>
                 </div>
                 <Link to={`/investor/${inv.id}`} className="flex items-center gap-4 group">
-                  <img src={getImgUrl(inv.logo, { width: 100 }) || 'https://picsum.photos/seed/' + inv.id + '/200'} className="w-16 h-16 rounded-2xl object-cover shadow-lg ring-4 ring-slate-50 dark:ring-slate-800" alt="" />
+                  <img src={getImgUrl(inv.logo) || 'https://picsum.photos/seed/' + inv.id + '/200'} className="w-16 h-16 rounded-2xl object-cover shadow-lg ring-4 ring-slate-50 dark:ring-slate-800" alt="" />
                   <div>
                     <h3 className="text-lg font-black uppercase text-slate-800 dark:text-white group-hover:text-primary-600 transition-colors">{inv.name}</h3>
                     <div className="inline-flex mt-1 items-center px-2 py-0.5 bg-primary-50 dark:bg-primary-900/20 rounded-lg font-black text-[10px] text-primary-600">
