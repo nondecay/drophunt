@@ -5,6 +5,7 @@ import { ChevronLeft, Youtube, Twitter, MessageSquare, Star, Zap, Plus, Globe, T
 import { Guide, Comment } from '../types';
 import { supabase } from '../supabaseClient';
 import { OptimizedImage } from '../components/OptimizedImage';
+import { getImgUrl } from '../utils/getImgUrl';
 
 const DiscordIcon = ({ size = 18, className = "" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
@@ -18,12 +19,8 @@ const ensureHttp = (url: string) => {
   return `https://${url}`;
 };
 
-// Image Proxy Helper
-const getImgUrl = (path: string) => {
-  if (!path) return '';
-  if (path.startsWith('http') || path.startsWith('data:')) return path;
-  return `https://bxklsejtopzevituoaxk.supabase.co/storage/v1/object/public/${path}`;
-};
+// Image Proxy Helper removed - using imported utility
+
 
 const RankBadge = ({ rank }: { rank: number }) => {
   const colors = rank === 1 ? 'bg-yellow-400 text-white' : rank === 2 ? 'bg-slate-300 text-slate-700' : rank === 3 ? 'bg-amber-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-400';

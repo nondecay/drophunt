@@ -3,13 +3,9 @@ import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useApp } from '../AppContext';
 import { ChevronLeft, ExternalLink, Globe, LayoutDashboard, Target, Users } from 'lucide-react';
+import { getImgUrl } from '../utils/getImgUrl';
 
-// Image Proxy Helper
-const getImgUrl = (path: string) => {
-   if (!path) return '';
-   if (path.startsWith('http') || path.startsWith('data:')) return path;
-   return `https://bxklsejtopzevituoaxk.supabase.co/storage/v1/object/public/${path}`;
-};
+// Image Proxy Helper - Imported from utils
 
 export const InvestorDetails: React.FC = () => {
    const { id } = useParams();

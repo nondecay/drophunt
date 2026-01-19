@@ -5,13 +5,9 @@ import { Search, ChevronDown, Check, ArrowUpDown, ChevronLeft, ChevronRight, Use
 import { Link } from 'react-router-dom';
 
 import { LoadingSpinner } from '../components/LoadingSpinner';
+import { getImgUrl } from '../utils/getImgUrl';
 
-// Image Proxy Helper
-const getImgUrl = (path: string) => {
-  if (!path) return '';
-  if (path.startsWith('http') || path.startsWith('data:')) return path;
-  return `https://bxklsejtopzevituoaxk.supabase.co/storage/v1/object/public/${path}`;
-};
+// Image Proxy Helper - Imported from utils
 
 export const Investors: React.FC = () => {
   const { investors = [], airdrops = [], t, isDataLoaded } = useApp();

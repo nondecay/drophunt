@@ -7,13 +7,9 @@ import { useAccount, useSwitchChain, useWriteContract, useWaitForTransactionRece
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { parseEther } from 'viem';
 import { LoadingSpinner } from '../components/LoadingSpinner';
+import { getImgUrl } from '../utils/getImgUrl';
 
-// Image Proxy Helper
-const getImgUrl = (path: string) => {
-  if (!path) return '';
-  if (path.startsWith('http') || path.startsWith('data:')) return path;
-  return `https://bxklsejtopzevituoaxk.supabase.co/storage/v1/object/public/${path}`;
-};
+// Image Proxy Helper - Imported from utils
 
 const GMCard: React.FC<{ activity: any, isExecuting: boolean, onAction: (activity: any) => void }> = ({ activity, isExecuting, onAction }) => {
   const { user, chains, t } = useApp();

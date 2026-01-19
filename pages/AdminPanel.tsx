@@ -9,16 +9,10 @@ import {
 } from 'lucide-react';
 import { OnChainActivity, Airdrop, Claim, Guide, Comment, TopUser, Chain, User, InfoFiPlatform, Announcement, Investor, Tool, ToolCategory } from '../types';
 import ReactQuill from 'react-quill';
+import { getImgUrl } from '../utils/getImgUrl';
 import 'react-quill/dist/quill.snow.css';
 
-// Image Proxy Helper
-const getImgUrl = (path: string) => {
-   if (!path) return '';
-   if (path.startsWith('http') || path.startsWith('data:')) return path;
-   // Ensure we don't double-slash or miss slash
-   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-   return `https://bxklsejtopzevituoaxk.supabase.co/storage/v1/object/public/${cleanPath}`;
-};
+// Image Proxy Helper removed - using imported utility
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: string }> {
    state = { hasError: false, error: '' };

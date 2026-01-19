@@ -4,7 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../AppContext';
 import { Plus, CheckCircle2, Trash2, ListChecks, Zap, Clock, PieChart, RefreshCw, Target, ArrowUpRight, ChevronLeft, ChevronRight, Mail, DollarSign, Calendar, Filter, X, ChevronDown, Check, ShieldAlert } from 'lucide-react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useAccount } from 'wagmi'; // Added this import
+import { useAccount } from 'wagmi';
+import { getImgUrl } from '../utils/getImgUrl';
 
 export const MyAirdrops: React.FC = () => {
   const { airdrops, userTasks, setUserTasks, userClaims, setUserClaims, addToast, user, toggleTrackProject, t, inbox, manageTodo, manageUserClaim, infofiPlatforms, isDataLoaded } = useApp();
@@ -551,12 +552,7 @@ export const MyAirdrops: React.FC = () => {
   );
 };
 
-// Image Proxy Helper
-const getImgUrl = (path: string) => {
-  if (!path) return '';
-  if (path.startsWith('http') || path.startsWith('data:')) return path;
-  return `https://bxklsejtopzevituoaxk.supabase.co/storage/v1/object/public/${path}`;
-};
+// Image Proxy Helper - Imported from utils
 
 
 const DashboardStat: React.FC<{ label: string, val: string | number, icon: any, color: string }> = ({ label, val, icon, color }) => (
