@@ -58,16 +58,41 @@ export const MyAirdrops: React.FC = () => {
   const [newTask, setNewTask] = useState({ note: '', airdropId: 'custom', reminder: 'none' as any, deadline: '' });
   const [newClaim, setNewClaim] = useState({ projectName: '', expense: 0, claimedToken: '', tokenCount: 0, earning: 0, claimedDate: new Date().toISOString().split('T')[0] });
   const [claimMonthFilter, setClaimMonthFilter] = useState('all');
+  const [tagFilter, setTagFilter] = useState('all');
+  const [isTagDropOpen, setTagDropOpen] = useState(false);
+  const tagDropRef = useRef<HTMLDivElement>(null);
 
   // Derived State Definitions
   // Restore "Old Look": show project if it is in user.trackedProjectIds OR has a claim/task
   const trackedIds = useMemo(() => user?.trackedProjectIds || [], [user]);
 
+  const uniqueTags = useMemo(() => {
+    const tags = new Set<string>();
+    airdrops.forEach(a => (a.tags || []).forEach(t => tags.add(t)));
+    return Array.from(tags).sort();
+  }, [airdrops]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (tagDropRef.current && !tagDropRef.current.contains(event.target as Node)) {
+        setTagDropOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const trackedAirdrops = useMemo(() => {
     // Exclude items that are InfoFi platforms (either by ID match or hasInfoFi flag)
     const infoFiIds = new Set((infofiPlatforms || []).map(i => i.id));
-    return airdrops.filter(p => !p.hasInfoFi && !infoFiIds.has(p.id) && (trackedIds.includes(p.id) || userClaims.some(c => c.projectName === p.name) || userTasks.some(t => t.airdropId === p.id)));
-  }, [airdrops, trackedIds, userClaims, userTasks, infofiPlatforms]);
+    return airdrops.filter(p => {
+      const isTracked = !p.hasInfoFi && !infoFiIds.has(p.id) && (trackedIds.includes(p.id) || userClaims.some(c => c.projectName === p.name) || userTasks.some(t => t.airdropId === p.id));
+      if (tagFilter !== 'all') {
+        return isTracked && (p.tags || []).includes(tagFilter);
+      }
+      return isTracked;
+    });
+  }, [airdrops, trackedIds, userClaims, userTasks, infofiPlatforms, tagFilter]);
 
   const trackedInfoFi = useMemo(() => {
     // Include explicit InfoFi platforms AND Airdrops that are marked as InfoFi
@@ -347,6 +372,31 @@ export const MyAirdrops: React.FC = () => {
           )}
 
           {(activeTab === 'airdrops' || activeTab === 'infofi') && (
+            <div className="mb-6 flex justify-end gap-2">
+              {activeTab === 'airdrops' && (
+                <div className="relative" ref={tagDropRef}>
+                  <button onClick={() => setTagDropOpen(!isTagDropOpen)} className="flex items-center gap-3 bg-white dark:bg-slate-900 px-5 py-3 rounded-2xl border dark:border-slate-800 shadow-sm hover:border-primary-500 transition-all">
+                    <Target size={16} className="text-slate-400" />
+                    <div className="text-left">
+                      <p className="text-[8px] font-black uppercase text-slate-400 leading-none mb-0.5">Filter Tag</p>
+                      <p className="text-xs font-black uppercase">{tagFilter === 'all' ? 'All Tags' : tagFilter}</p>
+                    </div>
+                    <ChevronDown size={14} className={`text-slate-400 transition-transform ${isTagDropOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {isTagDropOpen && (
+                    <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl shadow-2xl z-50 p-1.5 animate-in fade-in slide-in-from-top-2 max-h-60 overflow-y-auto custom-scrollbar">
+                      <button onClick={() => { setTagFilter('all'); setTagDropOpen(false); }} className={`w-full text-left px-4 py-2.5 rounded-xl text-[10px] font-black uppercase flex items-center justify-between ${tagFilter === 'all' ? 'bg-primary-600 text-white' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>All Tags {tagFilter === 'all' && <Check size={12} />}</button>
+                      {uniqueTags.map(tag => (
+                        <button key={tag} onClick={() => { setTagFilter(tag); setTagDropOpen(false); }} className={`w-full text-left px-4 py-2.5 rounded-xl text-[10px] font-black uppercase flex items-center justify-between ${tagFilter === tag ? 'bg-primary-600 text-white' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>{tag} {tagFilter === tag && <Check size={12} />}</button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {(activeTab === 'airdrops' || activeTab === 'infofi') && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {(activeTab === 'airdrops' ? trackedAirdrops : trackedInfoFi).map(a => {
                 const unreadMsg = inbox.find(m => m.relatedAirdropId === a.id && !m.isRead);
@@ -578,8 +628,14 @@ const ProjectCard: React.FC<{ project: any, onUntrack: () => void, t_func: any, 
         <img src={getImgUrl(project.icon)} className="w-12 h-12 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform" />
         <div className="min-w-0">
           <h4 className="font-black text-sm uppercase truncate">{project.name}</h4>
-          {project.hasInfoFi && (
+          {project.hasInfoFi ? (
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest truncate">{project.platform}</p>
+          ) : (
+            <div className="flex flex-wrap gap-1 mt-1">
+              {(project.tags || []).slice(0, 3).map((t: string) => (
+                <span key={t} className="text-[8px] font-black uppercase bg-slate-100 dark:bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded border dark:border-slate-700">#{t}</span>
+              ))}
+            </div>
           )}
         </div>
       </div>

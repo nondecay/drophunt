@@ -314,7 +314,27 @@ export const ProjectDetails: React.FC = () => {
                   <span className={`text-[10px] font-black px-2.5 py-1 rounded-lg ${getTypeStyle(project.type)}`}>{project.type}</span>
                   <span className={`text-[10px] font-black px-2.5 py-1 rounded-lg ${getStatusStyle(project.status)}`}>{project.status}</span>
                   {project.hasInfoFi && <span className="text-[10px] font-black px-2.5 py-1 bg-primary-600 text-white rounded-lg uppercase">{project.platform || 'InfoFi'}</span>}
+                  {(project.tags || []).map((tag: string) => (
+                    <span key={tag} className="text-[10px] font-black px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded-lg uppercase border dark:border-slate-700">#{tag}</span>
+                  ))}
                 </div>
+
+                {project.referral_code && (
+                  <div className="mb-6 inline-block">
+                    <div className="flex items-center gap-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/50 p-3 pr-4 rounded-2xl relative group cursor-pointer" onClick={() => { navigator.clipboard.writeText(project.referral_code || ''); addToast('Referral code copied!', 'success'); }}>
+                      <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center">
+                        <Users size={18} />
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black uppercase text-indigo-400 leading-none mb-1">Referral Code</p>
+                        <p className="text-sm font-bold text-indigo-700 dark:text-indigo-300 tracking-widest">{project.referral_code}</p>
+                      </div>
+                      <div className="absolute right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-white dark:bg-slate-900 shadow-sm px-2 py-1 rounded text-[9px] font-bold text-slate-500">
+                        COPY
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {backerList.length > 0 && (
                   <div className="flex flex-wrap items-center gap-2 mt-4">
