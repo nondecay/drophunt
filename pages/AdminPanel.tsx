@@ -298,7 +298,7 @@ const AdminPanelContent: React.FC = () => {
             const relativePath = `${bucketName}/${filePath}`;
             console.log("Uploaded:", relativePath);
 
-            setFormData({ ...formData, [field]: relativePath });
+            setFormData(prev => ({ ...prev, [field]: relativePath }));
             addToast("Image Uploaded");
 
          } catch (error: any) {
@@ -803,7 +803,7 @@ const AdminPanelContent: React.FC = () => {
 
                            <div className="col-span-2 space-y-2">
                               <label className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400 tracking-widest">
-                                 <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500" checked={!!formData.editorsGuide} onChange={e => setFormData({ ...formData, editorsGuide: e.target.checked ? '<p>Write your guide here...</p>' : undefined })} />
+                                 <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500" checked={!!formData.editorsGuide} onChange={e => { const checked = e.target.checked; setFormData(prev => ({ ...prev, editorsGuide: checked ? '<p>Write your guide here...</p>' : undefined })); }} />
                                  Enable Editor's Guide
                               </label>
 
@@ -812,7 +812,7 @@ const AdminPanelContent: React.FC = () => {
                                     <ReactQuill
                                        theme="snow"
                                        value={formData.editorsGuide}
-                                       onChange={(content) => setFormData({ ...formData, editorsGuide: content })}
+                                       onChange={(content) => setFormData(prev => ({ ...prev, editorsGuide: content }))}
                                        modules={useMemo(() => ({
                                           toolbar: {
                                              container: [
