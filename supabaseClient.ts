@@ -10,4 +10,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
     console.log('✅ Supabase Client Initializing...', supabaseUrl);
 }
 
-export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');
+export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '', {
+    auth: {
+        storage: localStorage,
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true
+    }
+});
