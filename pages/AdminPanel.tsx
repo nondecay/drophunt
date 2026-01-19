@@ -685,12 +685,26 @@ const AdminPanelContent: React.FC = () => {
 
                {(activeTab === 'airdrops' || activeTab === 'infofi') && (
                   <SectionWrapper title={activeTab === 'infofi' ? t('infofi') : t('airdrops')} onAdd={() => openModal(activeTab === 'infofi' ? 'infofi' : 'airdrop')}>
-                     <div className="mb-6 relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                        <input type="text" placeholder="Search projects..." className="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800 font-bold outline-none border-2 border-transparent focus:border-primary-500 transition-all" value={projectSearch} onChange={e => { setProjectSearch(e.target.value); setProjectPage(1); }} />
+                     <div className="mb-6 relative flex gap-3">
+                        <div className="relative flex-1">
+                           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                           <input type="text" placeholder="Search projects..." className="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800 font-bold outline-none border-2 border-transparent focus:border-primary-500 transition-all" value={projectSearch} onChange={e => { setProjectSearch(e.target.value); setProjectPage(1); }} />
+                        </div>
+                        <div className="w-40">
+                           <select
+                              className="w-full h-full bg-slate-50 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest p-2 rounded-2xl border-2 border-transparent focus:border-primary-500 outline-none cursor-pointer"
+                              onChange={(e) => setProjectSearch(e.target.value)}
+                              value={projectSearch}
+                           >
+                              <option value="">All Tags</option>
+                              {['Points', 'DEX', 'PerpDex', 'Lending', 'Bridge', 'L2', 'NFT', 'GameFi', 'Social', 'Infra', 'Wallet', 'Privacy', 'AI', 'RWA', 'Meme'].map(t => (
+                                 <option key={t} value={t}>{t}</option>
+                              ))}
+                           </select>
+                        </div>
                      </div>
                      <div className="space-y-3 mb-8">
-                        {projectList.items.map(a => <ListItem key={a.id} title={a.name} sub={`${a.investment} - ${a.status}`} img={a.icon} onEdit={() => openModal(a.hasInfoFi ? 'infofi' : 'airdrop', a)} onDelete={() => { deleteFromDb('airdrops', a.id); setAirdrops(p => p.filter(x => x.id !== a.id)); }} />)}
+                        {projectList.items.map(a => <ListItem key={a.id} title={a.name} sub={`${a.investment} - ${a.status}`} img={a.icon} tags={a.tags} onEdit={() => openModal(a.hasInfoFi ? 'infofi' : 'airdrop', a)} onDelete={() => { deleteFromDb('airdrops', a.id); setAirdrops(p => p.filter(x => x.id !== a.id)); }} />)}
                         {projectList.count === 0 && <div className="p-20 text-center text-slate-400 font-black uppercase text-xs">No matching units found in current sector.</div>}
                      </div>
                      {projectList.total > 1 && (
@@ -1089,15 +1103,36 @@ const SectionWrapper: React.FC<{ title: string, onAdd?: () => void, children: Re
 
 // Helper removed (hoisted)
 
-const ListItem: React.FC<{ title: string, sub: string, img: string, onEdit: () => void, onDelete: () => void }> = ({ title, sub, img, onEdit, onDelete }) => (
+const ListItem: React.FC<{ title: string, sub: string, img: string, tags?: string[], onEdit: () => void, onDelete: () => void }> = ({ title, sub, img, tags, onEdit, onDelete }) => (
    <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl flex items-center justify-between group border dark:border-slate-700 hover:border-primary-500 transition-all shadow-sm">
       <div className="flex items-center gap-4 min-w-0">
          {img ? <img src={getImgUrl(img)} className="w-12 h-12 rounded-xl object-cover shadow-sm group-hover:scale-110 transition-transform" /> : <div className="w-12 h-12 rounded-xl bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-400 font-black text-[8px]">NO IMG</div>}
-         <div className="min-w-0"><p className="font-black text-sm uppercase truncate w-32 md:w-48">{title}</p><p className="text-[9px] font-black text-slate-400 uppercase tracking-widest truncate w-32 md:w-48">{sub}</p></div>
+         <div className="min-w-0">
+            <p className="font-black text-sm uppercase truncate w-32 md:w-48">{title}</p>
+            <div className="flex items-center gap-2 mt-0.5">
+               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest truncate">{sub}</p>
+               {(tags || []).slice(0, 3).map(tag => (
+                  <span key={tag} className={`text-[8px] font-black px-1.5 py-0.5 rounded ${getAdminHashColor(tag)} text-white uppercase`}>{tag}</span>
+               ))}
+            </div>
+         </div>
       </div>
       <div className="flex gap-1 transition-all"><button onClick={onEdit} className="p-2.5 bg-white dark:bg-slate-900 rounded-xl text-slate-400 hover:text-primary-600 shadow-sm"><Edit size={16} /></button><button onClick={() => { if (confirm("Purge from protocol?")) onDelete(); }} className="p-2.5 bg-white dark:bg-slate-900 rounded-xl text-slate-400 hover:text-red-500 shadow-sm"><Trash2 size={16} /></button></div>
    </div>
 );
+
+const getAdminHashColor = (str: string) => {
+   const colors = [
+      'bg-blue-500', 'bg-purple-500', 'bg-pink-500', 'bg-indigo-500',
+      'bg-cyan-500', 'bg-teal-500', 'bg-emerald-500', 'bg-lime-500',
+      'bg-amber-500', 'bg-orange-500', 'bg-rose-500', 'bg-fuchsia-500'
+   ];
+   let hash = 0;
+   for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+   }
+   return colors[Math.abs(hash) % colors.length];
+};
 
 const StatBox: React.FC<{ label: string, value: any, icon: any }> = ({ label, value, icon }) => (
    <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-6">

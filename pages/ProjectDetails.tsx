@@ -295,6 +295,19 @@ export const ProjectDetails: React.FC = () => {
     return 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500';
   };
 
+  const getHashColor = (str: string) => {
+    const colors = [
+      'bg-blue-500', 'bg-purple-500', 'bg-pink-500', 'bg-indigo-500',
+      'bg-cyan-500', 'bg-teal-500', 'bg-emerald-500', 'bg-lime-500',
+      'bg-amber-500', 'bg-orange-500', 'bg-rose-500', 'bg-fuchsia-500'
+    ];
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+  };
+
   return (
     <div className="max-w-6xl mx-auto pb-24 px-4">
       <Link to={project.hasInfoFi ? "/infofi" : "/"} className="inline-flex items-center gap-2 text-slate-500 hover:text-primary-600 mb-8 transition-colors font-black uppercase text-[10px] tracking-widest"><ChevronLeft size={16} /> {t('airdrops')}</Link>
@@ -315,26 +328,11 @@ export const ProjectDetails: React.FC = () => {
                   <span className={`text-[10px] font-black px-2.5 py-1 rounded-lg ${getStatusStyle(project.status)}`}>{project.status}</span>
                   {project.hasInfoFi && <span className="text-[10px] font-black px-2.5 py-1 bg-primary-600 text-white rounded-lg uppercase">{project.platform || 'InfoFi'}</span>}
                   {(project.tags || []).map((tag: string) => (
-                    <span key={tag} className="text-[10px] font-black px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded-lg uppercase border dark:border-slate-700">#{tag}</span>
+                    <span key={tag} className={`text-[10px] font-black px-2.5 py-1 ${getHashColor(tag)} text-white rounded-lg uppercase shadow-sm`}>{tag}</span>
                   ))}
                 </div>
 
-                {project.referral_code && (
-                  <div className="mb-6 inline-block">
-                    <div className="flex items-center gap-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/50 p-3 pr-4 rounded-2xl relative group cursor-pointer" onClick={() => { navigator.clipboard.writeText(project.referral_code || ''); addToast('Referral code copied!', 'success'); }}>
-                      <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center">
-                        <Users size={18} />
-                      </div>
-                      <div>
-                        <p className="text-[9px] font-black uppercase text-indigo-400 leading-none mb-1">Referral Code</p>
-                        <p className="text-sm font-bold text-indigo-700 dark:text-indigo-300 tracking-widest">{project.referral_code}</p>
-                      </div>
-                      <div className="absolute right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-white dark:bg-slate-900 shadow-sm px-2 py-1 rounded text-[9px] font-bold text-slate-500">
-                        COPY
-                      </div>
-                    </div>
-                  </div>
-                )}
+
 
                 {backerList.length > 0 && (
                   <div className="flex flex-wrap items-center gap-2 mt-4">
@@ -689,6 +687,13 @@ export const ProjectDetails: React.FC = () => {
                 {isProjectTracked ? <CheckCircle size={18} /> : <Plus size={18} />}
                 {isProjectTracked ? 'Tracked' : 'Track Project'}
               </button>
+
+              {project.referral_code && (
+                <button onClick={() => { navigator.clipboard.writeText(project.referral_code || ''); addToast('Referral code copied!', 'success'); }} className="w-full py-4 rounded-xl font-black text-xs flex items-center justify-center gap-3 transition-all active:scale-95 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-900/50">
+                  <Copy size={18} />
+                  Copy Referral Code
+                </button>
+              )}
 
               {project.status === 'Claim Available' && project.claimUrl && (
                 <a href={ensureHttp(project.claimUrl)} target="_blank" className="w-full py-4 rounded-xl font-black text-xs flex items-center justify-center gap-3 transition-all active:scale-95 bg-emerald-500 text-white border border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:scale-[1.02]">
