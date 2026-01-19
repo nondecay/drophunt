@@ -370,10 +370,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsAuthLoading(true);
         if (address) {
           try {
+            // 1. Check Local Flag
             const sessionKey = `verified_session_${address.toLowerCase()}`;
             const verified = sessionStorage.getItem(sessionKey) === 'true';
 
-            // Validate actual Supabase Session
+            // 2. Check Actual Supabase Session (CRITICAL for RLS)
             const { data: { session } } = await supabase.auth.getSession();
 
             if (verified && session) {
@@ -389,11 +390,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 verifyWallet();
               }
             } else {
-              // Connected but not verified OR Session expired
+              // If verified flag is true BUT no session, we must re-verify to get a token.
+              // Otherwise we are Anon and cannot write to DB.
               if (verified && !session) {
-                console.warn("Session expired despite verified flag. Clearing.");
+                console.warn("Session missing despite verified flag. Forcing re-signin.");
                 sessionStorage.removeItem(sessionKey);
               }
+
+              // Not verified
               setIsVerified(false);
               setUser(null);
               verifyWallet();
