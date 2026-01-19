@@ -234,9 +234,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const fetchUserData = async (uid: string) => {
     const [tData, cData, mData] = await Promise.all([
-      supabase.from('todos').select('*').eq('user_id', uid),
-      supabase.from('user_claims').select('*').eq('user_id', uid),
-      supabase.from('inbox_messages').select('*').eq('userId', uid).order('timestamp', { ascending: false })
+      supabase.from('todos').select('*').eq('"userId"', uid),
+      supabase.from('user_claims').select('*').eq('"userId"', uid),
+      supabase.from('inbox_messages').select('*').eq('"userId"', uid).order('timestamp', { ascending: false })
     ]);
     if (tData.data) {
       setUserTasks(tData.data as any);
@@ -316,6 +316,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     if (action === 'add') {
       const newTodo = { ...payload, "userId": user.id };
+
+      // DEBUG: Trace Auth State
+      const { data: sess } = await supabase.auth.getSession();
+      console.log("[ManageTodo] Current Session:", sess.session ? "Active" : "Missing", "User:", user.id);
+
       const { data, error } = await supabase.from('todos').insert(newTodo).select().single();
       if (!error && data) {
         setUserTasks(prev => [data as any, ...prev]);
