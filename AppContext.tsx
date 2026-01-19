@@ -373,7 +373,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             const sessionKey = `verified_session_${address.toLowerCase()}`;
             const verified = sessionStorage.getItem(sessionKey) === 'true';
 
-            if (verified) {
+            // Validate actual Supabase Session
+            const { data: { session } } = await supabase.auth.getSession();
+
+            if (verified && session) {
               const { data: existing } = await supabase.from('users').select('*').eq('address', address.toLowerCase()).single();
               if (existing) {
                 setUser(existing as any);
@@ -386,7 +389,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 verifyWallet();
               }
             } else {
-              // Connected but not verified
+              // Connected but not verified OR Session expired
+              if (verified && !session) {
+                console.warn("Session expired despite verified flag. Clearing.");
+                sessionStorage.removeItem(sessionKey);
+              }
               setIsVerified(false);
               setUser(null);
               verifyWallet();
