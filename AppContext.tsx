@@ -268,12 +268,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // Helper to persist read messages
-  const markMessageRead = (msgId: string) => {
+  // Helper to persist read messages
+  const markMessageRead = async (msgId: string) => {
+    // 1. Optimistic Update (Local Storage & State)
     const currentRead = JSON.parse(localStorage.getItem('read_messages') || '[]');
     if (!currentRead.includes(msgId)) {
       const updated = [...currentRead, msgId];
       localStorage.setItem('read_messages', JSON.stringify(updated));
-      setInbox(prev => prev.map(m => m.id === msgId ? { ...m, isRead: true } : m));
+    }
+    setInbox(prev => prev.map(m => m.id === msgId ? { ...m, isRead: true } : m));
+
+    // 2. Database Update
+    if (user) {
+      await supabase.from('inbox_messages').update({ isRead: true }).eq('id', msgId);
     }
   };
 

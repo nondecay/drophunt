@@ -601,10 +601,25 @@ const AdminPanelContent: React.FC = () => {
                            {msgData.target === 'project' && (
                               <div className="relative">
                                  <label className="text-[10px] font-black uppercase text-slate-400 block mb-2 tracking-widest ml-1">Search Project</label>
-                                 <div className="relative">
-                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                                    <input type="text" className="w-full pl-10 pr-4 py-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-black text-xs outline-none" placeholder="Filter projects..." value={commsSearch} onChange={e => setCommsSearch(e.target.value)} />
-                                 </div>
+
+                                 {/* FIX: Show Selected Project */}
+                                 {msgData.projectId && (
+                                    <div className="mb-3 flex items-center gap-3 p-3 bg-primary-50 dark:bg-slate-800 border border-primary-500 rounded-xl">
+                                       <img src={airdrops.find(a => a.id === msgData.projectId)?.icon} className="w-8 h-8 rounded-lg object-cover" />
+                                       <div className="flex-1">
+                                          <p className="text-[9px] font-black uppercase text-primary-600">Selected Target</p>
+                                          <p className="text-xs font-black">{airdrops.find(a => a.id === msgData.projectId)?.name || 'Unknown Project'}</p>
+                                       </div>
+                                       <button onClick={() => setMsgData({ ...msgData, projectId: '' })} className="p-2 hover:bg-rose-100 dark:hover:bg-slate-700 text-rose-500 rounded-lg transition-colors"><X size={16} /></button>
+                                    </div>
+                                 )}
+
+                                 {!msgData.projectId && (
+                                    <div className="relative">
+                                       <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                                       <input type="text" className="w-full pl-10 pr-4 py-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-black text-xs outline-none" placeholder="Filter projects..." value={commsSearch} onChange={e => setCommsSearch(e.target.value)} />
+                                    </div>
+                                 )}
                                  {commsSearch && commsProjectResults.length > 0 && (
                                     <div className="absolute top-full mt-2 w-full bg-white dark:bg-slate-800 rounded-xl shadow-2xl border dark:border-slate-700 z-50 p-1">
                                        {commsProjectResults.map(p => (
