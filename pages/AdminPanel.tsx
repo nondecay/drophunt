@@ -608,44 +608,7 @@ const AdminPanelContent: React.FC = () => {
                      </SectionWrapper>
                   </div>
                )}
-               <label className="text-[10px] font-black text-slate-400 uppercase mb-2 block">Target Audience (Optional)</label>
-               <div className="flex gap-2 mb-4">
-                  {/* Add Project Selection for Broadcast */}
-                  {!msgData.projectId ? (
-                     <div className="relative flex-1">
-                        <input
-                           type="text"
-                           placeholder="Select a project to target its followers..."
-                           className="w-full bg-slate-100 dark:bg-slate-800 p-3 pl-10 rounded-xl text-xs font-bold border dark:border-slate-700 outline-none focus:border-primary-500 transition-all"
-                           onChange={(e) => {
-                              // Simple Search Logic for dropdown could be here
-                              // For now we just filter the list below if we implemented a dropdown
-                           }}
-                        />
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                        {/* Dropdown for Project Selection - SIMPLIFIED for this context, assuming user types to search or we show list */}
-                        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border dark:border-slate-700 max-h-40 overflow-y-auto z-50">
-                           {airdrops.map(p => (
-                              <button key={p.id} onClick={() => setMsgData(prev => ({ ...prev, projectId: p.id }))} className="w-full text-left px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2">
-                                 <img src={getImgUrl(p.icon)} className="w-6 h-6 rounded-lg object-cover" />
-                                 <span className="text-xs font-black uppercase text-slate-600 dark:text-slate-300">{p.name}</span>
-                              </button>
-                           ))}
-                        </div>
-                     </div>
-                  ) : (
-                     <div className="flex-1 flex items-center justify-between p-3 bg-primary-50 dark:bg-primary-900/20 border border-primary-500/30 rounded-xl">
-                        <div className="flex items-center gap-3">
-                           <img src={getImgUrl(airdrops.find(p => p.id === msgData.projectId)?.icon || '')} className="w-8 h-8 rounded-lg object-cover shadow-sm" />
-                           <div>
-                              <p className="text-[10px] font-black uppercase text-primary-600">Targeting Followers of</p>
-                              <p className="text-xs font-black text-slate-700 dark:text-white">{airdrops.find(p => p.id === msgData.projectId)?.name}</p>
-                           </div>
-                        </div>
-                        <button onClick={() => setMsgData(prev => ({ ...prev, projectId: undefined }))} className="p-2 hover:bg-white dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-rose-500 transition-colors"><X size={16} /></button>
-                     </div>
-                  )}
-               </div>
+
          </div>
 
          {activeTab === 'requests' && (
