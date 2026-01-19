@@ -823,254 +823,254 @@ const AdminPanelContent: React.FC = () => {
                                  </select>
                               </div>
                            </div>
-                        </div>
 
-                     <div className="col-span-2 grid grid-cols-3 gap-3 border-t dark:border-slate-800 pt-6">
-                        <Fld label="Website" val={formData.socials?.website || ''} onChange={v => setFormData({ ...formData, socials: { ...formData.socials, website: v } })} />
-                        <div className="relative">
-                           <Fld label="Twitter" val={formData.socials?.twitter || ''} onChange={v => setFormData({ ...formData, socials: { ...formData.socials, twitter: v } })} />
-                           <button onClick={() => {
-                              const tw = formData.socials?.twitter;
-                              if (!tw) return addToast("Enter Twitter URL first", "error");
-                              const user = tw.split('/').pop();
-                              if (user) {
-                                 setFormData(prev => ({ ...prev, icon: `https://unavatar.io/twitter/${user}`, logo: `https://unavatar.io/twitter/${user}` }));
-                                 addToast("Profile data fetched from Unavatar");
-                              }
-                           }} className="absolute right-2 top-8 p-1.5 bg-sky-500 text-white rounded-lg shadow-sm hover:scale-105 transition-transform" title="Fetch Profile Pic"><Sparkles size={12} /></button>
-                        </div>
-                        <Fld label="Discord" val={formData.socials?.discord || ''} onChange={v => setFormData({ ...formData, socials: { ...formData.socials, discord: v } })} />
-                     </div>
 
-                     <div className="grid grid-cols-2 gap-4">
-                        <Fld label="Campaign URL" val={formData.campaignUrl || ''} onChange={v => setFormData({ ...formData, campaignUrl: v })} />
-                        <Fld label="Claim URL" val={formData.claimUrl || ''} onChange={v => setFormData({ ...formData, claimUrl: v })} />
-                     </div>
+                           <div className="col-span-2 grid grid-cols-3 gap-3 border-t dark:border-slate-800 pt-6">
+                              <Fld label="Website" val={formData.socials?.website || ''} onChange={v => setFormData({ ...formData, socials: { ...formData.socials, website: v } })} />
+                              <div className="relative">
+                                 <Fld label="Twitter" val={formData.socials?.twitter || ''} onChange={v => setFormData({ ...formData, socials: { ...formData.socials, twitter: v } })} />
+                                 <button onClick={() => {
+                                    const tw = formData.socials?.twitter;
+                                    if (!tw) return addToast("Enter Twitter URL first", "error");
+                                    const user = tw.split('/').pop();
+                                    if (user) {
+                                       setFormData(prev => ({ ...prev, icon: `https://unavatar.io/twitter/${user}`, logo: `https://unavatar.io/twitter/${user}` }));
+                                       addToast("Profile data fetched from Unavatar");
+                                    }
+                                 }} className="absolute right-2 top-8 p-1.5 bg-sky-500 text-white rounded-lg shadow-sm hover:scale-105 transition-transform" title="Fetch Profile Pic"><Sparkles size={12} /></button>
+                              </div>
+                              <Fld label="Discord" val={formData.socials?.discord || ''} onChange={v => setFormData({ ...formData, socials: { ...formData.socials, discord: v } })} />
+                           </div>
 
-                     {/* Backers Autocomplete Search */}
-                     <div className="col-span-2 bg-slate-50 dark:bg-slate-950 p-6 rounded-3xl border dark:border-slate-800 space-y-4">
-                        <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{t('backers')}</label>
-                        <div className="relative">
-                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                           <input
-                              type="text"
-                              placeholder="Search investor by name..."
-                              className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-900 rounded-xl text-xs font-bold outline-none border focus:border-primary-500 shadow-sm"
-                              value={backerSearch}
-                              onChange={e => setBackerSearch(e.target.value)}
-                           />
-                           {backerSearch && (
-                              <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-xl shadow-2xl z-[100] max-h-40 overflow-y-auto">
-                                 {backerSearchResults.map(inv => (
-                                    <button key={inv.id} onClick={() => { toggleBackerSelection(inv.id); setBackerSearch(''); }} className={`w-full text-left px-4 py-3 flex items-center justify-between text-[11px] font-black uppercase hover:bg-slate-50 dark:hover:bg-slate-800 ${formData.backerIds?.includes(inv.id) ? 'text-primary-600' : 'text-slate-500'}`}>
-                                       <div className="flex items-center gap-3">
-                                          <img src={inv.logo} className="w-6 h-6 rounded-md object-cover" />
+                           <div className="grid grid-cols-2 gap-4">
+                              <Fld label="Campaign URL" val={formData.campaignUrl || ''} onChange={v => setFormData({ ...formData, campaignUrl: v })} />
+                              <Fld label="Claim URL" val={formData.claimUrl || ''} onChange={v => setFormData({ ...formData, claimUrl: v })} />
+                           </div>
+
+                           {/* Backers Autocomplete Search */}
+                           <div className="col-span-2 bg-slate-50 dark:bg-slate-950 p-6 rounded-3xl border dark:border-slate-800 space-y-4">
+                              <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{t('backers')}</label>
+                              <div className="relative">
+                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                                 <input
+                                    type="text"
+                                    placeholder="Search investor by name..."
+                                    className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-900 rounded-xl text-xs font-bold outline-none border focus:border-primary-500 shadow-sm"
+                                    value={backerSearch}
+                                    onChange={e => setBackerSearch(e.target.value)}
+                                 />
+                                 {backerSearch && (
+                                    <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-xl shadow-2xl z-[100] max-h-40 overflow-y-auto">
+                                       {backerSearchResults.map(inv => (
+                                          <button key={inv.id} onClick={() => { toggleBackerSelection(inv.id); setBackerSearch(''); }} className={`w-full text-left px-4 py-3 flex items-center justify-between text-[11px] font-black uppercase hover:bg-slate-50 dark:hover:bg-slate-800 ${formData.backerIds?.includes(inv.id) ? 'text-primary-600' : 'text-slate-500'}`}>
+                                             <div className="flex items-center gap-3">
+                                                <img src={inv.logo} className="w-6 h-6 rounded-md object-cover" />
+                                                <span>{inv.name}</span>
+                                             </div>
+                                             {formData.backerIds?.includes(inv.id) && <Check size={14} />}
+                                          </button>
+                                       ))}
+                                       {backerSearchResults.length === 0 && <div className="p-4 text-center text-[10px] font-black text-slate-400 uppercase">No entities found</div>}
+                                    </div>
+                                 )}
+                              </div>
+                              <div className="flex flex-wrap gap-2">
+                                 {(formData.backerIds || []).map((id: string) => {
+                                    const inv = investors.find(i => i.id === id);
+                                    return inv ? (
+                                       <div key={id} className="flex items-center gap-2 px-3 py-1.5 bg-primary-600 text-white rounded-xl text-[10px] font-black uppercase shadow-lg">
+                                          <img src={inv.logo} className="w-4 h-4 rounded object-cover" />
                                           <span>{inv.name}</span>
+                                          <button onClick={() => toggleBackerSelection(id)} className="hover:text-red-300"><X size={10} /></button>
                                        </div>
-                                       {formData.backerIds?.includes(inv.id) && <Check size={14} />}
-                                    </button>
-                                 ))}
-                                 {backerSearchResults.length === 0 && <div className="p-4 text-center text-[10px] font-black text-slate-400 uppercase">No entities found</div>}
+                                    ) : null;
+                                 })}
+                              </div>
+                           </div>
+
+                           {showModal === 'infofi' && (
+                              <div className="col-span-2">
+                                 <label className="text-[10px] font-black uppercase text-slate-400 block mb-1">{t('platformLabel')}</label>
+                                 <select className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-xs outline-none" value={formData.platform} onChange={e => setFormData({ ...formData, platform: e.target.value })}>
+                                    {infofiPlatforms.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
+                                 </select>
+                              </div>
+                           )}
+
+                           <div className="col-span-2"><label className="text-[10px] font-black uppercase text-slate-400 block mb-2">Project Info / Details</label><textarea className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-xs h-32 outline-none" value={formData.projectInfo || ''} onChange={e => setFormData({ ...formData, projectInfo: e.target.value })} /></div>
+
+                           <div className="col-span-2 space-y-2">
+                              <label className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400 tracking-widest">
+                                 <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500" checked={!!formData.editorsGuide} onChange={e => { const checked = e.target.checked; setFormData(prev => ({ ...prev, editorsGuide: checked ? '<p>Write your guide here...</p>' : undefined })); }} />
+                                 Enable Editor's Guide
+                              </label>
+
+                              {formData.editorsGuide !== undefined && (
+                                 <div className="bg-slate-50 dark:bg-slate-950 rounded-2xl overflow-hidden border dark:border-slate-800">
+                                    <ReactQuill
+                                       theme="snow"
+                                       value={formData.editorsGuide}
+                                       onChange={(content) => setFormData(prev => ({ ...prev, editorsGuide: content }))}
+                                       modules={quillModules}
+                                       className="h-64 mb-12"
+                                    />
+                                 </div>
+                              )}
+                           </div>
+
+
+
+                           {showModal === 'infofi' && (
+                              <div className="col-span-2 space-y-4 border-t dark:border-slate-800 pt-6 mt-4">
+                                 <h4 className="text-sm font-black uppercase tracking-widest text-amber-500">Leaderboard Management</h4>
+                                 <div className="mb-4">
+                                    <Fld label="Potential Reward (e.g. Top 50 1000$)" val={formData.potentialReward || ''} onChange={v => setFormData({ ...formData, potentialReward: v })} />
+                                 </div>
+                                 <div className="grid grid-cols-1 gap-3">
+                                    {formData.topUsers?.map((u: any, idx: number) => (
+                                       <div key={idx} className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl">
+                                          <span className="w-8 font-black text-xs text-slate-400 text-center">#{idx + 1}</span>
+                                          {u.avatar && <img src={u.avatar} className="w-8 h-8 rounded-full object-cover border border-slate-200" />}
+                                          <div className="flex-1 min-w-0 flex flex-col gap-1">
+                                             <input
+                                                type="text"
+                                                className="w-full bg-white dark:bg-slate-900 p-2 rounded-lg text-[10px] font-bold outline-none"
+                                                placeholder="Twitter Handle / URL"
+                                                value={u.twitterUrl || ''}
+                                                onChange={e => {
+                                                   const val = e.target.value;
+                                                   // Auto-update avatar if URL is pasted
+                                                   const newUsers = [...(formData.topUsers || [])];
+                                                   newUsers[idx] = {
+                                                      ...u,
+                                                      twitterUrl: val
+                                                   };
+
+                                                   if (val.includes('twitter.com') || val.includes('x.com')) {
+                                                      const clean = val.split('?')[0];
+                                                      const parts = clean.split('/');
+                                                      const username = parts[parts.length - 1] || parts[parts.length - 2];
+                                                      if (username) {
+                                                         newUsers[idx].avatar = `https://unavatar.io/twitter/${username}`;
+                                                         newUsers[idx].name = `@${username}`;
+                                                      }
+                                                   }
+                                                   setFormData({ ...formData, topUsers: newUsers });
+                                                }}
+                                             />
+                                             {u.name && <span className="text-[9px] font-black text-primary-600 pl-1">{u.name}</span>}
+                                          </div>
+                                          <button onClick={() => {
+                                             const tw = u.twitterUrl;
+                                             if (!tw) return addToast("Enter Twitter URL", "error");
+                                             const username = tw.split('/').pop()?.split('?')[0];
+                                             if (username) {
+                                                const newUsers = [...(formData.topUsers || [])];
+                                                newUsers[idx] = { ...newUsers[idx], avatar: `https://unavatar.io/twitter/${username}` };
+                                                setFormData({ ...formData, topUsers: newUsers });
+                                                addToast("Fetched avatar");
+                                             }
+                                          }} className="p-1.5 bg-sky-500 text-white rounded-lg shadow-sm hover:scale-105 transition-transform"><Sparkles size={12} /></button>
+                                          {u.avatar && <img src={u.avatar} className="w-8 h-8 rounded-full" />}
+                                       </div>
+                                    ))}
+                                 </div>
+                              </div>
+                           )}
+                        </>
+                     )}
+
+                     {(['gm', 'deploy', 'mint', 'rpg'].includes(showModal || '')) && (
+                        <div className="col-span-2 space-y-4">
+                           <Fld label="Protocol Node Name" val={formData.name || ''} onChange={v => setFormData({ ...formData, name: v })} />
+                           <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                 <label className="text-[10px] font-black uppercase text-slate-400 block mb-1">Target Network</label>
+                                 <select className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-xs outline-none" value={formData.chainId} onChange={e => setFormData({ ...formData, chainId: parseInt(e.target.value) })}>
+                                    {chains.map(c => <option key={c.id} value={c.chainId}>{c.name} ({c.chainId})</option>)}
+                                 </select>
+                              </div>
+                              <Fld label="Function Name (e.g. mint)" val={formData.functionName || ''} onChange={v => setFormData({ ...formData, functionName: v })} />
+                           </div>
+                           <Fld label="Contract Address" val={formData.contractAddress || ''} onChange={v => setFormData({ ...formData, contractAddress: v })} />
+                           <div className="grid grid-cols-2 gap-4">
+                              <Fld label="Fee (ETH)" val={formData.mintFee || '0'} onChange={v => setFormData({ ...formData, mintFee: v })} />
+                              {showModal === 'rpg' ? <Fld label="Bonus XP" val={formData.extraXP?.toString() || '0'} onChange={v => setFormData({ ...formData, extraXP: parseInt(v) })} /> : <Fld label="UI Color (Hex)" val={formData.color || '#7c3aed'} onChange={v => setFormData({ ...formData, color: v })} />}
+                           </div>
+                           <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                 <label className="text-[10px] font-black uppercase text-slate-400 block mb-1">Display Badge</label>
+                                 <select className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-xs outline-none" value={formData.badge} onChange={e => setFormData({ ...formData, badge: e.target.value })}>
+                                    <option value="none">None</option>
+                                    <option value="Popular">Popular</option>
+                                    <option value="NEW">NEW</option>
+                                 </select>
+                              </div>
+                              <div className="flex items-center gap-2 pt-4">
+                                 <input type="checkbox" checked={formData.isTestnet} onChange={e => setFormData({ ...formData, isTestnet: e.target.checked })} className="w-5 h-5 rounded" id="isTest" />
+                                 <label htmlFor="isTest" className="text-[10px] font-black uppercase text-slate-400">Testnet Node?</label>
+                              </div>
+                           </div>
+                        </div>
+                     )}
+
+                     {showModal === 'chain' && (
+                        <>
+                           <Fld label="Network Name" val={formData.name || ''} onChange={v => setFormData({ ...formData, name: v })} />
+                           <Fld label="Chain ID" val={formData.chainId?.toString() || '1'} onChange={v => setFormData({ ...formData, chainId: parseInt(v) })} />
+                           <Fld label="RPC Endpoint" val={formData.rpcUrl || ''} onChange={v => setFormData({ ...formData, rpcUrl: v })} />
+                           <Fld label="Explorer URL" val={formData.explorerUrl || ''} onChange={v => setFormData({ ...formData, explorerUrl: v })} />
+                           <div className="flex items-center gap-2 mt-4 col-span-2">
+                              <input type="checkbox" checked={formData.isTestnet} onChange={e => setFormData({ ...formData, isTestnet: e.target.checked })} className="w-5 h-5 rounded" />
+                              <label className="text-[10px] font-black uppercase text-slate-400">Is Testnet?</label>
+                           </div>
+                        </>
+                     )}
+
+                     {(showModal === 'claim' || showModal === 'presale') && (
+                        <>
+                           <div className="col-span-2"><Fld label="Project Name" val={formData.projectName || ''} onChange={v => setFormData({ ...formData, projectName: v })} /></div>
+                           <div className="col-span-2"><Fld label="Destination Link" val={formData.link || ''} onChange={v => setFormData({ ...formData, link: v })} /></div>
+                           <div className="grid grid-cols-2 gap-4">
+                              {showModal === 'presale' ? <Fld label="Sale FDV" val={formData.fdv || ''} onChange={v => setFormData({ ...formData, fdv: v })} /> : <Fld label="Deadline (e.g. 2024-12-01)" val={formData.deadline || ''} onChange={v => setFormData({ ...formData, deadline: v })} />}
+                              {showModal === 'presale' && <Fld label="Start Date" type="date" val={formData.startDate || ''} onChange={v => setFormData({ ...formData, startDate: v })} />}
+                           </div>
+                           {showModal === 'presale' && (
+                              <div>
+                                 <label className="text-[10px] font-black uppercase text-slate-400 block mb-1">Access Mode</label>
+                                 <select className="w-full p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl font-bold text-xs outline-none" value={formData.whitelist} onChange={e => setFormData({ ...formData, whitelist: e.target.value })}>
+                                    <option value="Public">Public</option>
+                                    <option value="Whitelist">Whitelist</option>
+                                 </select>
+                              </div>
+                           )}
+                           <div className="flex items-center gap-2 mt-4 col-span-2">
+                              <input type="checkbox" checked={formData.isUpcoming} onChange={e => setFormData({ ...formData, isUpcoming: e.target.checked })} className="w-5 h-5 rounded" />
+                              <label className="text-[10px] font-black uppercase text-slate-400">Mark as Upcoming</label>
+                           </div>
+                        </>
+                     )}
+
+                     {!(showModal === 'announcement') && (
+                        <div className="col-span-2 mt-4 p-6 bg-slate-50 dark:bg-slate-900 border-2 border-dashed dark:border-slate-800 rounded-2xl">
+                           <label className="text-[10px] font-black uppercase text-slate-400 block mb-2">Graphic Resource</label>
+                           <input type="file" className="text-xs" onChange={e => handleFile(e, (['airdrop', 'infofi', 'chain', 'claim', 'presale', 'platform', 'investor', 'tool'].includes(showModal || '')) ? (['platform', 'chain', 'investor', 'tool'].includes(showModal || '') ? 'logo' : 'icon') : (showModal === 'mint' ? 'nftImage' : 'logo'))} />
+                           {(formData.icon || formData.logo || formData.nftImage) && (
+                              <div className="mt-4">
+                                 <p className="text-[9px] font-black uppercase text-slate-400 mb-2">Preview</p>
+                                 <img src={formData._preview || getImgUrl(formData.icon || formData.logo || formData.nftImage)} className="h-20 w-20 object-cover rounded-xl shadow-md border dark:border-slate-800" />
                               </div>
                            )}
                         </div>
-                        <div className="flex flex-wrap gap-2">
-                           {(formData.backerIds || []).map((id: string) => {
-                              const inv = investors.find(i => i.id === id);
-                              return inv ? (
-                                 <div key={id} className="flex items-center gap-2 px-3 py-1.5 bg-primary-600 text-white rounded-xl text-[10px] font-black uppercase shadow-lg">
-                                    <img src={inv.logo} className="w-4 h-4 rounded object-cover" />
-                                    <span>{inv.name}</span>
-                                    <button onClick={() => toggleBackerSelection(id)} className="hover:text-red-300"><X size={10} /></button>
-                                 </div>
-                              ) : null;
-                           })}
-                        </div>
-                     </div>
-
-                     {showModal === 'infofi' && (
-                        <div className="col-span-2">
-                           <label className="text-[10px] font-black uppercase text-slate-400 block mb-1">{t('platformLabel')}</label>
-                           <select className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-xs outline-none" value={formData.platform} onChange={e => setFormData({ ...formData, platform: e.target.value })}>
-                              {infofiPlatforms.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
-                           </select>
-                        </div>
                      )}
-
-                     <div className="col-span-2"><label className="text-[10px] font-black uppercase text-slate-400 block mb-2">Project Info / Details</label><textarea className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-xs h-32 outline-none" value={formData.projectInfo || ''} onChange={e => setFormData({ ...formData, projectInfo: e.target.value })} /></div>
-
-                     <div className="col-span-2 space-y-2">
-                        <label className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400 tracking-widest">
-                           <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500" checked={!!formData.editorsGuide} onChange={e => { const checked = e.target.checked; setFormData(prev => ({ ...prev, editorsGuide: checked ? '<p>Write your guide here...</p>' : undefined })); }} />
-                           Enable Editor's Guide
-                        </label>
-
-                        {formData.editorsGuide !== undefined && (
-                           <div className="bg-slate-50 dark:bg-slate-950 rounded-2xl overflow-hidden border dark:border-slate-800">
-                              <ReactQuill
-                                 theme="snow"
-                                 value={formData.editorsGuide}
-                                 onChange={(content) => setFormData(prev => ({ ...prev, editorsGuide: content }))}
-                                 modules={quillModules}
-                                 className="h-64 mb-12"
-                              />
-                           </div>
-                        )}
-                     </div>
-
-
-
-                     {showModal === 'infofi' && (
-                        <div className="col-span-2 space-y-4 border-t dark:border-slate-800 pt-6 mt-4">
-                           <h4 className="text-sm font-black uppercase tracking-widest text-amber-500">Leaderboard Management</h4>
-                           <div className="mb-4">
-                              <Fld label="Potential Reward (e.g. Top 50 1000$)" val={formData.potentialReward || ''} onChange={v => setFormData({ ...formData, potentialReward: v })} />
-                           </div>
-                           <div className="grid grid-cols-1 gap-3">
-                              {formData.topUsers?.map((u: any, idx: number) => (
-                                 <div key={idx} className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl">
-                                    <span className="w-8 font-black text-xs text-slate-400 text-center">#{idx + 1}</span>
-                                    {u.avatar && <img src={u.avatar} className="w-8 h-8 rounded-full object-cover border border-slate-200" />}
-                                    <div className="flex-1 min-w-0 flex flex-col gap-1">
-                                       <input
-                                          type="text"
-                                          className="w-full bg-white dark:bg-slate-900 p-2 rounded-lg text-[10px] font-bold outline-none"
-                                          placeholder="Twitter Handle / URL"
-                                          value={u.twitterUrl || ''}
-                                          onChange={e => {
-                                             const val = e.target.value;
-                                             // Auto-update avatar if URL is pasted
-                                             const newUsers = [...(formData.topUsers || [])];
-                                             newUsers[idx] = {
-                                                ...u,
-                                                twitterUrl: val
-                                             };
-
-                                             if (val.includes('twitter.com') || val.includes('x.com')) {
-                                                const clean = val.split('?')[0];
-                                                const parts = clean.split('/');
-                                                const username = parts[parts.length - 1] || parts[parts.length - 2];
-                                                if (username) {
-                                                   newUsers[idx].avatar = `https://unavatar.io/twitter/${username}`;
-                                                   newUsers[idx].name = `@${username}`;
-                                                }
-                                             }
-                                             setFormData({ ...formData, topUsers: newUsers });
-                                          }}
-                                       />
-                                       {u.name && <span className="text-[9px] font-black text-primary-600 pl-1">{u.name}</span>}
-                                    </div>
-                                    <button onClick={() => {
-                                       const tw = u.twitterUrl;
-                                       if (!tw) return addToast("Enter Twitter URL", "error");
-                                       const username = tw.split('/').pop()?.split('?')[0];
-                                       if (username) {
-                                          const newUsers = [...(formData.topUsers || [])];
-                                          newUsers[idx] = { ...newUsers[idx], avatar: `https://unavatar.io/twitter/${username}` };
-                                          setFormData({ ...formData, topUsers: newUsers });
-                                          addToast("Fetched avatar");
-                                       }
-                                    }} className="p-1.5 bg-sky-500 text-white rounded-lg shadow-sm hover:scale-105 transition-transform"><Sparkles size={12} /></button>
-                                    {u.avatar && <img src={u.avatar} className="w-8 h-8 rounded-full" />}
-                                 </div>
-                              ))}
-                           </div>
-                        </div>
-                     )}
-                  </>
-               )}
-
-                  {(['gm', 'deploy', 'mint', 'rpg'].includes(showModal || '')) && (
-                     <div className="col-span-2 space-y-4">
-                        <Fld label="Protocol Node Name" val={formData.name || ''} onChange={v => setFormData({ ...formData, name: v })} />
-                        <div className="grid grid-cols-2 gap-4">
-                           <div>
-                              <label className="text-[10px] font-black uppercase text-slate-400 block mb-1">Target Network</label>
-                              <select className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-xs outline-none" value={formData.chainId} onChange={e => setFormData({ ...formData, chainId: parseInt(e.target.value) })}>
-                                 {chains.map(c => <option key={c.id} value={c.chainId}>{c.name} ({c.chainId})</option>)}
-                              </select>
-                           </div>
-                           <Fld label="Function Name (e.g. mint)" val={formData.functionName || ''} onChange={v => setFormData({ ...formData, functionName: v })} />
-                        </div>
-                        <Fld label="Contract Address" val={formData.contractAddress || ''} onChange={v => setFormData({ ...formData, contractAddress: v })} />
-                        <div className="grid grid-cols-2 gap-4">
-                           <Fld label="Fee (ETH)" val={formData.mintFee || '0'} onChange={v => setFormData({ ...formData, mintFee: v })} />
-                           {showModal === 'rpg' ? <Fld label="Bonus XP" val={formData.extraXP?.toString() || '0'} onChange={v => setFormData({ ...formData, extraXP: parseInt(v) })} /> : <Fld label="UI Color (Hex)" val={formData.color || '#7c3aed'} onChange={v => setFormData({ ...formData, color: v })} />}
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                           <div>
-                              <label className="text-[10px] font-black uppercase text-slate-400 block mb-1">Display Badge</label>
-                              <select className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-xs outline-none" value={formData.badge} onChange={e => setFormData({ ...formData, badge: e.target.value })}>
-                                 <option value="none">None</option>
-                                 <option value="Popular">Popular</option>
-                                 <option value="NEW">NEW</option>
-                              </select>
-                           </div>
-                           <div className="flex items-center gap-2 pt-4">
-                              <input type="checkbox" checked={formData.isTestnet} onChange={e => setFormData({ ...formData, isTestnet: e.target.checked })} className="w-5 h-5 rounded" id="isTest" />
-                              <label htmlFor="isTest" className="text-[10px] font-black uppercase text-slate-400">Testnet Node?</label>
-                           </div>
-                        </div>
-                     </div>
-                  )}
-
-                  {showModal === 'chain' && (
-                     <>
-                        <Fld label="Network Name" val={formData.name || ''} onChange={v => setFormData({ ...formData, name: v })} />
-                        <Fld label="Chain ID" val={formData.chainId?.toString() || '1'} onChange={v => setFormData({ ...formData, chainId: parseInt(v) })} />
-                        <Fld label="RPC Endpoint" val={formData.rpcUrl || ''} onChange={v => setFormData({ ...formData, rpcUrl: v })} />
-                        <Fld label="Explorer URL" val={formData.explorerUrl || ''} onChange={v => setFormData({ ...formData, explorerUrl: v })} />
-                        <div className="flex items-center gap-2 mt-4 col-span-2">
-                           <input type="checkbox" checked={formData.isTestnet} onChange={e => setFormData({ ...formData, isTestnet: e.target.checked })} className="w-5 h-5 rounded" />
-                           <label className="text-[10px] font-black uppercase text-slate-400">Is Testnet?</label>
-                        </div>
-                     </>
-                  )}
-
-                  {(showModal === 'claim' || showModal === 'presale') && (
-                     <>
-                        <div className="col-span-2"><Fld label="Project Name" val={formData.projectName || ''} onChange={v => setFormData({ ...formData, projectName: v })} /></div>
-                        <div className="col-span-2"><Fld label="Destination Link" val={formData.link || ''} onChange={v => setFormData({ ...formData, link: v })} /></div>
-                        <div className="grid grid-cols-2 gap-4">
-                           {showModal === 'presale' ? <Fld label="Sale FDV" val={formData.fdv || ''} onChange={v => setFormData({ ...formData, fdv: v })} /> : <Fld label="Deadline (e.g. 2024-12-01)" val={formData.deadline || ''} onChange={v => setFormData({ ...formData, deadline: v })} />}
-                           {showModal === 'presale' && <Fld label="Start Date" type="date" val={formData.startDate || ''} onChange={v => setFormData({ ...formData, startDate: v })} />}
-                        </div>
-                        {showModal === 'presale' && (
-                           <div>
-                              <label className="text-[10px] font-black uppercase text-slate-400 block mb-1">Access Mode</label>
-                              <select className="w-full p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl font-bold text-xs outline-none" value={formData.whitelist} onChange={e => setFormData({ ...formData, whitelist: e.target.value })}>
-                                 <option value="Public">Public</option>
-                                 <option value="Whitelist">Whitelist</option>
-                              </select>
-                           </div>
-                        )}
-                        <div className="flex items-center gap-2 mt-4 col-span-2">
-                           <input type="checkbox" checked={formData.isUpcoming} onChange={e => setFormData({ ...formData, isUpcoming: e.target.checked })} className="w-5 h-5 rounded" />
-                           <label className="text-[10px] font-black uppercase text-slate-400">Mark as Upcoming</label>
-                        </div>
-                     </>
-                  )}
-
-                  {!(showModal === 'announcement') && (
-                     <div className="col-span-2 mt-4 p-6 bg-slate-50 dark:bg-slate-900 border-2 border-dashed dark:border-slate-800 rounded-2xl">
-                        <label className="text-[10px] font-black uppercase text-slate-400 block mb-2">Graphic Resource</label>
-                        <input type="file" className="text-xs" onChange={e => handleFile(e, (['airdrop', 'infofi', 'chain', 'claim', 'presale', 'platform', 'investor', 'tool'].includes(showModal || '')) ? (['platform', 'chain', 'investor', 'tool'].includes(showModal || '') ? 'logo' : 'icon') : (showModal === 'mint' ? 'nftImage' : 'logo'))} />
-                        {(formData.icon || formData.logo || formData.nftImage) && (
-                           <div className="mt-4">
-                              <p className="text-[9px] font-black uppercase text-slate-400 mb-2">Preview</p>
-                              <img src={formData._preview || getImgUrl(formData.icon || formData.logo || formData.nftImage)} className="h-20 w-20 object-cover rounded-xl shadow-md border dark:border-slate-800" />
-                           </div>
-                        )}
-                     </div>
-                  )}
+                  </div>
+                  <button onClick={handleSave} className="w-full mt-10 py-6 bg-primary-600 text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-2"><Save size={18} /> Synchronize Protocol</button>
                </div>
-               <button onClick={handleSave} className="w-full mt-10 py-6 bg-primary-600 text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-2"><Save size={18} /> Synchronize Protocol</button>
-            </div>
+            </div >
+         )
+         }
       </div >
-   )
-}
-         </div >
-         );
+   );
 };
 
 const NavBtn: React.FC<{ icon: any, label: string, active: boolean, count?: number, onClick: () => void }> = ({ icon, label, active, count, onClick }) => (
