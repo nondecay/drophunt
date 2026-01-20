@@ -225,13 +225,8 @@ const MobileProjectCard: React.FC<{ project: Airdrop, isTracked: boolean, onTrac
           <p className="font-black text-sm dark:text-white">${project.investment}</p>
         </div>
         <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl">
-          <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">Types</p>
-          <div className="flex flex-wrap gap-1">
-            {(project.tags || []).slice(0, 3).map(tag => (
-              <span key={tag} className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded ${getHashColor(tag)} text-white`}>{tag}</span>
-            ))}
-            {(!project.tags || project.tags.length === 0) && <span className="text-[9px] font-bold text-slate-400">-</span>}
-          </div>
+          <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">Type</p>
+          <span className={`text-[9px] font-black uppercase px-2 py-1 rounded ${getTypeStyle(project.type)}`}>{project.type}</span>
         </div>
         {project.hasInfoFi && (
           <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl col-span-2 flex items-center justify-between">

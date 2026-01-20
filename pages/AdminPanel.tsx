@@ -5,7 +5,7 @@ import { supabase } from '../supabaseClient';
 import {
    Shield, LayoutDashboard, Users, MessageSquare, Check, Trash2, Edit, Plus, Bell, Zap, X,
    Mail, Ticket, BarChart3, Star, Trophy, ArrowUpCircle, Sword, Globe, ExternalLink, Map, Sun, Sparkles, Youtube, Github, Twitter, Save, UserPlus, Link2, Calendar, UserCheck, ShieldAlert, Send,
-   Layers, Search, Info, Megaphone, TrendingUp, ChevronRight, Lock, Clock, History, ChevronLeft, Wrench
+   Layers, Search, Info, Megaphone, TrendingUp, ChevronRight, Lock, Clock, History, ChevronLeft, Wrench, ChevronDown, Filter
 } from 'lucide-react';
 import { OnChainActivity, Airdrop, Claim, Guide, Comment, TopUser, Chain, User, InfoFiPlatform, Announcement, Investor, Tool, ToolCategory } from '../types';
 import ReactQuill from 'react-quill';
@@ -1108,10 +1108,10 @@ const ListItem: React.FC<{ title: string, sub: string, img: string, tags?: strin
    <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl flex items-center justify-between group border dark:border-slate-700 hover:border-primary-500 transition-all shadow-sm">
       <div className="flex items-center gap-4 min-w-0">
          {img ? <img src={getImgUrl(img)} className="w-12 h-12 rounded-xl object-cover shadow-sm group-hover:scale-110 transition-transform" /> : <div className="w-12 h-12 rounded-xl bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-400 font-black text-[8px]">NO IMG</div>}
-         <div className="min-w-0">
-            <p className="font-black text-sm uppercase truncate w-32 md:w-48">{title}</p>
-            <div className="flex items-center gap-2 mt-0.5">
-               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest truncate">{sub}</p>
+         <div className="min-w-0 flex-1">
+            <p className="font-black text-sm uppercase truncate">{title}</p>
+            <div className="flex flex-wrap items-center gap-2 mt-0.5">
+               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">{sub}</p>
                {(tags || []).slice(0, 3).map(tag => (
                   <span key={tag} className={`text-[8px] font-black px-1.5 py-0.5 rounded ${getAdminHashColor(tag)} text-white uppercase`}>{tag}</span>
                ))}
