@@ -206,36 +206,7 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
     return 0;
   });
 
-  // ... rest of Home implementation (render MultiSelect instead of CustomSelect for tags)
-  const [showRequestModal, setShowRequestModal] = useState(false);
-  const [reqData, setReqData] = useState({ name: '', twitter: '' });
 
-  const itemsPerPage = 20;
-
-  const uniqueTags = React.useMemo(() => {
-    const tags = new Set<string>();
-    airdrops.forEach(a => (a.tags || []).forEach(t => tags.add(t)));
-    return Array.from(tags).sort();
-  }, [airdrops]);
-
-  const filtered = airdrops.filter(a => {
-    if (!a) return false;
-    const nameMatch = (a.name || '').toLowerCase().includes(search.toLowerCase());
-    const isInfoFiProject = a.hasInfoFi === true;
-    const categoryMatch = category === 'infofi' ? isInfoFiProject : !isInfoFiProject;
-
-    const platformMatch = category === 'infofi' ? (platformFilter === 'all' || a.platform === platformFilter) : true;
-    const typeMatch = typeFilter === 'all' ? true : a.type === typeFilter;
-    const statusMatch = statusFilter === 'all' ? true : a.status === statusFilter;
-    const ratingMatch = ratingFilter === 'all' ? true : (ratingFilter === 'high' ? a.rating >= 4 : a.rating < 3);
-    const tagMatch = tagFilter === 'all' ? true : (a.tags || []).includes(tagFilter);
-
-    return nameMatch && categoryMatch && platformMatch && typeMatch && statusMatch && ratingMatch && tagMatch;
-  }).sort((a, b) => {
-    if (sortBy === 'newest') return (b.createdAt || 0) - (a.createdAt || 0);
-    if (sortBy === 'oldest') return (a.createdAt || 0) - (b.createdAt || 0);
-    return 0;
-  });
 
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const currentItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
