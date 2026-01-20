@@ -192,6 +192,16 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
   const [search, setSearch] = useState('');
   const [platformFilter, setPlatformFilter] = useState('all');
   const [tagFilter, setTagFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [ratingFilter, setRatingFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('newest');
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showRequestModal, setShowRequestModal] = useState(false);
+  const [reqData, setReqData] = useState({ name: '', twitter: '' });
+
+  const itemsPerPage = 20;
 
   const uniqueTags = React.useMemo(() => {
     const tags = new Set<string>();
