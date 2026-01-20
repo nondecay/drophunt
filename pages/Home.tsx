@@ -23,6 +23,100 @@ const getHashColor = (str: string) => {
   return colors[Math.abs(hash) % colors.length];
 };
 
+const PartialStar: React.FC<{ rating: number }> = ({ rating }) => {
+  const stars = [];
+  for (let i = 1; i <= 5; i++) {
+    const diff = (rating || 0) - (i - 1);
+    const fill = Math.min(100, Math.max(0, diff * 100));
+    stars.push(
+      <div key={i} className="relative w-4 h-4">
+        <Star size={14} className="text-slate-200" />
+        <div className="absolute inset-0 overflow-hidden" style={{ width: `${fill}%` }}>
+          <Star size={14} className="fill-yellow-400 text-yellow-400" />
+        </div>
+      </div>
+    );
+  }
+  return <div className="flex gap-0.5">{stars}</div>;
+};
+
+const CustomSelect: React.FC<{ value: string, options: { label: string, value: string, logo?: string }[], onChange: (v: string) => void, icon?: any }> = ({ value, options, onChange, icon }) => {
+  const [open, setOpen] = useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const active = options.find(o => o.value === value);
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button onClick={() => setOpen(!open)} className="flex items-center justify-between gap-3 px-4 py-3 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl font-bold text-xs shadow-sm hover:border-primary-500 transition-all min-w-[140px]">
+        <div className="flex items-center gap-2">
+          {active?.logo ? <img src={getImgUrl(active.logo)} className="w-4 h-4 object-contain" /> : icon}
+          <span className="truncate">{active?.label || value}</span>
+        </div>
+        <ChevronDown size={14} className={`text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="absolute top-full mt-2 w-full min-w-[180px] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border dark:border-slate-800 p-2 z-[100] animate-in fade-in slide-in-from-top-2">
+          {options.map(opt => (
+            <button key={opt.value} onClick={() => { onChange(opt.value); setOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-xl text-[11px] font-black uppercase transition-all flex items-center justify-between ${value === opt.value ? 'bg-primary-600 text-white shadow-lg' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>
+              <div className="flex items-center gap-2">
+                {opt.logo && <img src={getImgUrl(opt.logo)} className="w-4 h-4 object-contain" />}
+                {opt.label}
+              </div>
+              {value === opt.value && <Check size={12} />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const AnnouncementSlider: React.FC = () => {
+  const { announcements } = useApp();
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (announcements.length <= 1) return;
+    const itv = setInterval(() => setIndex(i => (i + 1) % announcements.length), 5000);
+    return () => clearInterval(itv);
+  }, [announcements.length]);
+
+  if (announcements.length === 0) return null;
+
+  const current = announcements[index];
+
+  return (
+    <div className="w-full bg-primary-600 text-white py-3 px-6 mb-8 rounded-[1.5rem] shadow-lg shadow-primary-500/20 relative overflow-hidden h-12 flex items-center">
+      <div className="flex items-center gap-3 w-full animate-in slide-in-from-bottom-4 duration-700" key={current.id}>
+        <span className="text-xl">{current.emoji || '📢'}</span>
+        <div className="flex-1 min-w-0">
+          {current.link ? (
+            <a href={current.link} target="_blank" className="font-black text-xs uppercase tracking-widest truncate block hover:underline flex items-center gap-2 transition-all">
+              {current.text} <ExternalLink size={10} />
+            </a>
+          ) : (
+            <span className="font-black text-xs uppercase tracking-widest truncate block">{current.text}</span>
+          )}
+        </div>
+      </div>
+      <div className="absolute right-4 flex gap-1.5 opacity-40">
+        {announcements.map((_, i) => (
+          <div key={i} className={`w-1.5 h-1.5 rounded-full transition-all ${i === index ? 'bg-white scale-125' : 'bg-white/40'}`} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const MultiSelect: React.FC<{ value: string[], options: { label: string, value: string }[], onChange: (v: string[]) => void, icon?: any, label: string }> = ({ value, options, onChange, icon, label }) => {
   const [open, setOpen] = useState(false);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
