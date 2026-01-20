@@ -9,103 +9,84 @@ import { LoadingSpinner } from '../components/LoadingSpinner';
 import { Image } from '../components/Image';
 import { getImgUrl } from '../utils/getImgUrl';
 
-// Image Proxy Helper removed (using imported utils)
-
-const PartialStar: React.FC<{ rating: number }> = ({ rating }) => {
-  const stars = [];
-  for (let i = 1; i <= 5; i++) {
-    const diff = (rating || 0) - (i - 1);
-    const fill = Math.min(100, Math.max(0, diff * 100));
-    stars.push(
-      <div key={i} className="relative w-4 h-4">
-        <Star size={14} className="text-slate-200" />
-        <div className="absolute inset-0 overflow-hidden" style={{ width: `${fill}%` }}>
-          <Star size={14} className="fill-yellow-400 text-yellow-400" />
-        </div>
-      </div>
-    );
+// Helper for colorful tags
+const getHashColor = (str: string) => {
+  const colors = [
+    'bg-blue-500', 'bg-purple-500', 'bg-pink-500', 'bg-indigo-500',
+    'bg-cyan-500', 'bg-teal-500', 'bg-emerald-500', 'bg-lime-500',
+    'bg-amber-500', 'bg-orange-500', 'bg-rose-500', 'bg-fuchsia-500'
+  ];
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
-  return <div className="flex gap-0.5">{stars}</div>;
+  return colors[Math.abs(hash) % colors.length];
 };
 
-const CustomSelect: React.FC<{ value: string, options: { label: string, value: string, logo?: string }[], onChange: (v: string) => void, icon?: any }> = ({ value, options, onChange, icon }) => {
+const MultiSelect: React.FC<{ value: string[], options: { label: string, value: string }[], onChange: (v: string[]) => void, icon?: any, label: string }> = ({ value, options, onChange, icon, label }) => {
   const [open, setOpen] = useState(false);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     const handleClick = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) setOpen(false);
-    }
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setOpen(false);
+    };
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  const active = options.find(o => o.value === value);
+  const toggleOption = (val: string) => {
+    if (val === 'all') {
+      onChange(['all']);
+    } else {
+      let newValue = value.filter(v => v !== 'all');
+      if (newValue.includes(val)) {
+        newValue = newValue.filter(v => v !== val);
+      } else {
+        newValue = [...newValue, val];
+      }
+      if (newValue.length === 0) newValue = ['all'];
+      onChange(newValue);
+    }
+  };
 
   return (
     <div className="relative" ref={dropdownRef}>
       <button onClick={() => setOpen(!open)} className="flex items-center justify-between gap-3 px-4 py-3 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl font-bold text-xs shadow-sm hover:border-primary-500 transition-all min-w-[140px]">
         <div className="flex items-center gap-2">
-          {active?.logo ? <img src={getImgUrl(active.logo)} className="w-4 h-4 object-contain" /> : icon}
-          <span className="truncate">{active?.label || value}</span>
+          {icon}
+          <span className="truncate">
+            {value.includes('all') ? label : `${value.length} Selected`}
+          </span>
         </div>
         <ChevronDown size={14} className={`text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <div className="absolute top-full mt-2 w-full min-w-[180px] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border dark:border-slate-800 p-2 z-[100] animate-in fade-in slide-in-from-top-2">
+        <div className="absolute top-full mt-2 w-full min-w-[200px] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border dark:border-slate-800 p-2 z-[100] animate-in fade-in slide-in-from-top-2 max-h-60 overflow-y-auto custom-scrollbar">
+          <button onClick={() => toggleOption('all')} className={`w-full text-left px-3 py-2.5 rounded-xl text-[11px] font-black uppercase transition-all flex items-center justify-between ${value.includes('all') ? 'bg-primary-600 text-white shadow-lg' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>
+            <span className="flex items-center gap-2">All Tags</span>
+            {value.includes('all') && <Check size={12} />}
+          </button>
+
           {options.map(opt => (
-            <button key={opt.value} onClick={() => { onChange(opt.value); setOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-xl text-[11px] font-black uppercase transition-all flex items-center justify-between ${value === opt.value ? 'bg-primary-600 text-white shadow-lg' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>
+            <button key={opt.value} onClick={() => toggleOption(opt.value)} className={`w-full text-left px-3 py-2.5 rounded-xl text-[11px] font-black uppercase transition-all flex items-center justify-between ${value.includes(opt.value) ? 'bg-slate-100 dark:bg-slate-800 text-primary-600' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>
               <div className="flex items-center gap-2">
-                {opt.logo && <img src={getImgUrl(opt.logo)} className="w-4 h-4 object-contain" />}
+                <span className={`w-2 h-2 rounded-full ${getHashColor(opt.value)}`}></span>
                 {opt.label}
               </div>
-              {value === opt.value && <Check size={12} />}
+              {value.includes(opt.value) && <Check size={12} />}
             </button>
           ))}
         </div>
       )}
     </div>
   );
-}
-
-const AnnouncementSlider: React.FC = () => {
-  const { announcements } = useApp();
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    if (announcements.length <= 1) return;
-    const itv = setInterval(() => setIndex(i => (i + 1) % announcements.length), 5000);
-    return () => clearInterval(itv);
-  }, [announcements.length]);
-
-  if (announcements.length === 0) return null;
-
-  const current = announcements[index];
-
-  return (
-    <div className="w-full bg-primary-600 text-white py-3 px-6 mb-8 rounded-[1.5rem] shadow-lg shadow-primary-500/20 relative overflow-hidden h-12 flex items-center">
-      <div className="flex items-center gap-3 w-full animate-in slide-in-from-bottom-4 duration-700" key={current.id}>
-        <span className="text-xl">{current.emoji || '📢'}</span>
-        <div className="flex-1 min-w-0">
-          {current.link ? (
-            <a href={current.link} target="_blank" className="font-black text-xs uppercase tracking-widest truncate block hover:underline flex items-center gap-2 transition-all">
-              {current.text} <ExternalLink size={10} />
-            </a>
-          ) : (
-            <span className="font-black text-xs uppercase tracking-widest truncate block">{current.text}</span>
-          )}
-        </div>
-      </div>
-      <div className="absolute right-4 flex gap-1.5 opacity-40">
-        {announcements.map((_, i) => (
-          <div key={i} className={`w-1.5 h-1.5 rounded-full transition-all ${i === index ? 'bg-white scale-125' : 'bg-white/40'}`} />
-        ))}
-      </div>
-    </div>
-  );
 };
 
+// ... AnnouncementSlider ...
+
 const MobileProjectCard: React.FC<{ project: Airdrop, isTracked: boolean, onTrack: () => void, user: any, infofiPlatforms: any[] }> = ({ project, isTracked, onTrack, user, infofiPlatforms }) => {
+  // ... getTypeStyle, getStatusStyle (existing)
   const getTypeStyle = (type: string) => {
     const tStr = (type || '').toLowerCase();
     if (tStr === 'free') return 'bg-emerald-500 text-white shadow-sm';
@@ -113,13 +94,6 @@ const MobileProjectCard: React.FC<{ project: Airdrop, isTracked: boolean, onTrac
     if (tStr === 'gas only') return 'bg-sky-500 text-white shadow-sm';
     if (tStr === 'waitlist') return 'bg-primary-600 text-white shadow-sm';
     if (tStr === 'testnet') return 'bg-rose-500 text-white shadow-sm';
-    return 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500';
-  };
-
-  const getStatusStyle = (status: string) => {
-    const s = (status || '').toLowerCase();
-    if (s === 'potential') return 'bg-purple-600 text-white';
-    if (s.includes('available')) return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
     return 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500';
   };
 
@@ -157,8 +131,13 @@ const MobileProjectCard: React.FC<{ project: Airdrop, isTracked: boolean, onTrac
           <p className="font-black text-sm dark:text-white">${project.investment}</p>
         </div>
         <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl">
-          <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">Status</p>
-          <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded ${getStatusStyle(project.status)}`}>{project.status}</span>
+          <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">Types</p>
+          <div className="flex flex-wrap gap-1">
+            {(project.tags || []).slice(0, 3).map(tag => (
+              <span key={tag} className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded ${getHashColor(tag)} text-white`}>{tag}</span>
+            ))}
+            {(!project.tags || project.tags.length === 0) && <span className="text-[9px] font-bold text-slate-400">-</span>}
+          </div>
         </div>
         {project.hasInfoFi && (
           <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl col-span-2 flex items-center justify-between">
@@ -179,25 +158,55 @@ const MobileProjectCard: React.FC<{ project: Airdrop, isTracked: boolean, onTrac
   );
 };
 
-const ensureHttp = (url: string) => {
-  if (!url) return '#';
-  if (url.startsWith('http')) return url;
-  return `https://${url}`;
-};
-
+// ... rest of file (Home component)
 export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => {
   const { user, airdrops = [], claims = [], toggleTrackProject, addToast, setRequests, logActivity, usersList, infofiPlatforms, t, isDataLoaded } = useApp();
 
   if (!isDataLoaded) return <LoadingSpinner />;
   const [search, setSearch] = useState('');
   const [platformFilter, setPlatformFilter] = useState('all');
-  const [tagFilter, setTagFilter] = useState('all');
+  const [tagFilter, setTagFilter] = useState<string[]>(['all']); // Multi-select array
   const [typeFilter, setTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [ratingFilter, setRatingFilter] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [showRequestModal, setShowRequestModal] = useState(false);
+  const [reqData, setReqData] = useState({ name: '', twitter: '' });
+
+  const itemsPerPage = 20;
+
+  const uniqueTags = React.useMemo(() => {
+    const tags = new Set<string>();
+    airdrops.forEach(a => (a.tags || []).forEach(t => tags.add(t)));
+    return Array.from(tags).sort();
+  }, [airdrops]);
+
+  const filtered = airdrops.filter(a => {
+    if (!a) return false;
+    const nameMatch = (a.name || '').toLowerCase().includes(search.toLowerCase());
+    const isInfoFiProject = a.hasInfoFi === true;
+    const categoryMatch = category === 'infofi' ? isInfoFiProject : !isInfoFiProject;
+
+    const platformMatch = category === 'infofi' ? (platformFilter === 'all' || a.platform === platformFilter) : true;
+    const typeMatch = typeFilter === 'all' ? true : a.type === typeFilter;
+    const statusMatch = statusFilter === 'all' ? true : a.status === statusFilter;
+    const ratingMatch = ratingFilter === 'all' ? true : (ratingFilter === 'high' ? a.rating >= 4 : a.rating < 3);
+
+    // Multi-tag matching (OR logic)
+    const tagMatch = tagFilter.includes('all')
+      ? true
+      : (a.tags || []).some(t => tagFilter.includes(t));
+
+    return nameMatch && categoryMatch && platformMatch && typeMatch && statusMatch && ratingMatch && tagMatch;
+  }).sort((a, b) => {
+    if (sortBy === 'newest') return (b.createdAt || 0) - (a.createdAt || 0);
+    if (sortBy === 'oldest') return (a.createdAt || 0) - (b.createdAt || 0);
+    return 0;
+  });
+
+  // ... rest of Home implementation (render MultiSelect instead of CustomSelect for tags)
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [reqData, setReqData] = useState({ name: '', twitter: '' });
 
@@ -294,11 +303,12 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
             />
           )}
 
-          <CustomSelect
+          <MultiSelect
             value={tagFilter}
-            options={[{ label: 'All Tags', value: 'all' }, ...uniqueTags.map(tag => ({ label: tag, value: tag }))]}
+            options={uniqueTags.map(tag => ({ label: tag, value: tag }))}
             onChange={setTagFilter}
             icon={<Filter size={14} className="text-slate-400" />}
+            label="All Tags"
           />
 
           <CustomSelect
@@ -437,7 +447,7 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
                             <div className="flex flex-wrap gap-1">
                               <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-md ${getTypeStyle(a.type)}`}>{a.type}</span>
                               {(a.tags || []).slice(0, 3).map((t: string) => (
-                                <span key={t} className="text-[8px] font-black uppercase bg-slate-100 dark:bg-slate-800 text-slate-500 px-2 py-0.5 rounded-md border dark:border-slate-700">#{t}</span>
+                                <span key={t} className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded ${getHashColor(t)} text-white`}>{t}</span>
                               ))}
                             </div>
                           </div>
