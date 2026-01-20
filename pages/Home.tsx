@@ -191,16 +191,13 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
   if (!isDataLoaded) return <LoadingSpinner />;
   const [search, setSearch] = useState('');
   const [platformFilter, setPlatformFilter] = useState('all');
-  const [typeFilter, setTypeFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [ratingFilter, setRatingFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('newest');
+  const [tagFilter, setTagFilter] = useState('all');
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [showRequestModal, setShowRequestModal] = useState(false);
-  const [reqData, setReqData] = useState({ name: '', twitter: '' });
-
-  const itemsPerPage = 20;
+  const uniqueTags = React.useMemo(() => {
+    const tags = new Set<string>();
+    airdrops.forEach(a => (a.tags || []).forEach(t => tags.add(t)));
+    return Array.from(tags).sort();
+  }, [airdrops]);
 
   const filtered = airdrops.filter(a => {
     if (!a) return false;
@@ -212,8 +209,9 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
     const typeMatch = typeFilter === 'all' ? true : a.type === typeFilter;
     const statusMatch = statusFilter === 'all' ? true : a.status === statusFilter;
     const ratingMatch = ratingFilter === 'all' ? true : (ratingFilter === 'high' ? a.rating >= 4 : a.rating < 3);
+    const tagMatch = tagFilter === 'all' ? true : (a.tags || []).includes(tagFilter);
 
-    return nameMatch && categoryMatch && platformMatch && typeMatch && statusMatch && ratingMatch;
+    return nameMatch && categoryMatch && platformMatch && typeMatch && statusMatch && ratingMatch && tagMatch;
   }).sort((a, b) => {
     if (sortBy === 'newest') return (b.createdAt || 0) - (a.createdAt || 0);
     if (sortBy === 'oldest') return (a.createdAt || 0) - (b.createdAt || 0);
@@ -285,6 +283,13 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
               icon={<Filter size={14} className="text-slate-400" />}
             />
           )}
+
+          <CustomSelect
+            value={tagFilter}
+            options={[{ label: 'All Tags', value: 'all' }, ...uniqueTags.map(tag => ({ label: tag, value: tag }))]}
+            onChange={setTagFilter}
+            icon={<Filter size={14} className="text-slate-400" />}
+          />
 
           <CustomSelect
             value={typeFilter}
@@ -419,7 +424,12 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
                           </div>
                           <div className="min-w-0">
                             <span className="font-black text-base block leading-tight mb-1 group-hover:text-primary-600 transition-colors uppercase truncate">{a.name}</span>
-                            <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-md ${getTypeStyle(a.type)}`}>{a.type}</span>
+                            <div className="flex flex-wrap gap-1">
+                              <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-md ${getTypeStyle(a.type)}`}>{a.type}</span>
+                              {(a.tags || []).slice(0, 3).map((t: string) => (
+                                <span key={t} className="text-[8px] font-black uppercase bg-slate-100 dark:bg-slate-800 text-slate-500 px-2 py-0.5 rounded-md border dark:border-slate-700">#{t}</span>
+                              ))}
+                            </div>
                           </div>
                         </Link>
                       </td>
