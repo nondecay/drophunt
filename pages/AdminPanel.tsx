@@ -690,9 +690,9 @@ const AdminPanelContent: React.FC = () => {
                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                            <input type="text" placeholder="Search projects..." className="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800 font-bold outline-none border-2 border-transparent focus:border-primary-500 transition-all" value={projectSearch} onChange={e => { setProjectSearch(e.target.value); setProjectPage(1); }} />
                         </div>
-                        <div className="w-40">
+                        <div className="relative">
                            <select
-                              className="w-full h-full bg-slate-50 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest p-2 rounded-2xl border-2 border-transparent focus:border-primary-500 outline-none cursor-pointer"
+                              className="w-40 h-full bg-slate-50 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest p-4 rounded-2xl border-2 border-transparent focus:border-primary-500 outline-none cursor-pointer appearance-none"
                               onChange={(e) => setProjectSearch(e.target.value)}
                               value={projectSearch}
                            >
@@ -701,6 +701,7 @@ const AdminPanelContent: React.FC = () => {
                                  <option key={t} value={t}>{t}</option>
                               ))}
                            </select>
+                           <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
                         </div>
                      </div>
                      <div className="space-y-3 mb-8">

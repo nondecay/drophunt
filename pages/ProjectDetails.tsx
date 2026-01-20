@@ -691,7 +691,7 @@ export const ProjectDetails: React.FC = () => {
               {project.referral_code && (
                 <button onClick={() => { navigator.clipboard.writeText(project.referral_code || ''); addToast('Referral code copied!', 'success'); }} className="w-full py-4 rounded-xl font-black text-xs flex items-center justify-center gap-3 transition-all active:scale-95 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-900/50">
                   <Copy size={18} />
-                  Copy Referral Code
+                  {project.referral_code}
                 </button>
               )}
 

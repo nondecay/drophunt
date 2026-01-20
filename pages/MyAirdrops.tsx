@@ -628,15 +628,12 @@ const ProjectCard: React.FC<{ project: any, onUntrack: () => void, t_func: any, 
         <img src={getImgUrl(project.icon)} className="w-12 h-12 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform" />
         <div className="min-w-0">
           <h4 className="font-black text-sm uppercase truncate">{project.name}</h4>
-          {project.hasInfoFi ? (
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest truncate">{project.platform}</p>
-          ) : (
-            <div className="flex flex-wrap gap-1 mt-1">
-              {(project.tags || []).slice(0, 3).map((t: string) => (
-                <span key={t} className="text-[8px] font-black uppercase bg-slate-100 dark:bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded border dark:border-slate-700">#{t}</span>
-              ))}
-            </div>
-          )}
+          <div className="flex flex-wrap gap-1 mt-1">
+            {project.hasInfoFi && <span className="text-[8px] font-black uppercase bg-primary-50 dark:bg-primary-900/20 text-primary-600 px-1.5 py-0.5 rounded border dark:border-primary-900/50">{project.platform}</span>}
+            {(project.tags || []).slice(0, 3).map((t: string) => (
+              <span key={t} className="text-[8px] font-black uppercase bg-slate-100 dark:bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded border dark:border-slate-700">#{t}</span>
+            ))}
+          </div>
         </div>
       </div>
       <button onClick={onUntrack} className="p-2 text-slate-300 hover:text-red-500 transition-colors bg-slate-50 dark:bg-slate-800 rounded-lg"><Trash2 size={14} /></button>
