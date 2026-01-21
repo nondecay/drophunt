@@ -73,7 +73,11 @@ export const ProjectDetails: React.FC = () => {
   // HOOKS MUST BE DECLARED BEFORE CONDITIONS
   const projectComments = useMemo(() => {
     return comments
-      .filter(c => c && (c.airdropId === id && (c.isApproved || user?.role === 'admin' || user?.memberStatus === 'Admin')))
+    return comments
+      .filter(c => c && (
+        c.airdropId === id &&
+        (c.isApproved || (user?.address && c.address === user.address) || user?.role === 'admin' || user?.memberStatus === 'Admin')
+      ))
       .sort((a, b) => (b.createdAtTimestamp || 0) - (a.createdAtTimestamp || 0));
   }, [comments, id, user]);
 
@@ -162,9 +166,11 @@ export const ProjectDetails: React.FC = () => {
       return addToast("Failed to post intel.", "error");
     }
 
-    setComments(prev => [...prev, savedComment as any]);
-
-    setComments(prev => [...prev, savedComment as any]);
+    // Optimistic Update with De-Duplication Check
+    setComments(prev => {
+      if (prev.some(c => c.id === savedComment.id)) return prev;
+      return [...prev, savedComment as any];
+    });
 
     // Update local activity tracking (Persist to DB)
     const updatedTimestamps = { ...projectTimestamps, [project.id]: now };
@@ -635,7 +641,14 @@ export const ProjectDetails: React.FC = () => {
                         <div className="flex items-center justify-between mb-1.5">
                           <div className="flex flex-col">
                             <div className="flex items-center gap-2">
-                              <span className="font-black text-xs uppercase leading-none">{c.username}</span>
+                              <span className="font-black text-xs uppercase leading-none flex items-center gap-2">
+                                {c.username}
+                                {!c.isApproved && (user?.id === c.userId || isAdmin) && (
+                                  <span className="bg-amber-100 text-amber-600 text-[8px] px-1.5 py-0.5 rounded border border-amber-200 animate-pulse">
+                                    PENDING APPROVAL
+                                  </span>
+                                )}
+                              </span>
                               {isAdmin && <button onClick={() => setCommentToDelete(c.id)} className="text-red-500 p-1 hover:bg-red-50 rounded-lg"><Trash2 size={10} /></button>}
                             </div>
                           </div>

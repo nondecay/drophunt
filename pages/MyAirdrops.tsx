@@ -374,23 +374,18 @@ export const MyAirdrops: React.FC = () => {
           {(activeTab === 'airdrops' || activeTab === 'infofi') && (
             <div className="mb-6 flex justify-end gap-2">
               {activeTab === 'airdrops' && (
-                <div className="relative" ref={tagDropRef}>
-                  <button onClick={() => setTagDropOpen(!isTagDropOpen)} className="flex items-center gap-3 bg-white dark:bg-slate-900 px-5 py-3 rounded-2xl border dark:border-slate-800 shadow-sm hover:border-primary-500 transition-all">
-                    <Target size={16} className="text-slate-400" />
-                    <div className="text-left">
-                      <p className="text-[8px] font-black uppercase text-slate-400 leading-none mb-0.5">Filter Tag</p>
-                      <p className="text-xs font-black uppercase">{tagFilter === 'all' ? 'All Tags' : tagFilter}</p>
-                    </div>
-                    <ChevronDown size={14} className={`text-slate-400 transition-transform ${isTagDropOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                  {isTagDropOpen && (
-                    <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl shadow-2xl z-50 p-1.5 animate-in fade-in slide-in-from-top-2 max-h-60 overflow-y-auto custom-scrollbar">
-                      <button onClick={() => { setTagFilter('all'); setTagDropOpen(false); }} className={`w-full text-left px-4 py-2.5 rounded-xl text-[10px] font-black uppercase flex items-center justify-between ${tagFilter === 'all' ? 'bg-primary-600 text-white' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>All Tags {tagFilter === 'all' && <Check size={12} />}</button>
-                      {uniqueTags.map(tag => (
-                        <button key={tag} onClick={() => { setTagFilter(tag); setTagDropOpen(false); }} className={`w-full text-left px-4 py-2.5 rounded-xl text-[10px] font-black uppercase flex items-center justify-between ${tagFilter === tag ? 'bg-primary-600 text-white' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'}`}>{tag} {tagFilter === tag && <Check size={12} />}</button>
-                      ))}
-                    </div>
-                  )}
+                <div className="relative">
+                  <select
+                    className="w-48 h-full bg-white dark:bg-slate-900 text-[10px] font-black uppercase tracking-widest pl-4 pr-10 py-3 rounded-2xl border dark:border-slate-800 shadow-sm hover:border-primary-500 outline-none cursor-pointer appearance-none transition-all"
+                    onChange={(e) => setTagFilter(e.target.value)}
+                    value={tagFilter}
+                  >
+                    <option value="all">Filtre: All Tags</option>
+                    {uniqueTags.map(tag => (
+                      <option key={tag} value={tag}>{tag}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
                 </div>
               )}
             </div>

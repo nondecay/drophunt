@@ -506,9 +506,22 @@ const AdminPanelContent: React.FC = () => {
                                     <td className="p-4 font-black text-primary-600 text-xs">{u.level}</td>
                                     <td className="p-4">
                                        {isOwner ? (
-                                          <select className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded text-[10px] font-black uppercase outline-none" value={u.memberStatus} onChange={e => {
-                                             setUsersList(prev => prev.map(usr => usr.address === u.address ? { ...usr, memberStatus: e.target.value as any, isAdmin: e.target.value !== 'Hunter' } : usr));
-                                             addToast("Status updated.");
+                                          <select className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded text-[10px] font-black uppercase outline-none" value={u.memberStatus} onChange={async (e) => {
+                                             const newStatus = e.target.value;
+                                             // 1. Optimistic Update
+                                             setUsersList(prev => prev.map(usr => usr.address === u.address ? { ...usr, memberStatus: newStatus as any, isAdmin: newStatus !== 'Hunter' } : usr));
+
+                                             // 2. Sync to DB
+                                             const { error } = await supabase.from('users').update({ "memberStatus": newStatus, "role": newStatus === 'Admin' || newStatus === 'Super Admin' ? 'admin' : 'user' }).eq('address', u.address);
+
+                                             if (!error) {
+                                                addToast(`User promoted to ${newStatus}`);
+                                             } else {
+                                                console.error("Status Update Failed", error);
+                                                addToast("Failed to save status", "error");
+                                                // Revert on error (optional, but good practice)
+                                                // refreshData();
+                                             }
                                           }}>
                                              <option value="Hunter">Hunter</option>
                                              <option value="Moderator">Moderator</option>
@@ -582,10 +595,13 @@ const AdminPanelContent: React.FC = () => {
                                     </div>
                                     <div className="flex gap-2">
                                        <button onClick={async () => {
-                                          const { error } = await supabase.from('guides').update({ isApproved: true }).eq('id', g.id);
+                                          const { error } = await supabase.from('guides').update({
+                                             isApproved: true,
+                                             title: g.title
+                                          }).eq('id', g.id);
                                           if (!error) {
                                              setGuides(p => p.map(x => x.id === g.id ? { ...x, isApproved: true } : x));
-                                             addToast("Guide approved (Saved).");
+                                             addToast("Guide approved & Title Saved.");
                                           } else addToast("Failed", "error");
                                        }} className="p-2.5 bg-emerald-500 text-white rounded-xl shadow-lg hover:scale-105 transition-all"><Check size={18} /></button>
                                        <button onClick={async () => {
