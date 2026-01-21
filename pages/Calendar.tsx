@@ -55,10 +55,18 @@ export const Calendar: React.FC = () => {
     }
   };
 
+  /* DEBUG: REMOVE BEFORE PRODUCTION */
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
   return (
     <div className="max-w-5xl mx-auto px-4">
+      {/* DEBUG PANEL */}
+      <div className="bg-amber-100 p-2 rounded mb-4 text-[10px] font-mono break-all border border-amber-300 text-amber-900">
+        <strong>DEBUG AUTH:</strong> <br />
+        ID: {user?.id} <br />
+        Role: {user?.role} / Status: {user?.memberStatus} <br />
+        Address: {user?.address}
+      </div>
       <div className="flex items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-black tracking-tighter uppercase">{t('calendarMainTitle')}</h1>
