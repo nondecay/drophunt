@@ -117,13 +117,14 @@ export const Calendar: React.FC = () => {
                   <span className={`text-[9px] sm:text-[10px] font-black w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-lg ${isToday ? 'bg-primary-600 text-white shadow-sm' : 'text-slate-400'}`}>{day}</span>
                   <div className="flex flex-col gap-1 overflow-y-auto max-h-[45px] sm:max-h-[60px] custom-scrollbar">
                     {dayEvents.map((ev, index) => {
-                      // Distinct colors for 1st, 2nd, and 3rd+ events
-                      const colors = [
-                        "bg-primary-50 dark:bg-primary-900/40 text-primary-600 border-primary-100 dark:border-primary-800/50",
-                        "bg-violet-50 dark:bg-violet-900/40 text-violet-600 border-violet-100 dark:border-violet-800/50",
-                        "bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 border-emerald-100 dark:border-emerald-800/50"
-                      ];
-                      const colorClass = colors[index] || colors[2];
+                      // Use standard, vibrant Tailwind colors ensure visibility
+                      let colorClass = "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-700"; // Default (1st)
+
+                      if (index === 1) {
+                        colorClass = "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/50 dark:text-purple-300 dark:border-purple-700"; // 2nd
+                      } else if (index >= 2) {
+                        colorClass = "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-700"; // 3rd+
+                      }
 
                       return (
                         <div key={ev.id} className={`px-1 py-0.5 sm:px-1.5 sm:py-1 rounded-md text-[7px] sm:text-[8px] font-black border flex justify-between items-center group ${colorClass}`}>
