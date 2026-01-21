@@ -33,15 +33,35 @@ export const Calendar: React.FC = () => {
   const handlePrevMonth = () => setCurrentDate(new Date(year, month - 1));
   const handleNextMonth = () => setCurrentDate(new Date(year, month + 1));
 
+  const handleDeleteEvent = async (id: string) => {
+    if (!confirm(t('deleteConfirmation') || 'Delete event?')) return;
+
+    const { error } = await supabase.rpc('delete_admin_event', { p_event_id: id });
+
+    if (error) {
+      console.error("Delete Error:", error);
+      addToast("Failed: " + error.message, "error");
+    } else {
+      setEvents(prev => prev.filter(e => e.id !== id));
+      addToast("Deleted.");
+    }
+  };
+
   const handleAddEvent = async () => {
     if (!newEvent.title || !newEvent.date) return;
+    const eventObj = {
+      title: newEvent.title,
+      date: newEvent.date,
+      description: newEvent.description || 'Protocol Event',
+      url: newEvent.url
+    };
 
     // RPC Call to bypass RLS
     const { error } = await supabase.rpc('create_admin_event', {
-      p_title: newEvent.title,
-      p_date: newEvent.date,
-      p_description: newEvent.description || 'Protocol Event',
-      p_url: newEvent.url
+      p_title: eventObj.title,
+      p_date: eventObj.date,
+      p_description: eventObj.description,
+      p_url: eventObj.url
     });
 
     if (error) {
@@ -61,12 +81,7 @@ export const Calendar: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto px-4">
       {/* DEBUG PANEL */}
-      <div className="bg-amber-100 p-2 rounded mb-4 text-[10px] font-mono break-all border border-amber-300 text-amber-900">
-        <strong>DEBUG AUTH:</strong> <br />
-        ID: {user?.id} <br />
-        Role: {user?.role} / Status: {user?.memberStatus} <br />
-        Address: {user?.address}
-      </div>
+      {/* DEBUG PANEL REMOVED */}
       <div className="flex items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-black tracking-tighter uppercase">{t('calendarMainTitle')}</h1>
@@ -101,8 +116,15 @@ export const Calendar: React.FC = () => {
                   <span className={`text-[10px] font-black w-6 h-6 flex items-center justify-center rounded-lg ${isToday ? 'bg-primary-600 text-white shadow-sm' : 'text-slate-400'}`}>{day}</span>
                   <div className="flex flex-col gap-1 overflow-y-auto max-h-[60px] custom-scrollbar">
                     {dayEvents.map((ev) => (
-                      <div key={ev.id} className="px-1.5 py-1 bg-primary-50 dark:bg-primary-900/40 rounded-md text-[8px] font-black text-primary-600 truncate border border-primary-100 dark:border-primary-800/50">
-                        {ev.url ? <a href={ensureHttp(ev.url)} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between gap-1"><span>{ev.title}</span><ExternalLink size={8} /></a> : ev.title}
+                      <div key={ev.id} className="px-1.5 py-1 bg-primary-50 dark:bg-primary-900/40 rounded-md text-[8px] font-black text-primary-600 border border-primary-100 dark:border-primary-800/50 flex justify-between items-center group">
+                        <div className="truncate flex-1">
+                          {ev.url ? <a href={ensureHttp(ev.url)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:underline"><span>{ev.title}</span><ExternalLink size={6} /></a> : ev.title}
+                        </div>
+                        {(user?.role === 'admin' || user?.memberStatus === 'Admin') && (
+                          <button onClick={() => handleDeleteEvent(ev.id)} className="ml-1 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <X size={10} />
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>
