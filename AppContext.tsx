@@ -217,7 +217,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       fetchUserData(created.id);
       setShowUsernameModal(false);
       // Auto-verify on registration since they just signed to verify (context dependant, but usually safe if flow assumes verify first)
-      sessionStorage.setItem(`verified_session_${address.toLowerCase()}`, 'true');
+      localStorage.setItem(`verified_session_${address.toLowerCase()}`, 'true');
       setIsVerified(true);
       addToast("Welcome, Hunter!", "success");
     } else {
