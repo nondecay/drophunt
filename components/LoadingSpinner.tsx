@@ -11,30 +11,31 @@ export const LoadingSpinner: React.FC = () => (
                 strokeLinecap="round"
                 strokeLinejoin="round"
             >
-                {/* Bow */}
-                <path d="M70 15 C 30 15, 15 50, 15 50 C 15 50, 30 85, 70 85" className="opacity-80" />
+                {/* Bow (Curve facing Right) */}
+                <path d="M30 15 C 70 15, 85 50, 85 50 C 85 50, 70 85, 30 85" className="opacity-80" />
 
-                {/* Bow String */}
-                <path d="M70 15 L 70 85" className="animate-bow-string opacity-40" />
+                {/* Bow String (Connects ends, pulls Left) */}
+                <path d="M30 15 L 30 85" className="animate-bow-string opacity-40" />
 
-                {/* Arrow */}
+                {/* Arrow (Points Right) */}
                 <g className="animate-arrow">
-                    <line x1="20" y1="50" x2="65" y2="50" strokeWidth="3" />
-                    <path d="M58 44 L 65 50 L 58 56" strokeWidth="3" />
-                    <line x1="20" y1="50" x2="15" y2="50" strokeWidth="2" opacity="0.6" />
+                    <line x1="30" y1="50" x2="75" y2="50" strokeWidth="3" />
+                    <path d="M68 44 L 75 50 L 68 56" strokeWidth="3" />
+                    {/* Feather/Nock */}
+                    <line x1="30" y1="50" x2="25" y2="50" strokeWidth="2" opacity="0.6" />
                 </g>
             </svg>
             <style>{`
                 @keyframes bowString {
-                    0%, 100% { d: path("M70 15 L 70 85"); }
-                    50% { d: path("M70 15 L 45 50 L 70 85"); }
+                    0%, 100% { d: path("M30 15 L 30 85"); }
+                    50% { d: path("M30 15 L 5 50 L 30 85"); }
                 }
                 @keyframes arrowShoot {
                     0%, 100% { transform: translateX(0); opacity: 0; }
                     5% { transform: translateX(0); opacity: 1; }
-                    50% { transform: translateX(-25px); }
-                    55% { transform: translateX(-25px); }
-                    80% { transform: translateX(100px); opacity: 0; }
+                    50% { transform: translateX(-25px); } /* Pull Back */
+                    55% { transform: translateX(-25px); } /* Hold */
+                    80% { transform: translateX(100px); opacity: 0; } /* Shoot */
                 }
                 .animate-bow-string {
                     animation: bowString 1.5s ease-in-out infinite;
