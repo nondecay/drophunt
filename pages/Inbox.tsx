@@ -122,14 +122,16 @@ export const Inbox: React.FC = () => {
                     </div>
                     <div>
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">System</p>
-                      <h3 className="text-2xl font-black tracking-tighter">{msg.title}</h3>
-                      <div className="flex items-center gap-3">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase">{msg.createdAt ? new Date(Number(msg.createdAt)).toLocaleString() : 'Just now'}</span>
+                      <div className="flex flex-wrap items-center gap-3 mb-1">
+                        <h3 className="text-2xl font-black tracking-tighter">{msg.title}</h3>
                         {related && (
-                          <span className="text-[10px] font-black uppercase text-primary-600 bg-primary-50 px-2 py-0.5 rounded">
-                            Related Project: {related.name}
+                          <span className="text-[10px] font-black uppercase text-white bg-primary-600 px-2 py-0.5 rounded-lg shadow-sm animate-pulse">
+                            Related: {related.name}
                           </span>
                         )}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase">{msg.createdAt ? new Date(Number(msg.createdAt)).toLocaleString() : 'Just now'}</span>
                       </div>
                     </div>
                   </div>
