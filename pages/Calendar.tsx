@@ -37,9 +37,10 @@ export const Calendar: React.FC = () => {
     if (!newEvent.title || !newEvent.date) return;
 
     const eventObj = {
-      ...newEvent,
-      type: 'admin',
-      description: newEvent.description || 'Protocol Event'
+      title: newEvent.title,
+      date: newEvent.date,
+      description: newEvent.description || 'Protocol Event',
+      url: newEvent.url
     };
 
     const { error } = await supabase.from('events').insert(eventObj);
