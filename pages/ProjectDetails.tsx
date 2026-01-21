@@ -595,7 +595,7 @@ export const ProjectDetails: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {filteredGuides.map(guide => guide && (
                   <div key={guide.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-transparent hover:border-primary-500 transition-all group flex items-center justify-between">
-                    <a href={guide.url} target="_blank" className="flex-1 flex items-center gap-3">
+                    <a href={ensureHttp(guide.url)} target="_blank" className="flex-1 flex items-center gap-3">
                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-sm ${getPlatformColor(guide.platform)}`}>
                         {getPlatformIcon(guide.platform)}
                       </div>
@@ -642,7 +642,7 @@ export const ProjectDetails: React.FC = () => {
                             <div className="flex items-center gap-2">
                               <span className="font-black text-xs uppercase leading-none flex items-center gap-2">
                                 {c.username}
-                                {!c.isApproved && (user?.id === c.userId || isAdmin) && (
+                                {!c.isApproved && (user?.address === c.address || isAdmin) && (
                                   <span className="bg-amber-100 text-amber-600 text-[8px] px-1.5 py-0.5 rounded border border-amber-200 animate-pulse">
                                     PENDING APPROVAL
                                   </span>
