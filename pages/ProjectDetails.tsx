@@ -73,7 +73,6 @@ export const ProjectDetails: React.FC = () => {
   // HOOKS MUST BE DECLARED BEFORE CONDITIONS
   const projectComments = useMemo(() => {
     return comments
-    return comments
       .filter(c => c && (
         c.airdropId === id &&
         (c.isApproved || (user?.address && c.address === user.address) || user?.role === 'admin' || user?.memberStatus === 'Admin')
