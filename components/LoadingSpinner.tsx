@@ -11,37 +11,43 @@ export const LoadingSpinner: React.FC = () => (
                 strokeLinecap="round"
                 strokeLinejoin="round"
             >
-                {/* Bow (Curve facing Right) */}
-                <path d="M30 15 C 70 15, 85 50, 85 50 C 85 50, 70 85, 30 85" className="opacity-80" />
+                {/* Recurve Bow Body - More complex curve */}
+                <path
+                    d="M35 15 C 55 15, 60 35, 50 50 C 60 65, 55 85, 35 85"
+                    className="opacity-90"
+                    strokeWidth="3"
+                />
 
-                {/* Bow String (Connects ends, pulls Left) */}
-                <path d="M30 15 L 30 85" className="animate-bow-string opacity-40" />
+                {/* Bow String */}
+                <path d="M35 15 L 35 85" className="animate-bow-string opacity-40" strokeWidth="1.5" />
 
-                {/* Arrow (Points Right) */}
+                {/* Arrow */}
                 <g className="animate-arrow">
-                    <line x1="30" y1="50" x2="75" y2="50" strokeWidth="3" />
-                    <path d="M68 44 L 75 50 L 68 56" strokeWidth="3" />
-                    {/* Feather/Nock */}
-                    <line x1="30" y1="50" x2="25" y2="50" strokeWidth="2" opacity="0.6" />
+                    {/* Shaft */}
+                    <line x1="35" y1="50" x2="80" y2="50" strokeWidth="2.5" />
+                    {/* Arrowhead */}
+                    <path d="M72 44 L 80 50 L 72 56" strokeWidth="2.5" />
+                    {/* Fletching */}
+                    <path d="M40 46 L 35 50 L 40 54" strokeWidth="1.5" opacity="0.8" />
                 </g>
             </svg>
             <style>{`
                 @keyframes bowString {
-                    0%, 100% { d: path("M30 15 L 30 85"); }
-                    50% { d: path("M30 15 L 5 50 L 30 85"); }
+                    0%, 100% { d: path("M35 15 L 35 85"); }
+                    40% { d: path("M35 15 L 10 50 L 35 85"); } /* Pull Back phase */
                 }
                 @keyframes arrowShoot {
                     0%, 100% { transform: translateX(0); opacity: 0; }
-                    5% { transform: translateX(0); opacity: 1; }
-                    50% { transform: translateX(-25px); } /* Pull Back */
-                    55% { transform: translateX(-25px); } /* Hold */
-                    80% { transform: translateX(100px); opacity: 0; } /* Shoot */
+                    10% { transform: translateX(0); opacity: 1; } /* Appear */
+                    40% { transform: translateX(-25px); } /* Full Draw */
+                    45% { transform: translateX(-25px); } /* Hold briefly */
+                    60% { transform: translateX(120px); opacity: 0; } /* Fast Release */
                 }
                 .animate-bow-string {
-                    animation: bowString 1.5s ease-in-out infinite;
+                    animation: bowString 1s ease-in-out infinite;
                 }
                 .animate-arrow {
-                    animation: arrowShoot 1.5s ease-in-out infinite;
+                    animation: arrowShoot 1s ease-in-out infinite;
                 }
             `}</style>
         </div>
