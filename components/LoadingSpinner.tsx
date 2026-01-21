@@ -23,15 +23,17 @@ export const LoadingSpinner: React.FC = () => (
 
                 {/* Arrow */}
                 <g className="animate-arrow will-change-transform">
-                    {/* Shaft */}
-                    <line x1="25" y1="50" x2="85" y2="50" strokeWidth="2.5" />
+                    {/* Shaft - uses butt cap for flat left end */}
+                    <line x1="25" y1="50" x2="82" y2="50" strokeWidth="3" strokeLinecap="butt" />
 
-                    {/* Sharp Arrowhead (Right) */}
-                    <path d="M75 42 L 85 50 L 75 58" strokeWidth="2.5" strokeLinejoin="miter" />
+                    {/* Sharp Arrowhead (Right) - explicitly drawn */}
+                    <path d="M75 42 L 85 50 L 75 58" strokeWidth="3" strokeLinecap="round" strokeLinejoin="miter" />
 
-                    {/* Flat Nock / Fletching (Left) */}
-                    <line x1="25" y1="44" x2="25" y2="56" strokeWidth="2" opacity="0.8" />
-                    <path d="M32 46 L 25 50 L 32 54" strokeWidth="1.5" opacity="0.8" />
+                    {/* Distinct Flat Nock (Left) - Vertical line to emphasize flatness */}
+                    <line x1="25" y1="44" x2="25" y2="56" strokeWidth="3" strokeLinecap="butt" opacity="0.8" />
+
+                    {/* Fletching - drawn internal to avoid 'pointy' look at tail */}
+                    <path d="M35 44 L 28 50 L 35 56" strokeWidth="1.5" opacity="0.6" strokeLinecap="round" />
                 </g>
             </svg>
             <style>{`
