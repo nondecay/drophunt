@@ -1,5 +1,6 @@
 import React from 'react';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { Analytics } from "@vercel/analytics/react";
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider, useApp } from './AppContext';
 import { Layout } from './pages/Layout';
@@ -90,6 +91,7 @@ export const App: React.FC = () => {
             <BrowserRouter>
               <VerificationModal />
               <UsernameModal />
+              <Analytics />
               <Routes>
                 <Route element={<Layout />}>
                   <Route path="/" element={<Home category="all" />} />
