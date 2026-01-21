@@ -119,7 +119,7 @@ export const Investors: React.FC = () => {
           <table className="w-full text-left border-collapse table-auto min-w-[800px]">
             <thead>
               <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
-                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] w-16"># Rank</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] whitespace-nowrap"># Rank</th>
                 <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">{t('investors')}</th>
                 <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">{t('totalProjects')}</th>
                 <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">{t('latestInvestment')}</th>
