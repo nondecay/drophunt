@@ -38,9 +38,6 @@ export const LoadingSpinner: React.FC = () => (
 
                     {/* Sharp Arrowhead (Right) */}
                     <path d="M75 42 L 85 50 L 75 58" strokeWidth="3" strokeLinecap="round" strokeLinejoin="miter" />
-
-                    {/* Flat Nock (Left) - Aligned exactly at x=35 */}
-                    <line x1="35" y1="44" x2="35" y2="56" strokeWidth="3" strokeLinecap="butt" opacity="0.8" />
                 </g>
             </svg>
             <style>{`
