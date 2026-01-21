@@ -101,28 +101,29 @@ export const Calendar: React.FC = () => {
 
         {/* Mobile Scroll Wrapper */}
         {/* Mobile Calendar Grid */}
-        <div className="pb-2">
-          <div className="grid grid-cols-7 gap-px bg-slate-100 dark:bg-slate-800 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800">
+        {/* Mobile Calendar Grid */}
+        <div className="pb-2 overflow-x-auto">
+          <div className="grid grid-cols-7 gap-px bg-slate-100 dark:bg-slate-800 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 min-w-[300px]">
             {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-              <div key={day} className="bg-slate-50 dark:bg-slate-950 p-3 text-center font-black text-[9px] uppercase text-slate-400 tracking-widest">{day}</div>
+              <div key={day} className="bg-slate-50 dark:bg-slate-950 p-2 sm:p-3 text-center font-black text-[8px] sm:text-[9px] uppercase text-slate-400 tracking-widest truncate">{day}</div>
             ))}
-            {prefixDays.map((_, i) => <div key={`p-${i}`} className="bg-white dark:bg-slate-900/50 min-h-[80px]" />)}
+            {prefixDays.map((_, i) => <div key={`p-${i}`} className="bg-white dark:bg-slate-900/50 min-h-[60px] sm:min-h-[100px]" />)}
             {days.map(day => {
               const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
               const dayEvents = events.filter(e => e.date === dateStr);
               const isToday = new Date().toDateString() === new Date(year, month, day).toDateString();
               return (
-                <div key={day} className="min-h-[100px] p-1.5 bg-white dark:bg-slate-900 flex flex-col gap-1 border-t border-slate-50 dark:border-slate-800">
-                  <span className={`text-[10px] font-black w-6 h-6 flex items-center justify-center rounded-lg ${isToday ? 'bg-primary-600 text-white shadow-sm' : 'text-slate-400'}`}>{day}</span>
-                  <div className="flex flex-col gap-1 overflow-y-auto max-h-[60px] custom-scrollbar">
+                <div key={day} className="min-h-[70px] sm:min-h-[100px] p-1 sm:p-1.5 bg-white dark:bg-slate-900 flex flex-col gap-1 border-t border-slate-50 dark:border-slate-800 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                  <span className={`text-[9px] sm:text-[10px] font-black w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-lg ${isToday ? 'bg-primary-600 text-white shadow-sm' : 'text-slate-400'}`}>{day}</span>
+                  <div className="flex flex-col gap-1 overflow-y-auto max-h-[45px] sm:max-h-[60px] custom-scrollbar">
                     {dayEvents.map((ev) => (
-                      <div key={ev.id} className="px-1.5 py-1 bg-primary-50 dark:bg-primary-900/40 rounded-md text-[8px] font-black text-primary-600 border border-primary-100 dark:border-primary-800/50 flex justify-between items-center group">
-                        <div className="truncate flex-1">
+                      <div key={ev.id} className="px-1 py-0.5 sm:px-1.5 sm:py-1 bg-primary-50 dark:bg-primary-900/40 rounded-md text-[7px] sm:text-[8px] font-black text-primary-600 border border-primary-100 dark:border-primary-800/50 flex justify-between items-center group">
+                        <div className="truncate flex-1 leading-tight">
                           {ev.url ? <a href={ensureHttp(ev.url)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:underline"><span>{ev.title}</span><ExternalLink size={6} /></a> : ev.title}
                         </div>
                         {(user?.role === 'admin' || user?.memberStatus === 'Admin') && (
-                          <button onClick={() => handleDeleteEvent(ev.id)} className="ml-1 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <X size={10} />
+                          <button onClick={() => handleDeleteEvent(ev.id)} className="ml-1 text-red-400 hover:text-red-600 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                            <X size={8} />
                           </button>
                         )}
                       </div>
