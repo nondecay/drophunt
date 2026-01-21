@@ -253,11 +253,34 @@ export const ProjectDetails: React.FC = () => {
     setEditGuideData({ title: g.title || '', author: g.author, url: g.url, platform: g.platform });
   };
 
-  const handleSaveEditGuide = () => {
+  const handleSaveEditGuide = async () => {
     if (!editingGuide) return;
+
+    // 1. Optimistic Update (Immediate Feedback)
     setGuides(prev => prev.map(g => g.id === editingGuide.id ? { ...g, ...editGuideData } : g));
+
+    // 2. Database Update
+    try {
+      // Ensure we are sending only the fields that exist in the table and are changeable
+      const { error } = await supabase.from('guides').update({
+        title: editGuideData.title,
+        author: editGuideData.author,
+        url: editGuideData.url,
+        platform: editGuideData.platform
+      }).eq('id', editingGuide.id); // Securely match by ID
+
+      if (error) {
+        console.error("Guide update failed:", error); // Debug log
+        throw error;
+      }
+      addToast("Guide saved to database.");
+    } catch (err: any) {
+      addToast("Save Failed: " + err.message, "error");
+      // Revert optimistic update on failure to keep UI consistent
+      refreshData();
+    }
+
     setEditingGuide(null);
-    addToast("Guide updated successfully.");
   };
 
   const isProjectTracked = user?.trackedProjectIds?.includes(project.id);
@@ -642,6 +665,7 @@ export const ProjectDetails: React.FC = () => {
                             <div className="flex items-center gap-2">
                               <span className="font-black text-xs uppercase leading-none flex items-center gap-2">
                                 {c.username}
+                                {/* Logic Fix: Show PENDING only if NOT approved AND (isAuthor OR isAdmin) */}
                                 {!c.isApproved && (user?.address === c.address || isAdmin) && (
                                   <span className="bg-amber-100 text-amber-600 text-[8px] px-1.5 py-0.5 rounded border border-amber-200 animate-pulse">
                                     PENDING APPROVAL
