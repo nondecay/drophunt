@@ -38,7 +38,6 @@ export const Calendar: React.FC = () => {
 
     const eventObj = {
       ...newEvent,
-      id: Date.now().toString(),
       type: 'admin',
       description: newEvent.description || 'Protocol Event'
     };
