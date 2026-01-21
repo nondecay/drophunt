@@ -36,16 +36,16 @@ export const Calendar: React.FC = () => {
   const handleAddEvent = async () => {
     if (!newEvent.title || !newEvent.date) return;
 
-    const eventObj = {
-      title: newEvent.title,
-      date: newEvent.date,
-      description: newEvent.description || 'Protocol Event',
-      url: newEvent.url
-    };
-
-    const { error } = await supabase.from('events').insert(eventObj);
+    // RPC Call to bypass RLS
+    const { error } = await supabase.rpc('create_admin_event', {
+      p_title: newEvent.title,
+      p_date: newEvent.date,
+      p_description: newEvent.description || 'Protocol Event',
+      p_url: newEvent.url
+    });
 
     if (error) {
+      console.error("RPC Error:", error);
       addToast("Failed to index: " + error.message, "error");
     } else {
       setEvents(prev => [...prev, eventObj]);
