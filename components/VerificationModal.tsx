@@ -23,7 +23,7 @@ export const VerificationModal: React.FC = () => {
 
                 <h2 className="text-2xl font-black uppercase tracking-tighter mb-3 text-slate-900 dark:text-white">Verification Required</h2>
                 <p className="text-slate-500 font-medium mb-8 leading-relaxed">
-                    Please sign a message to verify your wallet ownership and access the protocol.
+                    Please sign a message to verify your wallet ownership
                 </p>
 
                 <button
