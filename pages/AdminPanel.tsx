@@ -560,19 +560,30 @@ const AdminPanelContent: React.FC = () => {
                                  </div>
                                  <div className="flex gap-2">
                                     <button onClick={async () => {
-                                       const { error } = await supabase.from('comments').update({ isApproved: true }).eq('id', c.id);
-                                       if (!error) {
-                                          setComments(p => p.map(x => x.id === c.id ? { ...x, isApproved: true } : x));
-                                          addToast("Comment approved (Saved).");
-                                       } else {
-                                          addToast("Approval Failed", "error");
+                                       try {
+                                          // Use RPC to approve and recalculate rating atomically
+                                          const { error } = await supabase.rpc('approve_comment', { target_comment_id: c.id });
+
+                                          if (!error) {
+                                             setComments(p => p.map(x => x.id === c.id ? { ...x, isApproved: true } : x));
+                                             addToast("Comment approved & Rating updated.");
+                                          } else {
+                                             console.error(error);
+                                             addToast("Approval Failed: " + error.message, "error");
+                                          }
+                                       } catch (e: any) {
+                                          console.error(e);
+                                          addToast("Error: " + e.message, "error");
                                        }
                                     }} className="p-2.5 bg-emerald-500 text-white rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all"><Check size={18} /></button>
                                     <button onClick={async () => {
+                                       if (!confirm("Are you sure you want to delete this comment?")) return;
                                        const { error } = await supabase.from('comments').delete().eq('id', c.id);
                                        if (!error) {
                                           setComments(p => p.filter(x => x.id !== c.id));
                                           addToast("Comment deleted.");
+                                       } else {
+                                          addToast("Delete Failed", "error");
                                        }
                                     }} className="p-2.5 bg-rose-500 text-white rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all"><Trash2 size={18} /></button>
                                  </div>
@@ -595,14 +606,23 @@ const AdminPanelContent: React.FC = () => {
                                     </div>
                                     <div className="flex gap-2">
                                        <button onClick={async () => {
-                                          const { error } = await supabase.from('guides').update({
-                                             isApproved: true,
-                                             title: g.title
-                                          }).eq('id', g.id);
-                                          if (!error) {
-                                             setGuides(p => p.map(x => x.id === g.id ? { ...x, isApproved: true } : x));
-                                             addToast("Guide approved & Title Saved.");
-                                          } else addToast("Failed", "error");
+                                          try {
+                                             const { error } = await supabase.from('guides').update({
+                                                is_approved: true,
+                                                title: g.title
+                                             }).eq('id', g.id);
+
+                                             if (!error) {
+                                                setGuides(p => p.map(x => x.id === g.id ? { ...x, isApproved: true } : x));
+                                                addToast("Guide approved & Title Saved.");
+                                             } else {
+                                                console.error(error);
+                                                addToast("Failed: " + error.message, "error");
+                                             }
+                                          } catch (e: any) {
+                                             console.error(e);
+                                             addToast("Error: " + e.message, "error");
+                                          }
                                        }} className="p-2.5 bg-emerald-500 text-white rounded-xl shadow-lg hover:scale-105 transition-all"><Check size={18} /></button>
                                        <button onClick={async () => {
                                           const { error } = await supabase.from('guides').delete().eq('id', g.id);
