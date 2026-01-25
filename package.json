@@ -9,19 +9,19 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@rainbow-me/rainbowkit": "^2.2.3",
+    "@supabase/supabase-js": "^2.39.0",
+    "@tanstack/react-query": "^5.64.1",
+    "@vercel/analytics": "^1.6.1",
+    "bcryptjs": "^2.4.3",
+    "buffer": "^6.0.3",
+    "lucide-react": "^0.460.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.28.0",
-    "lucide-react": "^0.460.0",
-    "@rainbow-me/rainbowkit": "^2.2.3",
-    "wagmi": "^2.14.9",
-    "viem": "^2.21.0",
-    "@tanstack/react-query": "^5.64.1",
-    "buffer": "^6.0.3",
-    "@supabase/supabase-js": "^2.39.0",
-    "bcryptjs": "^2.4.3",
     "react-quill": "^2.0.0",
-    "@vercel/analytics": "^1.4.1"
+    "react-router-dom": "^6.28.0",
+    "viem": "^2.21.0",
+    "wagmi": "^2.14.9"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",

@@ -2,14 +2,15 @@
 -- Please run this to show me the exact structure and active policies.
 
 -- 1. Check Events Table Structure
-SELECT column_name, data_type, is_nullable
+SELECT table_name, column_name, data_type, is_nullable
 FROM information_schema.columns
-WHERE table_name = 'events';
+WHERE table_name IN ('events', 'comments', 'guides')
+ORDER BY table_name, column_name;
 
--- 2. Check Active RLS Policies for Events
+-- 2. Check Active RLS Policies for Events & Comments
 SELECT polname, polcmd, polroles, polqual, polwithcheck
 FROM pg_policy
-WHERE polrelid = 'public.events'::regclass;
+WHERE polrelid IN ('public.events'::regclass, 'public.comments'::regclass);
 
 -- 3. Check Current User Role/Claims (to see why Admin check fails)
 -- Note: This will show null if run in SQL editor as 'postgres' role, 
