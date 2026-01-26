@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../AppContext';
+import { supabase } from '../supabaseClient';
 import { Search, Plus, Star, TrendingUp, Users, Bell, Zap, Lock, ChevronDown, Filter, X, Twitter, Calendar, Check, ArrowUpDown, ChevronLeft, ChevronRight, ExternalLink, DollarSign } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Airdrop } from '../types';
+import { Airdrop, OnChainActivity, InfoFiPlatform } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 
 import { Image } from '../components/Image';
@@ -300,7 +301,7 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const currentItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  const handleRequestSubmit = () => {
+  const handleRequestSubmit = async () => {
     if (!user) return;
     const lastRequestAt = user.lastActivities?.['project_propose'] || 0;
     if (Date.now() - lastRequestAt < 24 * 60 * 60 * 1000) {
@@ -308,20 +309,31 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
     }
 
     if (!reqData.name) return addToast(t('projectName') + " required", "error");
-    setRequests(prev => [...prev, {
-      id: Date.now().toString(),
+
+    const newRequest = {
       name: reqData.name,
       funding: "TBA",
       twitterLink: reqData.twitter,
       isInfoFi: category === 'infofi',
-      address: user?.address || 'anon',
+      address: user.address,
       timestamp: Date.now()
-    }]);
-    logActivity('project_propose');
-    addToast(t('projectSubmitted'), "success");
-    setShowRequestModal(false);
-    setReqData({ name: '', twitter: '' });
+    };
+
+    // FIX: Save to Database
+    const { data: saved, error } = await supabase.from('airdrop_requests').insert(newRequest).select().single();
+
+    if (!error) {
+      setRequests(prev => [...prev, saved ? saved : { id: Date.now().toString(), ...newRequest }]);
+      logActivity('project_propose');
+      addToast(t('projectSubmitted'), "success");
+      setShowRequestModal(false);
+      setReqData({ name: '', twitter: '' });
+    } else {
+      console.error("Submit Error:", error);
+      addToast("Failed to submit request: " + error.message, "error");
+    }
   };
+
 
   const isProjectTracked = (id: string) => user?.trackedProjectIds?.includes(id);
 
