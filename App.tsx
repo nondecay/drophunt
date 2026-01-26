@@ -1,8 +1,13 @@
+import React from 'react';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { Analytics } from "@vercel/analytics/react";
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AppProvider, useApp } from './AppContext';
+import { Layout } from './pages/Layout';
 import { VerificationModal } from './components/VerificationModal';
 import { UsernameModal } from './components/UsernameModal';
 import { BannedScreen } from './components/BannedScreen';
 
-
 // RainbowKit & Wagmi Imports
 import '@rainbow-me/rainbowkit/styles.css';
 import { getDefaultConfig, RainbowKitProvider, darkTheme, lightTheme } from '@rainbow-me/rainbowkit';
@@ -10,40 +15,6 @@ import { WagmiProvider, http } from 'wagmi';
 import { mainnet, polygon, optimism, arbitrum, base, sepolia, baseSepolia, optimismSepolia, arbitrumSepolia, polygonAmoy } from 'wagmi/chains';
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 
-// ... (keep intervening code if matches target closely)
-// Actually explicit replace for lines 23-24 and insertion in JSX
-
-/* (Assuming I target the import block first or just the return block. The tool replaces blocks.)
-   I will do two Replace calls or one large one? 
-   Let's do the imports first.
-*/
-
-import { Home } from './pages/Home';
-import { Calendar } from './pages/Calendar';
-import { MyAirdrops } from './pages/MyAirdrops';
-import { Claims } from './pages/Claims';
-import { ProjectDetails } from './pages/ProjectDetails';
-import { AdminPanel } from './pages/AdminPanel';
-import { Profile } from './pages/Profile';
-import { Inbox } from './pages/Inbox';
-import { DailyGM } from './pages/DailyGM';
-import { DailyMint } from './pages/DailyMint';
-import { Deploy } from './pages/Deploy';
-import { OnChainRPG } from './pages/OnChainRPG';
-import { Investors } from './pages/Investors';
-import { InvestorDetails } from './pages/InvestorDetails';
-import { Tools } from './pages/Tools';
-import { Faucets } from './pages/Faucets';
-import { VerificationModal } from './components/VerificationModal';
-import { UsernameModal } from './components/UsernameModal';
-
-
-// RainbowKit & Wagmi Imports
-import '@rainbow-me/rainbowkit/styles.css';
-import { getDefaultConfig, RainbowKitProvider, darkTheme, lightTheme } from '@rainbow-me/rainbowkit';
-import { WagmiProvider, http } from 'wagmi';
-import { mainnet, polygon, optimism, arbitrum, base, sepolia, baseSepolia, optimismSepolia, arbitrumSepolia, polygonAmoy } from 'wagmi/chains';
-import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 
 // Berachain Testnet Definition
 const berachainTestnet = {
