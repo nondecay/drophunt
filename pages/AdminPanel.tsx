@@ -626,6 +626,17 @@ const AdminPanelContent: React.FC = () => {
                )}
 
 
+               {/* FIX: Fetch Requests only when tab is active (Admin Only) */}
+   React.useEffect(() => {
+      if (activeTab === 'requests') {
+         const fetchRequests = async () => {
+             const {data, error} = await supabase.from('airdrop_requests').select('*');
+               if (data) setRequests(data as any);
+               if (error) addToast("Failed to load requests", "error");
+         };
+               fetchRequests();
+      }
+   }, [activeTab]);
 
                {activeTab === 'requests' && (
                   <SectionWrapper title="Hunter Project Proposals">
@@ -634,7 +645,7 @@ const AdminPanelContent: React.FC = () => {
                            <div key={r.id} className="p-6 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-[2rem] flex items-center justify-between group shadow-sm transition-all hover:border-primary-500">
                               <div>
                                  <h4 className="font-black text-xl uppercase tracking-tighter">{r.name}</h4>
-                                 <p className={`text-[10px] font-black uppercase tracking-widest ${r.isInfoFi ? 'text-amber-500' : 'text-primary-600'}`}>Proposal by {r.address}</p>
+                                 <p className={`text-[10px] font-black uppercase tracking-widest text-primary-600`}>Proposed by {r.address}</p>
                                  {r.twitterLink && <a href={r.twitterLink} target="_blank" rel="noreferrer" className="text-[10px] text-sky-500 font-bold hover:underline flex items-center gap-1 mt-1"><Twitter size={10} /> {r.twitterLink}</a>}
                               </div>
                               <div className="flex gap-2">

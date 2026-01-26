@@ -158,8 +158,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         supabase.from('announcements').select('*'),
         supabase.from('tools').select('*'),
         supabase.from('users').select('*'),
-        supabase.from('events').select('*'),
-        supabase.from('airdrop_requests').select('*') // Added Request Sync
+        supabase.from('events').select('*')
+        // Messages are now fetched per-user in fetchUserData to ensure privacy
       ]);
 
       if (results[0].data) setAirdrops(results[0].data as any);
@@ -174,8 +174,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (results[9].data) setTools(results[9].data as any);
       if (results[10].data) setUsersList(results[10].data as any);
       if (results[11].data) setEvents(results[11].data as any);
-      if (results[12].data) setRequests(results[12].data as any);
-
 
       setIsDataLoaded(true);
 

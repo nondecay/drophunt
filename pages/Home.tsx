@@ -319,7 +319,7 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
       timestamp: Date.now()
     };
 
-    // FIX: Save to Database
+    // Save to DB
     const { data: saved, error } = await supabase.from('airdrop_requests').insert(newRequest).select().single();
 
     if (!error) {
