@@ -651,8 +651,45 @@ const AdminPanelContent: React.FC = () => {
                                  {r.twitterLink && <a href={r.twitterLink} target="_blank" rel="noreferrer" className="text-[10px] text-sky-500 font-bold hover:underline flex items-center gap-1 mt-1"><Twitter size={10} /> {r.twitterLink}</a>}
                               </div>
                               <div className="flex gap-2">
-                                 <button onClick={() => { setAirdrops(prev => [{ id: Date.now().toString(), name: r.name, icon: '', investment: r.funding, type: 'Free', hasInfoFi: r.isInfoFi, rating: 5, voteCount: 0, status: 'Potential', projectInfo: '', campaignUrl: '', claimUrl: '', createdAt: Date.now(), backerIds: [], socials: { twitter: r.twitterLink } }, ...prev]); setRequests(p => p.filter(x => x.id !== r.id)); addToast("Project indexed."); }} className="p-3.5 bg-emerald-500 text-white rounded-2xl shadow-lg active:scale-90 transition-all"><Check size={24} /></button>
-                                 <button onClick={() => { if (confirm("Discard proposal?")) setRequests(p => p.filter(x => x.id !== r.id)); }} className="p-3.5 bg-rose-500 text-white rounded-2xl shadow-lg active:scale-90 transition-all"><Trash2 size={24} /></button>
+                                 <button onClick={async () => {
+                                    const newDrop = {
+                                       name: r.name,
+                                       investment: r.funding || 'TBA',
+                                       type: 'Free',
+                                       hasInfoFi: r.isInfoFi || false,
+                                       rating: 5,
+                                       status: 'Potential',
+                                       createdAt: Date.now(),
+                                       socials: { twitter: r.twitterLink || '' }
+                                    };
+                                    // 1. Insert into Airdrops
+                                    const { data: created, error: createErr } = await supabase.from('airdrops').insert(newDrop).select().single();
+
+                                    if (!createErr) {
+                                       // 2. Delete from Requests
+                                       await supabase.from('airdrop_requests').delete().eq('id', r.id);
+
+                                       setAirdrops(prev => [created ? created : { ...newDrop, id: Date.now().toString() } as any, ...prev]);
+                                       setRequests(p => p.filter(x => x.id !== r.id));
+                                       addToast("Project indexed.");
+                                    } else {
+                                       console.error(createErr);
+                                       addToast("Failed to create project: " + createErr.message, "error");
+                                    }
+                                 }} className="p-3.5 bg-emerald-500 text-white rounded-2xl shadow-lg active:scale-90 transition-all"><Check size={24} /></button>
+
+                                 <button onClick={async () => {
+                                    if (confirm("Discard proposal?")) {
+                                       const { error } = await supabase.from('airdrop_requests').delete().eq('id', r.id);
+                                       if (!error) {
+                                          setRequests(p => p.filter(x => x.id !== r.id));
+                                          addToast("Proposal discarded.");
+                                       } else {
+                                          addToast("Failed to delete", "error");
+                                       }
+                                    }
+                                 }} className="p-3.5 bg-rose-500 text-white rounded-2xl shadow-lg active:scale-90 transition-all"><Trash2 size={24} /></button>
+
                               </div>
                            </div>
                         ))}
