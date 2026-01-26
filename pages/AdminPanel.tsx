@@ -560,14 +560,17 @@ const AdminPanelContent: React.FC = () => {
                                  </div>
                                  <div className="flex gap-2">
                                     <button onClick={async () => {
-                                       const { error } = await supabase.from('comments').update({ isApproved: true }).eq('id', c.id);
+                                       // FIX: Use Safer RPC for approval too
+                                       const { error } = await supabase.rpc('approve_comment_safe', { target_id: c.id });
                                        if (!error) {
                                           setComments(p => p.map(x => x.id === c.id ? { ...x, isApproved: true } : x));
                                           addToast("Comment approved (Saved).");
                                        } else {
-                                          addToast("Approval Failed", "error");
+                                          console.error("Approve Error:", error);
+                                          addToast("Approve Failed: " + error.message, "error");
                                        }
                                     }} className="p-2.5 bg-emerald-500 text-white rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all"><Check size={18} /></button>
+
                                     <button onClick={async () => {
                                        if (!confirm("Are you sure you want to delete this comment?")) return;
 
