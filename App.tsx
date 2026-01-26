@@ -15,6 +15,23 @@ import { WagmiProvider, http } from 'wagmi';
 import { mainnet, polygon, optimism, arbitrum, base, sepolia, baseSepolia, optimismSepolia, arbitrumSepolia, polygonAmoy } from 'wagmi/chains';
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 
+import { Home } from './pages/Home';
+import { Calendar } from './pages/Calendar';
+import { MyAirdrops } from './pages/MyAirdrops';
+import { Claims } from './pages/Claims';
+import { ProjectDetails } from './pages/ProjectDetails';
+import { AdminPanel } from './pages/AdminPanel';
+import { Profile } from './pages/Profile';
+import { Inbox } from './pages/Inbox';
+import { DailyGM } from './pages/DailyGM';
+import { DailyMint } from './pages/DailyMint';
+import { Deploy } from './pages/Deploy';
+import { OnChainRPG } from './pages/OnChainRPG';
+import { Investors } from './pages/Investors';
+import { InvestorDetails } from './pages/InvestorDetails';
+import { Tools } from './pages/Tools';
+import { Faucets } from './pages/Faucets';
+
 
 // Berachain Testnet Definition
 const berachainTestnet = {
