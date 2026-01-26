@@ -109,6 +109,18 @@ const AdminPanelContent: React.FC = () => {
       return () => clearInterval(interval);
    }, []);
 
+   // FIX: Fetch Requests only when tab is active (Admin Only)
+   React.useEffect(() => {
+      if (activeTab === 'requests') {
+         const fetchRequests = async () => {
+            const { data, error } = await supabase.from('airdrop_requests').select('*');
+            if (data) setRequests(data as any);
+            if (error) addToast("Failed to load requests", "error");
+         };
+         fetchRequests();
+      }
+   }, [activeTab]);
+
    const quillModules = useMemo(() => ({
       toolbar: {
          container: [
@@ -626,17 +638,7 @@ const AdminPanelContent: React.FC = () => {
                )}
 
 
-               {/* FIX: Fetch Requests only when tab is active (Admin Only) */}
-   React.useEffect(() => {
-      if (activeTab === 'requests') {
-         const fetchRequests = async () => {
-             const {data, error} = await supabase.from('airdrop_requests').select('*');
-               if (data) setRequests(data as any);
-               if (error) addToast("Failed to load requests", "error");
-         };
-               fetchRequests();
-      }
-   }, [activeTab]);
+
 
                {activeTab === 'requests' && (
                   <SectionWrapper title="Hunter Project Proposals">
