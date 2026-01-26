@@ -5,7 +5,7 @@ import { supabase } from '../supabaseClient';
 import {
    Shield, LayoutDashboard, Users, MessageSquare, Check, Trash2, Edit, Plus, Bell, Zap, X,
    Mail, Ticket, BarChart3, Star, Trophy, ArrowUpCircle, Sword, Globe, ExternalLink, Map, Sun, Sparkles, Youtube, Github, Twitter, Save, UserPlus, Link2, Calendar, UserCheck, ShieldAlert, Send,
-   Layers, Search, Info, Megaphone, TrendingUp, ChevronRight, Lock, Clock, History, ChevronLeft, Wrench, ChevronDown, Filter
+   Layers, Search, Info, Megaphone, TrendingUp, ChevronRight, Lock, Clock, History, ChevronLeft, Wrench, ChevronDown, Filter, Unlock
 } from 'lucide-react';
 import { OnChainActivity, Airdrop, Claim, Guide, Comment, TopUser, Chain, User, InfoFiPlatform, Announcement, Investor, Tool, ToolCategory } from '../types';
 import ReactQuill from 'react-quill';
@@ -509,11 +509,15 @@ const AdminPanelContent: React.FC = () => {
                            </thead>
                            <tbody className="divide-y dark:divide-slate-800">
                               {filteredUsers.map(u => (
-                                 <tr key={u.address} className="hover:bg-slate-50/50 transition-colors text-sm">
+                                 <tr key={u.address} className={`hover:bg-slate-50/50 transition-colors text-sm ${u.isPermaBanned || (u.bannedUntil && new Date(u.bannedUntil).getTime() > Date.now()) ? 'bg-rose-50 dark:bg-rose-900/10' : ''}`}>
                                     <td className="p-4 font-black text-xs text-slate-400">#{u.uid}</td>
                                     <td className="p-4 flex items-center gap-3">
                                        <img src={u.avatar} className="w-8 h-8 rounded-full object-cover" />
-                                       <div className="min-w-0"><p className="font-black text-xs truncate w-32">{u.username || 'Anon'}</p><p className="text-[8px] font-mono text-slate-400 truncate w-32">{u.address}</p></div>
+                                       <div className="min-w-0">
+                                          <p className="font-black text-xs truncate w-32">{u.username || 'Anon'}</p>
+                                          <p className="text-[8px] font-mono text-slate-400 truncate w-32">{u.address}</p>
+                                          {(u.isPermaBanned || (u.bannedUntil && new Date(u.bannedUntil).getTime() > Date.now())) && <span className="text-[9px] font-black text-rose-500 uppercase tracking-widest">BANNED</span>}
+                                       </div>
                                     </td>
                                     <td className="p-4 font-black text-primary-600 text-xs">{u.level}</td>
                                     <td className="p-4">
@@ -531,8 +535,6 @@ const AdminPanelContent: React.FC = () => {
                                              } else {
                                                 console.error("Status Update Failed", error);
                                                 addToast("Failed to save status", "error");
-                                                // Revert on error (optional, but good practice)
-                                                // refreshData();
                                              }
                                           }}>
                                              <option value="Hunter">Hunter</option>
@@ -545,11 +547,38 @@ const AdminPanelContent: React.FC = () => {
                                        )}
                                     </td>
                                     <td className="p-4 flex gap-2">
-                                       <button onClick={() => handleTempBan(u.address)} className="p-2 text-amber-500 hover:bg-amber-50 rounded-lg"><Clock size={16} /></button>
-                                       {isOwner && <button onClick={() => handlePermaBan(u.address)} className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg"><Lock size={16} /></button>}
-                                       {isOwner && <button onClick={() => { if (confirm("Permanently delete unit?")) setUsersList(prev => prev.filter(usr => usr.address !== u.address)); }} className="text-red-500 p-2 hover:bg-red-50 rounded-lg"><Trash2 size={16} /></button>}
+                                       {(u.isPermaBanned || (u.bannedUntil && new Date(u.bannedUntil).getTime() > Date.now())) ? (
+                                          <button onClick={async () => {
+                                             // UNBAN LOGIC
+                                             const { error } = await supabase.from('users').update({ isPermaBanned: false, bannedUntil: null }).eq('address', u.address);
+                                             if (!error) {
+                                                addToast("User unbanned.");
+                                                setUsersList(prev => prev.map(usr => usr.address === u.address ? { ...usr, isPermaBanned: false, bannedUntil: null } : usr));
+                                             } else {
+                                                addToast("Unban failed", "error");
+                                             }
+                                          }} className="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg flex items-center gap-1 font-bold text-[9px] uppercase"><Unlock size={16} /> Unban</button>
+                                       ) : (
+                                          <>
+                                             <button onClick={() => banUser(u.address, Date.now() + 24 * 60 * 60 * 1000)} className="p-2 text-amber-500 hover:bg-amber-50 rounded-lg" title="24h Ban"><Clock size={16} /></button>
+                                             {isOwner && <button onClick={() => banUser(u.address, 'perma')} className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg" title="Perma Ban"><Lock size={16} /></button>}
+                                          </>
+                                       )}
+
+                                       {isOwner && <button onClick={async () => {
+                                          if (confirm("Permanently delete/wipe this user?")) {
+                                             const { error } = await supabase.from('users').delete().eq('address', u.address);
+                                             if (!error) {
+                                                setUsersList(prev => prev.filter(usr => usr.address !== u.address));
+                                                addToast("User wiped.");
+                                             } else {
+                                                addToast("Deletion failed", "error");
+                                             }
+                                          }
+                                       }} className="text-red-500 p-2 hover:bg-red-50 rounded-lg"><Trash2 size={16} /></button>}
                                     </td>
                                  </tr>
+
                               ))}
                            </tbody>
                         </table>
