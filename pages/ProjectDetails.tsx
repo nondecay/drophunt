@@ -242,20 +242,11 @@ export const ProjectDetails: React.FC = () => {
 
   const handleDeleteComment = async () => {
     if (!commentToDelete) return;
-
-    // FIX: Use Safer RPC that supports Admin Bypass AND Owner Deletion
-    const { error } = await supabase.rpc('delete_comment_safe', { target_id: commentToDelete });
-
-    if (!error) {
-      setComments(p => p.filter(x => x.id !== commentToDelete));
-      addToast(t('commentDeleted'));
-    } else {
-      console.error("Delete Error:", error);
-      addToast("Delete Failed: " + error.message, "error");
-    }
+    await supabase.from('comments').delete().eq('id', commentToDelete);
+    setComments(p => p.filter(x => x.id !== commentToDelete));
+    addToast(t('commentDeleted'));
     setCommentToDelete(null);
   };
-
 
   const openEditGuide = (g: Guide) => {
     setEditingGuide(g);

@@ -560,32 +560,21 @@ const AdminPanelContent: React.FC = () => {
                                  </div>
                                  <div className="flex gap-2">
                                     <button onClick={async () => {
-                                       // FIX: Use Safer RPC for approval too
-                                       const { error } = await supabase.rpc('approve_comment_safe', { target_id: c.id });
+                                       const { error } = await supabase.from('comments').update({ isApproved: true }).eq('id', c.id);
                                        if (!error) {
                                           setComments(p => p.map(x => x.id === c.id ? { ...x, isApproved: true } : x));
                                           addToast("Comment approved (Saved).");
                                        } else {
-                                          console.error("Approve Error:", error);
-                                          addToast("Approve Failed: " + error.message, "error");
+                                          addToast("Approval Failed", "error");
                                        }
                                     }} className="p-2.5 bg-emerald-500 text-white rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all"><Check size={18} /></button>
-
                                     <button onClick={async () => {
-                                       if (!confirm("Are you sure you want to delete this comment?")) return;
-
-                                       const { error } = await supabase.rpc('delete_comment_safe', { target_id: c.id });
+                                       const { error } = await supabase.from('comments').delete().eq('id', c.id);
                                        if (!error) {
                                           setComments(p => p.filter(x => x.id !== c.id));
-                                          addToast("Comment deleted permanently.");
-                                       } else {
-                                          console.error("Delete Error:", error);
-                                          addToast("Delete Failed: " + error.message, "error");
+                                          addToast("Comment deleted.");
                                        }
                                     }} className="p-2.5 bg-rose-500 text-white rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all"><Trash2 size={18} /></button>
-
-
-
                                  </div>
                               </div>
                            ))}
