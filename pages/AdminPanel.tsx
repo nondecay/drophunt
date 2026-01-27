@@ -37,14 +37,19 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
    }
 }
 
+import { LoadingSpinner } from '../components/LoadingSpinner';
+
 const AdminPanelContent: React.FC = () => {
    const {
       airdrops, setAirdrops, comments, setComments, guides, setGuides, claims, setClaims,
       usersList, setUsersList, requests, setRequests, addToast, activities, setActivities,
       chains, setChains, setInbox, infofiPlatforms, setInfofiPlatforms, t, user,
       announcements, setAnnouncements, investors, setInvestors, resetAllXPs, banUser,
-      tools, setTools
+      tools, setTools, isDataLoaded
    } = useApp();
+
+   if (!isDataLoaded) return <LoadingSpinner />;
+
 
    const [activeTab, setActiveTab] = useState<'dash' | 'airdrops' | 'infofi' | 'platforms' | 'investors' | 'claims' | 'presales' | 'gm' | 'mint' | 'deploy' | 'rpg' | 'users' | 'requests' | 'moderation' | 'chains' | 'messages' | 'announcements' | 'tools'>('dash');
 
@@ -816,7 +821,7 @@ const AdminPanelContent: React.FC = () => {
                                              <span key={t} onClick={() => setFormData((prev: any) => ({ ...prev, tags: prev.tags.filter((tag: string) => tag !== t) }))} className="bg-primary-100 dark:bg-primary-900/30 text-primary-600 px-1.5 py-0.5 rounded cursor-pointer hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-500 transition-colors text-[9px]">{t}</span>
                                           ))}
                                           <select
-                                             className="absolute inset-0 opacity-0 cursor-pointer"
+                                             className="absolute inset-0 opacity-0 cursor-pointer text-slate-900 dark:text-white bg-white dark:bg-slate-900"
                                              value=""
                                              onChange={(e) => {
                                                 if (e.target.value && !(formData.tags || []).includes(e.target.value)) {
@@ -824,9 +829,9 @@ const AdminPanelContent: React.FC = () => {
                                                 }
                                              }}
                                           >
-                                             <option value="">+ Add</option>
-                                             {['Points', 'DEX', 'Perp Dex', 'Lending', 'Bridge', 'L2', 'NFT', 'GameFi', 'Social', 'Infra', 'Wallet', 'Privacy', 'AI', 'RWA', 'Meme'].map(opt => (
-                                                <option key={opt} value={opt}>{opt}</option>
+                                             <option value="" className="text-slate-900 dark:text-white bg-white dark:bg-slate-900">+ Add</option>
+                                             {['Points', 'DEX', 'Perp Dex', 'Lending', 'Bridge', 'L2', 'NFT', 'GameFi', 'Social', 'Infra', 'Wallet', 'Privacy', 'AI', 'RWA', 'Meme', 'Robotics', 'Layer1'].map(opt => (
+                                                <option key={opt} value={opt} className="text-slate-900 dark:text-white bg-white dark:bg-slate-900">{opt}</option>
                                              ))}
                                           </select>
                                           {(formData.tags || []).length === 0 && <span className="text-slate-400 pointer-events-none">+ Add Tag</span>}

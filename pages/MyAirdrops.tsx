@@ -7,6 +7,8 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 import { getImgUrl } from '../utils/getImgUrl';
 
+import { LoadingSpinner } from '../components/LoadingSpinner';
+
 export const MyAirdrops: React.FC = () => {
   const { airdrops, userTasks, setUserTasks, userClaims, setUserClaims, addToast, user, toggleTrackProject, t, inbox, manageTodo, manageUserClaim, infofiPlatforms, isDataLoaded } = useApp();
   const { isConnected } = useAccount();
@@ -23,13 +25,7 @@ export const MyAirdrops: React.FC = () => {
 
   if (!isDataLoaded) {
     return (
-      <div className="min-h-[50vh] flex flex-col items-center justify-center space-y-4">
-        <div className="relative w-16 h-16">
-          <div className="absolute inset-0 border-4 border-slate-200 dark:border-slate-800 rounded-full"></div>
-          <div className="absolute inset-0 border-4 border-primary-500 rounded-full border-t-transparent animate-spin"></div>
-        </div>
-        <p className="text-slate-400 font-black uppercase tracking-widest text-xs animate-pulse">Initializing Protocol...</p>
-      </div>
+      <LoadingSpinner />
     );
   }
 
@@ -268,9 +264,12 @@ export const MyAirdrops: React.FC = () => {
 
       <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-12">
         <div><h1 className="text-4xl font-black tracking-tighter mb-2">{t('operationCenter')}</h1><p className="text-slate-500 font-medium tracking-wide">{t('operationSub')}</p></div>
-        <div className="flex gap-2 w-full md:w-auto">
+        <div className="flex gap-2 w-full md:w-auto min-h-[52px] justify-end">
           {activeTab === 'tasks' && (
-            <button onClick={() => setShowAdd(true)} className="flex-1 md:flex-none px-6 py-3.5 bg-primary-600 text-white rounded-xl font-black text-sm flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-transform uppercase tracking-widest"><Plus size={18} /> {t('newTask')}</button>
+            <button onClick={() => setShowAdd(true)} className="flex-1 md:flex-none px-6 py-3.5 bg-primary-600 text-white rounded-xl font-black text-sm flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-transform uppercase tracking-widest animate-in fade-in slide-in-from-right-4"><Plus size={18} /> {t('newTask')}</button>
+          )}
+          {activeTab === 'claimed' && (
+            <button onClick={() => setShowClaimAdd(true)} className="flex-1 md:flex-none px-6 py-3.5 bg-emerald-600 text-white rounded-xl font-black text-sm flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-transform uppercase tracking-widest animate-in fade-in slide-in-from-right-4"><Plus size={18} /> {t('recordClaim')}</button>
           )}
         </div>
       </div>
@@ -376,11 +375,11 @@ export const MyAirdrops: React.FC = () => {
               {activeTab === 'airdrops' && (
                 <div className="relative">
                   <select
-                    className="w-48 h-full bg-white dark:bg-slate-900 text-[10px] font-black uppercase tracking-widest pl-4 pr-10 py-3 rounded-2xl border dark:border-slate-800 shadow-sm hover:border-primary-500 outline-none cursor-pointer appearance-none transition-all"
+                    className="w-48 h-full bg-slate-50 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest pl-4 pr-10 py-3 rounded-2xl border-2 border-slate-100 dark:border-slate-700 hover:border-primary-500 shadow-sm outline-none cursor-pointer appearance-none transition-all focus:ring-4 focus:ring-primary-500/10"
                     onChange={(e) => setTagFilter(e.target.value)}
                     value={tagFilter}
                   >
-                    <option value="all">Filtre: All Tags</option>
+                    <option value="all">FILTER: All Tags</option>
                     {uniqueTags.map(tag => (
                       <option key={tag} value={tag}>{tag}</option>
                     ))}
@@ -469,7 +468,6 @@ export const MyAirdrops: React.FC = () => {
                   <Stat label={t('totalEarning')} val={`$${totalEarning.toLocaleString()}`} color="text-emerald-500" />
                   <Stat label={t('netYield')} val={`$${totalProfit.toLocaleString()}`} color={totalProfit >= 0 ? "text-primary-600" : "text-red-500"} />
                 </div>
-                <button onClick={() => setShowClaimAdd(true)} className="px-6 py-3.5 bg-emerald-600 text-white rounded-xl font-black text-xs flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-transform uppercase tracking-widest relative z-10"><Plus size={16} /> {t('recordClaim')}</button>
               </div>
 
               <div className="bg-white dark:bg-slate-900 rounded-[2rem] border dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto">

@@ -316,8 +316,8 @@ export const OnChainRPG: React.FC = () => {
 
                   <div className="space-y-3 mb-10">
                      {currentRanked.map((u, i) => (
-                        <div key={u.address} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-3xl transition-all hover:bg-white dark:hover:bg-slate-800 border dark:border-slate-700 shadow-sm">
-                           <div className="flex items-center gap-5">
+                        <div key={u.address} className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl transition-all hover:bg-white dark:hover:bg-slate-800 border dark:border-slate-700 shadow-sm">
+                           <div className="flex items-center gap-3">
                               <span className={`w-8 font-black text-sm ${(rankingPage - 1) * rankPerPage + i < 3 ? 'text-amber-500' : 'text-slate-400'}`}>#{(rankingPage - 1) * rankPerPage + i + 1}</span>
                               <img src={getImgUrl(u.avatar)} className="w-12 h-12 rounded-2xl object-cover shadow-md border-2 border-white dark:border-slate-700" />
                               <div>
