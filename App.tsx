@@ -4,17 +4,6 @@ import { Analytics } from "@vercel/analytics/react";
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider, useApp } from './AppContext';
 import { Layout } from './pages/Layout';
-import { VerificationModal } from './components/VerificationModal';
-import { UsernameModal } from './components/UsernameModal';
-import { BannedScreen } from './components/BannedScreen';
-
-// RainbowKit & Wagmi Imports
-import '@rainbow-me/rainbowkit/styles.css';
-import { getDefaultConfig, RainbowKitProvider, darkTheme, lightTheme } from '@rainbow-me/rainbowkit';
-import { WagmiProvider, http } from 'wagmi';
-import { mainnet, polygon, optimism, arbitrum, base, sepolia, baseSepolia, optimismSepolia, arbitrumSepolia, polygonAmoy } from 'wagmi/chains';
-import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
-
 import { Home } from './pages/Home';
 import { Calendar } from './pages/Calendar';
 import { MyAirdrops } from './pages/MyAirdrops';
@@ -31,7 +20,16 @@ import { Investors } from './pages/Investors';
 import { InvestorDetails } from './pages/InvestorDetails';
 import { Tools } from './pages/Tools';
 import { Faucets } from './pages/Faucets';
+import { VerificationModal } from './components/VerificationModal';
+import { UsernameModal } from './components/UsernameModal';
 
+
+// RainbowKit & Wagmi Imports
+import '@rainbow-me/rainbowkit/styles.css';
+import { getDefaultConfig, RainbowKitProvider, darkTheme, lightTheme } from '@rainbow-me/rainbowkit';
+import { WagmiProvider, http } from 'wagmi';
+import { mainnet, polygon, optimism, arbitrum, base, sepolia, baseSepolia, optimismSepolia, arbitrumSepolia, polygonAmoy } from 'wagmi/chains';
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 
 // Berachain Testnet Definition
 const berachainTestnet = {

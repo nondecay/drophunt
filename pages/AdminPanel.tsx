@@ -5,7 +5,7 @@ import { supabase } from '../supabaseClient';
 import {
    Shield, LayoutDashboard, Users, MessageSquare, Check, Trash2, Edit, Plus, Bell, Zap, X,
    Mail, Ticket, BarChart3, Star, Trophy, ArrowUpCircle, Sword, Globe, ExternalLink, Map, Sun, Sparkles, Youtube, Github, Twitter, Save, UserPlus, Link2, Calendar, UserCheck, ShieldAlert, Send,
-   Layers, Search, Info, Megaphone, TrendingUp, ChevronRight, Lock, Clock, History, ChevronLeft, Wrench, ChevronDown, Filter, Unlock
+   Layers, Search, Info, Megaphone, TrendingUp, ChevronRight, Lock, Clock, History, ChevronLeft, Wrench, ChevronDown, Filter
 } from 'lucide-react';
 import { OnChainActivity, Airdrop, Claim, Guide, Comment, TopUser, Chain, User, InfoFiPlatform, Announcement, Investor, Tool, ToolCategory } from '../types';
 import ReactQuill from 'react-quill';
@@ -108,18 +108,6 @@ const AdminPanelContent: React.FC = () => {
       const interval = setInterval(checkSession, 60000);
       return () => clearInterval(interval);
    }, []);
-
-   // FIX: Fetch Requests only when tab is active (Admin Only)
-   React.useEffect(() => {
-      if (activeTab === 'requests') {
-         const fetchRequests = async () => {
-            const { data, error } = await supabase.from('airdrop_requests').select('*');
-            if (data) setRequests(data as any);
-            if (error) addToast("Failed to load requests", "error");
-         };
-         fetchRequests();
-      }
-   }, [activeTab]);
 
    const quillModules = useMemo(() => ({
       toolbar: {
@@ -468,7 +456,7 @@ const AdminPanelContent: React.FC = () => {
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 py-2 mt-4">{t('secComms')}</p>
                   {canSee('messages') && <NavBtn icon={<Send size={18} className="text-primary-600" />} label={t('globalComms')} active={activeTab === 'messages'} onClick={() => setActiveTab('messages')} />}
                   {canSee('requests') && <NavBtn icon={<Mail size={18} />} label={t('requests')} active={activeTab === 'requests'} onClick={() => setActiveTab('requests')} count={requests.length} />}
-                  {canSee('moderation') && <NavBtn icon={<MessageSquare size={18} />} label={t('moderation')} active={activeTab === 'moderation'} onClick={() => setActiveTab('moderation')} count={comments.filter(c => !c.isApproved).length + guides.filter(g => !g.isApproved).length} />}
+                  {canSee('moderation') && <NavBtn icon={<MessageSquare size={18} />} label={t('moderation')} active={activeTab === 'moderation'} onClick={() => setActiveTab('moderation')} count={comments.filter(c => !c.is_approved).length + guides.filter(g => !g.is_approved).length} />}
                   {canSee('users') && <NavBtn icon={<Users size={18} />} label={t('hunterDb')} active={activeTab === 'users'} onClick={() => setActiveTab('users')} />}
                </nav>
             </aside>
@@ -509,15 +497,11 @@ const AdminPanelContent: React.FC = () => {
                            </thead>
                            <tbody className="divide-y dark:divide-slate-800">
                               {filteredUsers.map(u => (
-                                 <tr key={u.address} className={`hover:bg-slate-50/50 transition-colors text-sm ${u.isPermaBanned || (u.bannedUntil && new Date(u.bannedUntil).getTime() > Date.now()) ? 'bg-rose-50 dark:bg-rose-900/10' : ''}`}>
+                                 <tr key={u.address} className="hover:bg-slate-50/50 transition-colors text-sm">
                                     <td className="p-4 font-black text-xs text-slate-400">#{u.uid}</td>
                                     <td className="p-4 flex items-center gap-3">
                                        <img src={u.avatar} className="w-8 h-8 rounded-full object-cover" />
-                                       <div className="min-w-0">
-                                          <p className="font-black text-xs truncate w-32">{u.username || 'Anon'}</p>
-                                          <p className="text-[8px] font-mono text-slate-400 truncate w-32">{u.address}</p>
-                                          {(u.isPermaBanned || (u.bannedUntil && new Date(u.bannedUntil).getTime() > Date.now())) && <span className="text-[9px] font-black text-rose-500 uppercase tracking-widest">BANNED</span>}
-                                       </div>
+                                       <div className="min-w-0"><p className="font-black text-xs truncate w-32">{u.username || 'Anon'}</p><p className="text-[8px] font-mono text-slate-400 truncate w-32">{u.address}</p></div>
                                     </td>
                                     <td className="p-4 font-black text-primary-600 text-xs">{u.level}</td>
                                     <td className="p-4">
@@ -535,6 +519,8 @@ const AdminPanelContent: React.FC = () => {
                                              } else {
                                                 console.error("Status Update Failed", error);
                                                 addToast("Failed to save status", "error");
+                                                // Revert on error (optional, but good practice)
+                                                // refreshData();
                                              }
                                           }}>
                                              <option value="Hunter">Hunter</option>
@@ -547,38 +533,11 @@ const AdminPanelContent: React.FC = () => {
                                        )}
                                     </td>
                                     <td className="p-4 flex gap-2">
-                                       {(u.isPermaBanned || (u.bannedUntil && new Date(u.bannedUntil).getTime() > Date.now())) ? (
-                                          <button onClick={async () => {
-                                             // UNBAN LOGIC
-                                             const { error } = await supabase.from('users').update({ isPermaBanned: false, bannedUntil: null }).eq('address', u.address);
-                                             if (!error) {
-                                                addToast("User unbanned.");
-                                                setUsersList(prev => prev.map(usr => usr.address === u.address ? { ...usr, isPermaBanned: false, bannedUntil: null } : usr));
-                                             } else {
-                                                addToast("Unban failed", "error");
-                                             }
-                                          }} className="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg flex items-center gap-1 font-bold text-[9px] uppercase"><Unlock size={16} /> Unban</button>
-                                       ) : (
-                                          <>
-                                             <button onClick={() => banUser(u.address, Date.now() + 24 * 60 * 60 * 1000)} className="p-2 text-amber-500 hover:bg-amber-50 rounded-lg" title="24h Ban"><Clock size={16} /></button>
-                                             {isOwner && <button onClick={() => banUser(u.address, 'perma')} className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg" title="Perma Ban"><Lock size={16} /></button>}
-                                          </>
-                                       )}
-
-                                       {isOwner && <button onClick={async () => {
-                                          if (confirm("Permanently delete/wipe this user?")) {
-                                             const { error } = await supabase.from('users').delete().eq('address', u.address);
-                                             if (!error) {
-                                                setUsersList(prev => prev.filter(usr => usr.address !== u.address));
-                                                addToast("User wiped.");
-                                             } else {
-                                                addToast("Deletion failed", "error");
-                                             }
-                                          }
-                                       }} className="text-red-500 p-2 hover:bg-red-50 rounded-lg"><Trash2 size={16} /></button>}
+                                       <button onClick={() => handleTempBan(u.address)} className="p-2 text-amber-500 hover:bg-amber-50 rounded-lg"><Clock size={16} /></button>
+                                       {isOwner && <button onClick={() => handlePermaBan(u.address)} className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg"><Lock size={16} /></button>}
+                                       {isOwner && <button onClick={() => { if (confirm("Permanently delete unit?")) setUsersList(prev => prev.filter(usr => usr.address !== u.address)); }} className="text-red-500 p-2 hover:bg-red-50 rounded-lg"><Trash2 size={16} /></button>}
                                     </td>
                                  </tr>
-
                               ))}
                            </tbody>
                         </table>
@@ -590,7 +549,7 @@ const AdminPanelContent: React.FC = () => {
                   <div className="space-y-10">
                      <SectionWrapper title="Pending Comments">
                         <div className="space-y-4">
-                           {comments.filter(c => !c.isApproved).map(c => (
+                           {comments.filter(c => !c.is_approved).map(c => (
                               <div key={c.id} className="p-5 bg-white dark:bg-slate-800 rounded-3xl flex items-start justify-between border dark:border-slate-700 shadow-sm">
                                  <div className="flex gap-4">
                                     <img src={c.avatar} className="w-12 h-12 rounded-xl" />
@@ -601,12 +560,13 @@ const AdminPanelContent: React.FC = () => {
                                  </div>
                                  <div className="flex gap-2">
                                     <button onClick={async () => {
-                                       const { error } = await supabase.from('comments').update({ isApproved: true }).eq('id', c.id);
-                                       if (!error) {
-                                          setComments(p => p.map(x => x.id === c.id ? { ...x, isApproved: true } : x));
+                                       const { data, error } = await supabase.from('comments').update({ is_approved: true }).eq('id', c.id).select();
+                                       if (!error && data && data.length > 0) {
+                                          setComments(p => p.map(x => x.id === c.id ? { ...x, is_approved: true } : x));
                                           addToast("Comment approved (Saved).");
                                        } else {
-                                          addToast("Approval Failed", "error");
+                                          console.error("Approval Check Failed:", error, data);
+                                          addToast("Approval Failed: Permissions or Network", "error");
                                        }
                                     }} className="p-2.5 bg-emerald-500 text-white rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all"><Check size={18} /></button>
                                     <button onClick={async () => {
@@ -619,12 +579,12 @@ const AdminPanelContent: React.FC = () => {
                                  </div>
                               </div>
                            ))}
-                           {comments.filter(c => !c.isApproved).length === 0 && <div className="p-20 text-center text-slate-300 font-black uppercase text-xs tracking-widest border-4 border-dashed rounded-[3rem]">Comment queue is quiet.</div>}
+                           {comments.filter(c => !c.is_approved).length === 0 && <div className="p-20 text-center text-slate-300 font-black uppercase text-xs tracking-widest border-4 border-dashed rounded-[3rem]">Comment queue is quiet.</div>}
                         </div>
                      </SectionWrapper>
                      <SectionWrapper title="Proposed Guides">
                         <div className="space-y-4">
-                           {guides.filter(g => !g.isApproved).map(g => (
+                           {guides.filter(g => !g.is_approved).map(g => (
                               <div key={g.id} className="p-5 bg-white dark:bg-slate-800 rounded-3xl flex flex-col border dark:border-slate-700 shadow-sm gap-4">
                                  <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-4">
@@ -637,11 +597,11 @@ const AdminPanelContent: React.FC = () => {
                                     <div className="flex gap-2">
                                        <button onClick={async () => {
                                           const { error } = await supabase.from('guides').update({
-                                             isApproved: true,
+                                             is_approved: true,
                                              title: g.title
                                           }).eq('id', g.id);
                                           if (!error) {
-                                             setGuides(p => p.map(x => x.id === g.id ? { ...x, isApproved: true } : x));
+                                             setGuides(p => p.map(x => x.id === g.id ? { ...x, is_approved: true } : x));
                                              addToast("Guide approved & Title Saved.");
                                           } else addToast("Failed", "error");
                                        }} className="p-2.5 bg-emerald-500 text-white rounded-xl shadow-lg hover:scale-105 transition-all"><Check size={18} /></button>
@@ -660,12 +620,11 @@ const AdminPanelContent: React.FC = () => {
                                  </div>
                               </div>
                            ))}
-                           {guides.filter(g => !g.isApproved).length === 0 && <div className="p-20 text-center text-slate-300 font-black uppercase text-xs tracking-widest border-4 border-dashed rounded-[3rem]">Guide queue is quiet.</div>}
+                           {guides.filter(g => !g.is_approved).length === 0 && <div className="p-20 text-center text-slate-300 font-black uppercase text-xs tracking-widest border-4 border-dashed rounded-[3rem]">Guide queue is quiet.</div>}
                         </div>
                      </SectionWrapper>
                   </div>
                )}
-
 
 
 
@@ -676,49 +635,12 @@ const AdminPanelContent: React.FC = () => {
                            <div key={r.id} className="p-6 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-[2rem] flex items-center justify-between group shadow-sm transition-all hover:border-primary-500">
                               <div>
                                  <h4 className="font-black text-xl uppercase tracking-tighter">{r.name}</h4>
-                                 <p className={`text-[10px] font-black uppercase tracking-widest text-primary-600`}>Proposed by {r.address}</p>
+                                 <p className={`text-[10px] font-black uppercase tracking-widest ${r.isInfoFi ? 'text-amber-500' : 'text-primary-600'}`}>Proposal by {r.address}</p>
                                  {r.twitterLink && <a href={r.twitterLink} target="_blank" rel="noreferrer" className="text-[10px] text-sky-500 font-bold hover:underline flex items-center gap-1 mt-1"><Twitter size={10} /> {r.twitterLink}</a>}
                               </div>
                               <div className="flex gap-2">
-                                 <button onClick={async () => {
-                                    const newDrop = {
-                                       name: r.name,
-                                       investment: r.funding || 'TBA',
-                                       type: 'Free',
-                                       hasInfoFi: r.isInfoFi || false,
-                                       rating: 5,
-                                       status: 'Potential',
-                                       createdAt: Date.now(),
-                                       socials: { twitter: r.twitterLink || '' }
-                                    };
-                                    // 1. Insert into Airdrops
-                                    const { data: created, error: createErr } = await supabase.from('airdrops').insert(newDrop).select().single();
-
-                                    if (!createErr) {
-                                       // 2. Delete from Requests
-                                       await supabase.from('airdrop_requests').delete().eq('id', r.id);
-
-                                       setAirdrops(prev => [created ? created : { ...newDrop, id: Date.now().toString() } as any, ...prev]);
-                                       setRequests(p => p.filter(x => x.id !== r.id));
-                                       addToast("Project indexed.");
-                                    } else {
-                                       console.error(createErr);
-                                       addToast("Failed to create project: " + createErr.message, "error");
-                                    }
-                                 }} className="p-3.5 bg-emerald-500 text-white rounded-2xl shadow-lg active:scale-90 transition-all"><Check size={24} /></button>
-
-                                 <button onClick={async () => {
-                                    if (confirm("Discard proposal?")) {
-                                       const { error } = await supabase.from('airdrop_requests').delete().eq('id', r.id);
-                                       if (!error) {
-                                          setRequests(p => p.filter(x => x.id !== r.id));
-                                          addToast("Proposal discarded.");
-                                       } else {
-                                          addToast("Failed to delete", "error");
-                                       }
-                                    }
-                                 }} className="p-3.5 bg-rose-500 text-white rounded-2xl shadow-lg active:scale-90 transition-all"><Trash2 size={24} /></button>
-
+                                 <button onClick={() => { setAirdrops(prev => [{ id: Date.now().toString(), name: r.name, icon: '', investment: r.funding, type: 'Free', hasInfoFi: r.isInfoFi, rating: 5, voteCount: 0, status: 'Potential', projectInfo: '', campaignUrl: '', claimUrl: '', createdAt: Date.now(), backerIds: [], socials: { twitter: r.twitterLink } }, ...prev]); setRequests(p => p.filter(x => x.id !== r.id)); addToast("Project indexed."); }} className="p-3.5 bg-emerald-500 text-white rounded-2xl shadow-lg active:scale-90 transition-all"><Check size={24} /></button>
+                                 <button onClick={() => { if (confirm("Discard proposal?")) setRequests(p => p.filter(x => x.id !== r.id)); }} className="p-3.5 bg-rose-500 text-white rounded-2xl shadow-lg active:scale-90 transition-all"><Trash2 size={24} /></button>
                               </div>
                            </div>
                         ))}

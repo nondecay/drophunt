@@ -127,7 +127,7 @@ export interface Guide {
   url: string;
   lang: string;
   countryCode: 'tr' | 'us';
-  isApproved: boolean;
+  is_approved: boolean;
   airdropId: string;
   createdAt: number;
   title?: string;
@@ -186,7 +186,7 @@ export interface Comment {
   rating?: number;
   createdAt: string;
   createdAtTimestamp: number; // Track for constraints
-  isApproved: boolean;
+  is_approved: boolean;
 }
 
 export interface InboxMessage {
