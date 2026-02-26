@@ -76,7 +76,7 @@ export const ProjectDetails: React.FC = () => {
     return comments
       .filter(c => c && (
         c.airdropId === id &&
-        (c.is_approved || (user?.address && c.address === user.address) || user?.role === 'admin' || user?.memberStatus === 'Admin')
+        (c.isApproved || (user?.address && c.address === user.address) || user?.role === 'admin' || user?.memberStatus === 'Admin')
       ))
       .sort((a, b) => (b.createdAtTimestamp || 0) - (a.createdAtTimestamp || 0));
   }, [comments, id, user]);
@@ -117,7 +117,7 @@ export const ProjectDetails: React.FC = () => {
   const totalCommentPages = Math.ceil(projectComments.length / commentsPerPage);
   const paginatedComments = projectComments.slice((commentPage - 1) * commentsPerPage, commentPage * commentsPerPage);
 
-  const filteredGuides = guides.filter(g => g.airdropId === id && g.is_approved && g.countryCode === guideFilter);
+  const filteredGuides = guides.filter(g => g.airdropId === id && g.isApproved && g.countryCode === guideFilter);
 
   const backerList = (project.backerIds || [])
     .map(bid => investors.find(inv => inv.id === bid))
@@ -154,7 +154,7 @@ export const ProjectDetails: React.FC = () => {
       rating: userRating,
       createdAt: new Date().toLocaleString(),
       createdAtTimestamp: now,
-      is_approved: false // User requested admin approval requirement
+      isApproved: false // User requested admin approval requirement
     };
 
     const { data: savedComment, error } = await supabase.from('comments').insert(newComment).select().single();
@@ -219,7 +219,7 @@ export const ProjectDetails: React.FC = () => {
       url: guideData.url,
       lang: guideData.countryCode === 'us' ? 'en' : 'tr',
       countryCode: guideData.countryCode,
-      is_approved: false,
+      isApproved: false,
       airdropId: project.id,
       createdAt: Date.now()
     };
@@ -664,7 +664,7 @@ export const ProjectDetails: React.FC = () => {
                               <span className="font-black text-xs uppercase leading-none flex items-center gap-2">
                                 {c.username}
                                 {/* Logic Fix: Show PENDING only if NOT approved AND (isAuthor OR isAdmin) */}
-                                {!c.is_approved && (user?.address === c.address || isAdmin) && (
+                                {!c.isApproved && (user?.address === c.address || isAdmin) && (
                                   <span className="bg-amber-100 text-amber-600 text-[8px] px-1.5 py-0.5 rounded border border-amber-200 animate-pulse">
                                     PENDING APPROVAL
                                   </span>

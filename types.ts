@@ -24,6 +24,7 @@ export interface Tool {
 }
 
 export interface User {
+  id: string; // The Supabase auth UUID
   uid: number;
   address: string;
   username?: string;
@@ -127,7 +128,7 @@ export interface Guide {
   url: string;
   lang: string;
   countryCode: 'tr' | 'us';
-  is_approved: boolean;
+  isApproved: boolean;
   airdropId: string;
   createdAt: number;
   title?: string;
@@ -186,7 +187,7 @@ export interface Comment {
   rating?: number;
   createdAt: string;
   createdAtTimestamp: number; // Track for constraints
-  is_approved: boolean;
+  isApproved: boolean;
 }
 
 export interface InboxMessage {
