@@ -461,7 +461,7 @@ const AdminPanelContent: React.FC = () => {
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 py-2 mt-4">{t('secComms')}</p>
                   {canSee('messages') && <NavBtn icon={<Send size={18} className="text-primary-600" />} label={t('globalComms')} active={activeTab === 'messages'} onClick={() => setActiveTab('messages')} />}
                   {canSee('requests') && <NavBtn icon={<Mail size={18} />} label={t('requests')} active={activeTab === 'requests'} onClick={() => setActiveTab('requests')} count={requests.length} />}
-                  {canSee('moderation') && <NavBtn icon={<MessageSquare size={18} />} label={t('moderation')} active={activeTab === 'moderation'} onClick={() => setActiveTab('moderation')} count={comments.filter(c => !c.isApproved).length + guides.filter(g => !g.isApproved).length} />}
+                  {canSee('moderation') && <NavBtn icon={<MessageSquare size={18} />} label={t('moderation')} active={activeTab === 'moderation'} onClick={() => setActiveTab('moderation')} count={comments.filter(c => !c.is_approved).length + guides.filter(g => !g.is_approved).length} />}
                   {canSee('users') && <NavBtn icon={<Users size={18} />} label={t('hunterDb')} active={activeTab === 'users'} onClick={() => setActiveTab('users')} />}
                </nav>
             </aside>
@@ -554,7 +554,7 @@ const AdminPanelContent: React.FC = () => {
                   <div className="space-y-10">
                      <SectionWrapper title="Pending Comments">
                         <div className="space-y-4">
-                           {comments.filter(c => !c.isApproved).map(c => (
+                           {comments.filter(c => !c.is_approved).map(c => (
                               <div key={c.id} className="p-5 bg-white dark:bg-slate-800 rounded-3xl flex items-start justify-between border dark:border-slate-700 shadow-sm">
                                  <div className="flex gap-4">
                                     <img src={c.avatar} className="w-12 h-12 rounded-xl" />
@@ -584,12 +584,12 @@ const AdminPanelContent: React.FC = () => {
                                  </div>
                               </div>
                            ))}
-                           {comments.filter(c => !c.isApproved).length === 0 && <div className="p-20 text-center text-slate-300 font-black uppercase text-xs tracking-widest border-4 border-dashed rounded-[3rem]">Comment queue is quiet.</div>}
+                           {comments.filter(c => !c.is_approved).length === 0 && <div className="p-20 text-center text-slate-300 font-black uppercase text-xs tracking-widest border-4 border-dashed rounded-[3rem]">Comment queue is quiet.</div>}
                         </div>
                      </SectionWrapper>
                      <SectionWrapper title="Proposed Guides">
                         <div className="space-y-4">
-                           {guides.filter(g => !g.isApproved).map(g => (
+                           {guides.filter(g => !g.is_approved).map(g => (
                               <div key={g.id} className="p-5 bg-white dark:bg-slate-800 rounded-3xl flex flex-col border dark:border-slate-700 shadow-sm gap-4">
                                  <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-4">
@@ -625,7 +625,7 @@ const AdminPanelContent: React.FC = () => {
                                  </div>
                               </div>
                            ))}
-                           {guides.filter(g => !g.isApproved).length === 0 && <div className="p-20 text-center text-slate-300 font-black uppercase text-xs tracking-widest border-4 border-dashed rounded-[3rem]">Guide queue is quiet.</div>}
+                           {guides.filter(g => !g.is_approved).length === 0 && <div className="p-20 text-center text-slate-300 font-black uppercase text-xs tracking-widest border-4 border-dashed rounded-[3rem]">Guide queue is quiet.</div>}
                         </div>
                      </SectionWrapper>
                   </div>
