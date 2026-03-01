@@ -158,7 +158,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         supabase.from('announcements').select('*'),
         supabase.from('tools').select('*'),
         supabase.from('users').select('*'),
-        supabase.from('events').select('*')
+        supabase.from('events').select('*'),
+        supabase.from('airdrop_requests').select('*')
         // Messages are now fetched per-user in fetchUserData to ensure privacy
       ]);
 
@@ -174,6 +175,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (results[9].data) setTools(results[9].data as any);
       if (results[10].data) setUsersList(results[10].data as any);
       if (results[11].data) setEvents(results[11].data as any);
+      if (results[12].data) setRequests(results[12].data as any);
 
       setIsDataLoaded(true);
 
@@ -523,117 +525,97 @@ Issued At: ${new Date().toISOString()}`;
             fetchUserData(retry.id);
           }
         }
-      } else {
-        setUser(existing as any);
-        fetchUserData(existing.id);
+        if (!existing) {
+          // ... (registration logic)
+        } else {
+          // Map potential snake_case from DB to camelCase for frontend
+          const mappedUser = {
+            ...existing,
+            trackedProjectIds: existing.trackedProjectIds || existing.tracked_project_ids || []
+          };
+          setUser(mappedUser as any);
+          fetchUserData(existing.id);
+        }
+
+      } catch (err: any) {
+        console.error("SIWE Error:", err);
+        // ...
       }
+    };
 
-    } catch (err: any) {
-      console.error("SIWE Error:", err);
-      // Safe guard: Do NOT disconnect here, as it triggers the useEffect loop again if verification fails.
-      // Just showing the error toast is sufficient. User can retry manually.
-      addToast("Verification failed: " + (err.message || "Unknown"), "error");
+    // ...
 
-      // If we really want to reset state:
-      setIsVerified(false);
-      setUser(null);
-    }
-  };
+    const toggleTrackProject = async (aid: string) => {
+      if (!user) return;
+      let current = user.trackedProjectIds || [];
+      const updated = current.includes(aid) ? current.filter(x => x !== aid) : [...current, aid];
 
+      // Optimistic Update
+      setUser({ ...user, trackedProjectIds: updated });
 
-  const setUsername = async (name: string) => {
-    if (!user) return false;
+      try {
+        // Use address fallback if id is missing in User type / SIWE
+        const matchField = user.id ? 'id' : 'address';
+        const matchValue = user.id ? user.id : user.address;
 
-    // Check 24-hour Cooldown
-    if (user.lastUsernameChange) {
-      const msSinceLastChange = Date.now() - user.lastUsernameChange;
-      const hoursSinceLastChange = msSinceLastChange / (1000 * 60 * 60);
-      if (hoursSinceLastChange < 24) {
-        addToast("You can change your username every 24 hours.", "error");
-        return false;
+        const { error } = await supabase.from('users').update({ "trackedProjectIds": updated }).eq(matchField, matchValue);
+
+        if (error) {
+          console.error("Track Update Failed (camelCase):", error);
+          // Revert optimistic update so the user actually sees it didn't stick
+          setUser({ ...user, trackedProjectIds: current });
+          addToast("Tracking failed: " + error.message, "error");
+        }
+      } catch (e: any) {
+        console.error("Track Exception", e);
+        setUser({ ...user, trackedProjectIds: current });
+        addToast("Tracking Exception: " + e.message, "error");
       }
-    }
+    };
 
-    const { error } = await supabase.from('users').update({ username: name, "lastUsernameChange": Date.now() }).eq('id', user.id);
-    if (error) {
-      addToast("Username taken or limit reached.", "error");
-      return false;
-    }
-    // Update local state with new name and new timestamp
-    setUser({ ...user, username: name, lastUsernameChange: Date.now() });
-    addToast("Username changed.", "success");
-    setShowUsernameModal(false);
-    return true;
+    const gainXP = async (amount: number, activityId?: string) => {
+      if (!user) return;
+      const newXP = user.xp + amount;
+      // ... logic for level up ...
+      // For now, simple update
+      await supabase.from('users').update({ xp: newXP }).eq('id', user.id);
+      setUser({ ...user, xp: newXP });
+    };
+
+    const logActivity = async (activityId: string) => {
+      if (!user) return;
+      const now = Date.now();
+      const updated = { ...user.lastActivities, [activityId]: now };
+      await supabase.from('users').update({ lastActivities: updated }).eq('id', user.id);
+      setUser({ ...user, lastActivities: updated });
+    };
+
+    const resetAllXPs = async () => {
+      await supabase.from('users').update({ xp: 0, level: 1 });
+      refreshData();
+    };
+
+
+    return (
+      <AppContext.Provider value={{
+        theme, toggleTheme: () => setTheme(t => t === 'light' ? 'dark' : 'light'),
+        lang, setLang, t, isDataLoaded, isAuthLoading,
+        user, isVerified, verifyWallet, logout: () => { disconnect(); },
+        setUsername, updateAvatar, banUser, toggleTrackProject, gainXP, logActivity, resetAllXPs, refreshData, manageTodo, manageUserClaim, showUsernameModal, markMessageRead,
+
+        // Data Props (Read Only mostly, write via specific actions or direct supabase calls in AdminPanel)
+        // We pass the "setters" to maintain compatibility with AdminPanel, 
+        // but AdminPanel really should use direct DB calls. 
+        // For now, these setters only update LOCAL state. 
+        // AdminPanel refactor is needed to make "Save" buttons call Supabase.
+        airdrops, setAirdrops, activities, setActivities, chains, setChains, claims, setClaims,
+        events, setEvents, comments, setComments, userTasks, setUserTasks, userClaims, setUserClaims,
+        guides, setGuides, inbox, setInbox, requests, setRequests, infofiPlatforms, setInfofiPlatforms,
+        investors, setInvestors, announcements, setAnnouncements, tools, setTools,
+        addToast, toasts, removeToast: (id) => setToasts(p => p.filter(t => t.id !== id)),
+        usersList, setUsersList
+      }}>
+        {children}
+      </AppContext.Provider>
+    );
   };
-
-  const updateAvatar = async (url: string) => {
-    if (!user) return;
-    await supabase.from('users').update({ avatar: url }).eq('id', user.id);
-    setUser({ ...user, avatar: url });
-  };
-
-  const banUser = async (addr: string, until: number | 'perma') => {
-    // Admin Only Check handled by RLS, but optimistic check:
-    await supabase.from('users').update({
-      "isPermaBanned": until === 'perma',
-      "bannedUntil": until === 'perma' ? null : until
-    }).eq('address', addr);
-    addToast("User penalized.");
-    refreshData(); // Refresh list
-  };
-
-  const toggleTrackProject = async (aid: string) => {
-    // Implementation simplified for brevity - in real app, update array in DB
-    if (!user) return;
-    let current = user.trackedProjectIds || [];
-    const updated = current.includes(aid) ? current.filter(x => x !== aid) : [...current, aid];
-    await supabase.from('users').update({ "trackedProjectIds": updated }).eq('id', user.id);
-    setUser({ ...user, trackedProjectIds: updated });
-  };
-
-  const gainXP = async (amount: number, activityId?: string) => {
-    if (!user) return;
-    const newXP = user.xp + amount;
-    // ... logic for level up ...
-    // For now, simple update
-    await supabase.from('users').update({ xp: newXP }).eq('id', user.id);
-    setUser({ ...user, xp: newXP });
-  };
-
-  const logActivity = async (activityId: string) => {
-    if (!user) return;
-    const now = Date.now();
-    const updated = { ...user.lastActivities, [activityId]: now };
-    await supabase.from('users').update({ lastActivities: updated }).eq('id', user.id);
-    setUser({ ...user, lastActivities: updated });
-  };
-
-  const resetAllXPs = async () => {
-    await supabase.from('users').update({ xp: 0, level: 1 });
-    refreshData();
-  };
-
-
-  return (
-    <AppContext.Provider value={{
-      theme, toggleTheme: () => setTheme(t => t === 'light' ? 'dark' : 'light'),
-      lang, setLang, t, isDataLoaded, isAuthLoading,
-      user, isVerified, verifyWallet, logout: () => { disconnect(); },
-      setUsername, updateAvatar, banUser, toggleTrackProject, gainXP, logActivity, resetAllXPs, refreshData, manageTodo, manageUserClaim, showUsernameModal, markMessageRead,
-
-      // Data Props (Read Only mostly, write via specific actions or direct supabase calls in AdminPanel)
-      // We pass the "setters" to maintain compatibility with AdminPanel, 
-      // but AdminPanel really should use direct DB calls. 
-      // For now, these setters only update LOCAL state. 
-      // AdminPanel refactor is needed to make "Save" buttons call Supabase.
-      airdrops, setAirdrops, activities, setActivities, chains, setChains, claims, setClaims,
-      events, setEvents, comments, setComments, userTasks, setUserTasks, userClaims, setUserClaims,
-      guides, setGuides, inbox, setInbox, requests, setRequests, infofiPlatforms, setInfofiPlatforms,
-      investors, setInvestors, announcements, setAnnouncements, tools, setTools,
-      addToast, toasts, removeToast: (id) => setToasts(p => p.filter(t => t.id !== id)),
-      usersList, setUsersList
-    }}>
-      {children}
-    </AppContext.Provider>
-  );
-};

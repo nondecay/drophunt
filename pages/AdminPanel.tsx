@@ -643,8 +643,22 @@ const AdminPanelContent: React.FC = () => {
                                  {r.twitterLink && <a href={r.twitterLink} target="_blank" rel="noreferrer" className="text-[10px] text-sky-500 font-bold hover:underline flex items-center gap-1 mt-1"><Twitter size={10} /> {r.twitterLink}</a>}
                               </div>
                               <div className="flex gap-2">
-                                 <button onClick={() => { setAirdrops(prev => [{ id: Date.now().toString(), name: r.name, icon: '', investment: r.funding, type: 'Free', hasInfoFi: r.isInfoFi, rating: 5, voteCount: 0, status: 'Potential', projectInfo: '', campaignUrl: '', claimUrl: '', createdAt: Date.now(), backerIds: [], socials: { twitter: r.twitterLink } }, ...prev]); setRequests(p => p.filter(x => x.id !== r.id)); addToast("Project indexed."); }} className="p-3.5 bg-emerald-500 text-white rounded-2xl shadow-lg active:scale-90 transition-all"><Check size={24} /></button>
-                                 <button onClick={() => { if (confirm("Discard proposal?")) setRequests(p => p.filter(x => x.id !== r.id)); }} className="p-3.5 bg-rose-500 text-white rounded-2xl shadow-lg active:scale-90 transition-all"><Trash2 size={24} /></button>
+                                 <button onClick={async () => {
+                                    const newProj = { name: r.name, investment: r.funding, type: 'Free', "hasInfoFi": r.isInfoFi, rating: 5, "voteCount": 0, status: 'Potential', socials: { twitter: r.twitterLink } as any };
+                                    const { data: inserted, error } = await supabase.from('airdrops').insert(newProj).select().single();
+                                    if (error) { addToast("Failed to index", "error"); return; }
+                                    await supabase.from('airdrop_requests').delete().eq('id', r.id);
+                                    setAirdrops(prev => [inserted as any, ...prev]);
+                                    setRequests(p => p.filter(x => x.id !== r.id));
+                                    addToast("Project indexed.");
+                                 }} className="p-3.5 bg-emerald-500 text-white rounded-2xl shadow-lg active:scale-90 transition-all"><Check size={24} /></button>
+                                 <button onClick={async () => {
+                                    if (confirm("Discard proposal?")) {
+                                       await supabase.from('airdrop_requests').delete().eq('id', r.id);
+                                       setRequests(p => p.filter(x => x.id !== r.id));
+                                       addToast("Proposal discarded.");
+                                    }
+                                 }} className="p-3.5 bg-rose-500 text-white rounded-2xl shadow-lg active:scale-90 transition-all"><Trash2 size={24} /></button>
                               </div>
                            </div>
                         ))}

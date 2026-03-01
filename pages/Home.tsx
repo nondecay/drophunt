@@ -5,7 +5,7 @@ import { Search, Plus, Star, TrendingUp, Users, Bell, Zap, Lock, ChevronDown, Fi
 import { Link } from 'react-router-dom';
 import { Airdrop } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
-
+import { supabase } from '../supabaseClient';
 import { Image } from '../components/Image';
 import { getImgUrl } from '../utils/getImgUrl';
 
@@ -300,7 +300,7 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const currentItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  const handleRequestSubmit = () => {
+  const handleRequestSubmit = async () => {
     if (!user) return;
     const lastRequestAt = user.lastActivities?.['project_propose'] || 0;
     if (Date.now() - lastRequestAt < 24 * 60 * 60 * 1000) {
@@ -308,15 +308,23 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
     }
 
     if (!reqData.name) return addToast(t('projectName') + " required", "error");
-    setRequests(prev => [...prev, {
-      id: Date.now().toString(),
+
+    const newRequest = {
       name: reqData.name,
       funding: "TBA",
       twitterLink: reqData.twitter,
       isInfoFi: category === 'infofi',
       address: user?.address || 'anon',
       timestamp: Date.now()
-    }]);
+    };
+
+    const { data: savedReq, error } = await supabase.from('airdrop_requests').insert(newRequest).select().single();
+
+    if (error) {
+      return addToast("Failed to submit", "error");
+    }
+
+    setRequests(prev => [...prev, savedReq as any]);
     logActivity('project_propose');
     addToast(t('projectSubmitted'), "success");
     setShowRequestModal(false);
