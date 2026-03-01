@@ -525,97 +525,97 @@ Issued At: ${new Date().toISOString()}`;
             fetchUserData(retry.id);
           }
         }
-        if (!existing) {
-          // ... (registration logic)
-        } else {
-          // Map potential snake_case from DB to camelCase for frontend
-          const mappedUser = {
-            ...existing,
-            trackedProjectIds: existing.trackedProjectIds || existing.tracked_project_ids || []
-          };
-          setUser(mappedUser as any);
-          fetchUserData(existing.id);
-        }
-
-      } catch (err: any) {
-        console.error("SIWE Error:", err);
-        // ...
+      } else {
+        // Map potential snake_case from DB to camelCase for frontend
+        const mappedUser = {
+          ...existing,
+          trackedProjectIds: existing.trackedProjectIds || existing.tracked_project_ids || []
+        };
+        setUser(mappedUser as any);
+        fetchUserData(existing.id);
       }
-    };
 
-    // ...
-
-    const toggleTrackProject = async (aid: string) => {
-      if (!user) return;
-      let current = user.trackedProjectIds || [];
-      const updated = current.includes(aid) ? current.filter(x => x !== aid) : [...current, aid];
-
-      // Optimistic Update
-      setUser({ ...user, trackedProjectIds: updated });
-
-      try {
-        // Use address fallback if id is missing in User type / SIWE
-        const matchField = user.id ? 'id' : 'address';
-        const matchValue = user.id ? user.id : user.address;
-
-        const { error } = await supabase.from('users').update({ "trackedProjectIds": updated }).eq(matchField, matchValue);
-
-        if (error) {
-          console.error("Track Update Failed (camelCase):", error);
-          // Revert optimistic update so the user actually sees it didn't stick
-          setUser({ ...user, trackedProjectIds: current });
-          addToast("Tracking failed: " + error.message, "error");
-        }
-      } catch (e: any) {
-        console.error("Track Exception", e);
-        setUser({ ...user, trackedProjectIds: current });
-        addToast("Tracking Exception: " + e.message, "error");
-      }
-    };
-
-    const gainXP = async (amount: number, activityId?: string) => {
-      if (!user) return;
-      const newXP = user.xp + amount;
-      // ... logic for level up ...
-      // For now, simple update
-      await supabase.from('users').update({ xp: newXP }).eq('id', user.id);
-      setUser({ ...user, xp: newXP });
-    };
-
-    const logActivity = async (activityId: string) => {
-      if (!user) return;
-      const now = Date.now();
-      const updated = { ...user.lastActivities, [activityId]: now };
-      await supabase.from('users').update({ lastActivities: updated }).eq('id', user.id);
-      setUser({ ...user, lastActivities: updated });
-    };
-
-    const resetAllXPs = async () => {
-      await supabase.from('users').update({ xp: 0, level: 1 });
-      refreshData();
-    };
-
-
-    return (
-      <AppContext.Provider value={{
-        theme, toggleTheme: () => setTheme(t => t === 'light' ? 'dark' : 'light'),
-        lang, setLang, t, isDataLoaded, isAuthLoading,
-        user, isVerified, verifyWallet, logout: () => { disconnect(); },
-        setUsername, updateAvatar, banUser, toggleTrackProject, gainXP, logActivity, resetAllXPs, refreshData, manageTodo, manageUserClaim, showUsernameModal, markMessageRead,
-
-        // Data Props (Read Only mostly, write via specific actions or direct supabase calls in AdminPanel)
-        // We pass the "setters" to maintain compatibility with AdminPanel, 
-        // but AdminPanel really should use direct DB calls. 
-        // For now, these setters only update LOCAL state. 
-        // AdminPanel refactor is needed to make "Save" buttons call Supabase.
-        airdrops, setAirdrops, activities, setActivities, chains, setChains, claims, setClaims,
-        events, setEvents, comments, setComments, userTasks, setUserTasks, userClaims, setUserClaims,
-        guides, setGuides, inbox, setInbox, requests, setRequests, infofiPlatforms, setInfofiPlatforms,
-        investors, setInvestors, announcements, setAnnouncements, tools, setTools,
-        addToast, toasts, removeToast: (id) => setToasts(p => p.filter(t => t.id !== id)),
-        usersList, setUsersList
-      }}>
-        {children}
-      </AppContext.Provider>
-    );
+    } catch (err: any) {
+      console.error("SIWE Error:", err);
+      sessionStorage.removeItem(`verified_session_${address?.toLowerCase()}`);
+      setIsVerified(false);
+      setUser(null);
+    }
   };
+
+  // ...
+
+  const toggleTrackProject = async (aid: string) => {
+    if (!user) return;
+    let current = user.trackedProjectIds || [];
+    const updated = current.includes(aid) ? current.filter(x => x !== aid) : [...current, aid];
+
+    // Optimistic Update
+    setUser({ ...user, trackedProjectIds: updated });
+
+    try {
+      // Use address fallback if id is missing in User type / SIWE
+      const matchField = user.id ? 'id' : 'address';
+      const matchValue = user.id ? user.id : user.address;
+
+      const { error } = await supabase.from('users').update({ "trackedProjectIds": updated }).eq(matchField, matchValue);
+
+      if (error) {
+        console.error("Track Update Failed (camelCase):", error);
+        // Revert optimistic update so the user actually sees it didn't stick
+        setUser({ ...user, trackedProjectIds: current });
+        addToast("Tracking failed: " + error.message, "error");
+      }
+    } catch (e: any) {
+      console.error("Track Exception", e);
+      setUser({ ...user, trackedProjectIds: current });
+      addToast("Tracking Exception: " + e.message, "error");
+    }
+  };
+
+  const gainXP = async (amount: number, activityId?: string) => {
+    if (!user) return;
+    const newXP = user.xp + amount;
+    // ... logic for level up ...
+    // For now, simple update
+    await supabase.from('users').update({ xp: newXP }).eq('id', user.id);
+    setUser({ ...user, xp: newXP });
+  };
+
+  const logActivity = async (activityId: string) => {
+    if (!user) return;
+    const now = Date.now();
+    const updated = { ...user.lastActivities, [activityId]: now };
+    await supabase.from('users').update({ lastActivities: updated }).eq('id', user.id);
+    setUser({ ...user, lastActivities: updated });
+  };
+
+  const resetAllXPs = async () => {
+    await supabase.from('users').update({ xp: 0, level: 1 });
+    refreshData();
+  };
+
+
+  return (
+    <AppContext.Provider value={{
+      theme, toggleTheme: () => setTheme(t => t === 'light' ? 'dark' : 'light'),
+      lang, setLang, t, isDataLoaded, isAuthLoading,
+      user, isVerified, verifyWallet, logout: () => { disconnect(); },
+      setUsername, updateAvatar, banUser, toggleTrackProject, gainXP, logActivity, resetAllXPs, refreshData, manageTodo, manageUserClaim, showUsernameModal, markMessageRead,
+
+      // Data Props (Read Only mostly, write via specific actions or direct supabase calls in AdminPanel)
+      // We pass the "setters" to maintain compatibility with AdminPanel, 
+      // but AdminPanel really should use direct DB calls. 
+      // For now, these setters only update LOCAL state. 
+      // AdminPanel refactor is needed to make "Save" buttons call Supabase.
+      airdrops, setAirdrops, activities, setActivities, chains, setChains, claims, setClaims,
+      events, setEvents, comments, setComments, userTasks, setUserTasks, userClaims, setUserClaims,
+      guides, setGuides, inbox, setInbox, requests, setRequests, infofiPlatforms, setInfofiPlatforms,
+      investors, setInvestors, announcements, setAnnouncements, tools, setTools,
+      addToast, toasts, removeToast: (id) => setToasts(p => p.filter(t => t.id !== id)),
+      usersList, setUsersList
+    }}>
+      {children}
+    </AppContext.Provider>
+  );
+};
