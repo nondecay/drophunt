@@ -601,10 +601,9 @@ const AdminPanelContent: React.FC = () => {
                                     </div>
                                     <div className="flex gap-2">
                                        <button onClick={async () => {
-                                          const { error } = await supabase.from('guides').update({
-                                             is_approved: true,
-                                             title: g.title
-                                          }).eq('id', g.id);
+                                          const payload: any = { is_approved: true };
+                                          if (g.title) payload.title = g.title;
+                                          const { error } = await supabase.from('guides').update(payload).eq('id', g.id);
                                           if (!error) {
                                              setGuides(p => p.map(x => x.id === g.id ? { ...x, is_approved: true } : x));
                                              addToast("Guide approved & Title Saved.");
