@@ -543,6 +543,47 @@ Issued At: ${new Date().toISOString()}`;
     }
   };
 
+  const setUsername = async (name: string) => {
+    if (!user) return false;
+
+    // Check 24-hour Cooldown
+    if (user.lastUsernameChange) {
+      const msSinceLastChange = Date.now() - user.lastUsernameChange;
+      const hoursSinceLastChange = msSinceLastChange / (1000 * 60 * 60);
+      if (hoursSinceLastChange < 24) {
+        addToast("You can change your username every 24 hours.", "error");
+        return false;
+      }
+    }
+
+    const { error } = await supabase.from('users').update({ username: name, "lastUsernameChange": Date.now() }).eq('id', user.id);
+    if (error) {
+      addToast("Username taken or limit reached.", "error");
+      return false;
+    }
+    // Update local state with new name and new timestamp
+    setUser({ ...user, username: name, lastUsernameChange: Date.now() });
+    addToast("Username changed.", "success");
+    setShowUsernameModal(false);
+    return true;
+  };
+
+  const updateAvatar = async (url: string) => {
+    if (!user) return;
+    await supabase.from('users').update({ avatar: url }).eq('id', user.id);
+    setUser({ ...user, avatar: url });
+  };
+
+  const banUser = async (addr: string, until: number | 'perma') => {
+    // Admin Only Check handled by RLS, but optimistic check:
+    await supabase.from('users').update({
+      "isPermaBanned": until === 'perma',
+      "bannedUntil": until === 'perma' ? null : until
+    }).eq('address', addr);
+    addToast("User penalized.");
+    refreshData(); // Refresh list
+  };
+
   // ...
 
   const toggleTrackProject = async (aid: string) => {
