@@ -89,7 +89,7 @@ const SidebarLink: React.FC<{ to: string, icon: React.ReactNode, label: string, 
 );
 
 export const Layout: React.FC = () => {
-  const { theme, toggleTheme, lang, setLang, t, user, isVerified, verifyWallet, logout, setUsername, toasts, removeToast, inbox } = useApp();
+  const { theme, toggleTheme, lang, setLang, t, user, isVerified, verifyWallet, logout, setUsername, toasts, removeToast, notifications } = useApp();
   const location = useLocation();
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -99,7 +99,7 @@ export const Layout: React.FC = () => {
   const langMenuRef = useRef<HTMLDivElement>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
-  const unreadCount = inbox.filter(m => !m.isRead).length;
+  const unreadCount = notifications.filter(n => !(user?.readNotifications || []).includes(n.id) && !(user?.hiddenNotifications || []).includes(n.id)).length;
   const needsUsername = user && isVerified && !user.username;
   const needsVerification = user && !isVerified;
 
@@ -235,6 +235,17 @@ export const Layout: React.FC = () => {
             <ConnectButton accountStatus="address" showBalance={false} chainStatus="icon" />
 
             {user && isVerified && (
+              <Link to="/my-airdrops?tab=notifications" className="relative p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:text-primary-600 transition-colors shadow-sm ml-1">
+                <Bell size={20} />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-black text-white shadow-sm ring-2 ring-white dark:ring-slate-900">
+                    {unreadCount > 5 ? '5+' : unreadCount}
+                  </span>
+                )}
+              </Link>
+            )}
+
+            {user && isVerified && (
               <div className="relative ml-2" ref={profileMenuRef}>
                 <button onClick={() => setShowProfileMenu(!showProfileMenu)} className="flex items-center gap-2 p-1 pl-3 bg-slate-100 dark:bg-slate-800 rounded-full transition-all border border-transparent hover:border-primary-500">
                   <img src={user.avatar} className="w-8 h-8 rounded-full object-cover" />
@@ -249,9 +260,9 @@ export const Layout: React.FC = () => {
                     <Link to="/profile" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-3 px-4 py-2.5 hover:bg-primary-50 dark:hover:bg-slate-800 rounded-xl text-sm font-bold transition-colors"><UserIcon size={18} /> {t('profile')}</Link>
                     <Link to="/my-airdrops" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-3 px-4 py-2.5 hover:bg-primary-50 dark:hover:bg-slate-800 rounded-xl text-sm font-bold transition-colors"><Target size={18} /> {t('myAirdrops')}</Link>
                     <Link to="/premium" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-3 px-4 py-2.5 hover:bg-primary-50 dark:hover:bg-slate-800 rounded-xl text-sm font-bold transition-colors"><Crown size={18} className="text-[#FFD700]" /> Premium</Link>
-                    <Link to="/inbox" onClick={() => setShowProfileMenu(false)} className="flex items-center justify-between px-4 py-2.5 hover:bg-primary-50 dark:hover:bg-slate-800 rounded-xl text-sm font-bold transition-colors">
-                      <div className="flex items-center gap-3"><Mail size={18} /> {t('messages')}</div>
-                      {unreadCount > 0 && <span className="bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full">{unreadCount}</span>}
+                    <Link to="/my-airdrops?tab=notifications" onClick={() => setShowProfileMenu(false)} className="flex items-center justify-between px-4 py-2.5 hover:bg-primary-50 dark:hover:bg-slate-800 rounded-xl text-sm font-bold transition-colors">
+                      <div className="flex items-center gap-3"><Bell size={18} /> Notifications</div>
+                      {unreadCount > 0 && <span className="bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full">{unreadCount > 5 ? '5+' : unreadCount}</span>}
                     </Link>
                     <div className="h-px bg-slate-100 dark:border-slate-800 my-1" />
                     <button onClick={() => { logout(); setShowProfileMenu(false); }} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl text-sm font-bold transition-colors text-red-600">

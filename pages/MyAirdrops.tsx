@@ -1,8 +1,8 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../AppContext';
-import { Plus, CheckCircle2, Trash2, ListChecks, Zap, Clock, PieChart, RefreshCw, Target, ArrowUpRight, ChevronLeft, ChevronRight, Mail, DollarSign, Calendar, Filter, X, ChevronDown, Check, ShieldAlert } from 'lucide-react';
+import { Plus, CheckCircle2, Trash2, ListChecks, Zap, Clock, PieChart, RefreshCw, Target, ArrowUpRight, ChevronLeft, ChevronRight, Mail, DollarSign, Calendar, Filter, X, ChevronDown, Check, ShieldAlert, Bell, EyeOff, Crown, Lock } from 'lucide-react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 import { getImgUrl } from '../utils/getImgUrl';
@@ -11,14 +11,28 @@ import { isPremiumUser } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 
 export const MyAirdrops: React.FC = () => {
-  const { airdrops, userTasks, setUserTasks, userClaims, setUserClaims, addToast, user, toggleTrackProject, t, inbox, manageTodo, manageUserClaim, infofiPlatforms, isDataLoaded } = useApp();
+  const { airdrops, userTasks, setUserTasks, userClaims, setUserClaims, addToast, user, toggleTrackProject, t, notifications, markNotificationsRead, hideNotification, manageTodo, manageUserClaim, infofiPlatforms, isDataLoaded } = useApp();
   const { isConnected } = useAccount();
 
   // Modal State
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ type: 'claim' | 'task', id: string } | null>(null);
 
-  const [activeTab, setActiveTab] = useState<'tasks' | 'airdrops' | 'infofi' | 'completed' | 'claimed'>('tasks');
+  const [activeTab, setActiveTab] = useState<'notifications' | 'tasks' | 'airdrops' | 'infofi' | 'completed' | 'claimed'>('tasks');
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('tab') === 'notifications') {
+      setActiveTab('notifications');
+    }
+  }, [location.search]);
+
+  useEffect(() => {
+    if (activeTab === 'notifications') {
+      markNotificationsRead();
+    }
+  }, [activeTab]);
   const [showAdd, setShowAdd] = useState(false);
   const [showClaimAdd, setShowClaimAdd] = useState(false);
   const [isMonthDropOpen, setMonthDropOpen] = useState(false);
@@ -107,9 +121,7 @@ export const MyAirdrops: React.FC = () => {
   // Calculate Earnings
   const totalEarning = useMemo(() => userClaims.reduce((acc, curr) => acc + (Number(curr.earning) || 0), 0), [userClaims]);
 
-  // Dummy values for missing context data to prevent crash
-  const unreadAirdropMessages = 0;
-  const unreadInfoFiMessages = 0;
+  const unreadCount = notifications.filter(n => !(user?.readNotifications || []).includes(n.id) && !(user?.hiddenNotifications || []).includes(n.id)).length;
 
   // Available months calculation
   const availableMonths = useMemo(() => {
@@ -353,9 +365,10 @@ export const MyAirdrops: React.FC = () => {
 
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="lg:w-72 flex lg:flex-col gap-2 overflow-x-auto pb-4 shrink-0">
+          <NavBtn icon={<Bell size={18} />} label="NOTIFICATIONS" active={activeTab === 'notifications'} onClick={() => setActiveTab('notifications')} notificationCount={unreadCount} colorClass="bg-red-500" />
           <NavBtn icon={<ListChecks size={18} />} label={t('tasks').toUpperCase()} active={activeTab === 'tasks'} onClick={() => setActiveTab('tasks')} count={manualTasks.length} />
-          <NavBtn icon={<Target size={18} />} label={`${t('airdrops').toUpperCase()} (${trackedAirdrops.length})`} active={activeTab === 'airdrops'} onClick={() => setActiveTab('airdrops')} notificationCount={unreadAirdropMessages} colorClass="bg-primary-600" />
-          {/* <NavBtn icon={<Zap size={18} />} label={`${t('infofi').toUpperCase()} (${trackedInfoFi.length})`} active={activeTab === 'infofi'} onClick={() => setActiveTab('infofi')} notificationCount={unreadInfoFiMessages} colorClass="bg-primary-600" /> */}
+          <NavBtn icon={<Target size={18} />} label={`${t('airdrops').toUpperCase()} (${trackedAirdrops.length})`} active={activeTab === 'airdrops'} onClick={() => setActiveTab('airdrops')} colorClass="bg-primary-600" />
+          {/* <NavBtn icon={<Zap size={18} />} label={`${t('infofi').toUpperCase()} (${trackedInfoFi.length})`} active={activeTab === 'infofi'} onClick={() => setActiveTab('infofi')} colorClass="bg-primary-600" /> */}
           <NavBtn icon={<CheckCircle2 size={18} />} label={t('completed').toUpperCase()} active={activeTab === 'completed'} onClick={() => setActiveTab('completed')} count={completedTasks.length} />
           <NavBtn icon={<PieChart size={18} />} label={t('claimed').toUpperCase()} active={activeTab === 'claimed'} onClick={() => setActiveTab('claimed')} />
         </div>
@@ -408,14 +421,13 @@ export const MyAirdrops: React.FC = () => {
           {(activeTab === 'airdrops' || activeTab === 'infofi') && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {(activeTab === 'airdrops' ? trackedAirdrops : trackedInfoFi).map(a => {
-                const unreadMsg = inbox.find(m => m.relatedAirdropId === a.id && !m.isRead);
                 return (
                   <ProjectCard
                     key={a.id}
                     project={a}
                     onUntrack={() => toggleTrackProject(a.id)}
                     t_func={t}
-                    unreadMessage={unreadMsg}
+                    unreadMessage={undefined}
                   />
                 );
               })}
@@ -424,6 +436,69 @@ export const MyAirdrops: React.FC = () => {
                   <Target size={48} className="mx-auto text-slate-200 mb-4" />
                   <p className="text-slate-400 font-black uppercase text-xs tracking-widest">
                     {activeTab === 'airdrops' ? t('noTrackedAirdrops') : /* t('noTrackedInfoFi') */ ""}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'notifications' && (
+            <div className="space-y-4">
+              {notifications.filter(n => !(user?.hiddenNotifications || []).includes(n.id)).sort((a, b) => b.createdAt - a.createdAt).map(notif => {
+                const isGeneral = notif.type === 'general';
+                const project = isGeneral ? null : airdrops.find(a => a.id === notif.targetProjectId);
+                const isPremiumLocked = project?.isAlpha && !isPremiumUser(user);
+
+                // Only show project updates if the user is currently tracking the project
+                if (!isGeneral && project && !trackedIds.includes(project.id)) {
+                  return null;
+                }
+
+                return (
+                  <div key={notif.id} className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm flex items-start gap-4">
+                    <div className="shrink-0 relative mt-1">
+                      <img src={isGeneral ? '/logo.jpg' : getImgUrl(project?.icon || '')} className="w-12 h-12 rounded-2xl object-cover shadow-sm" alt="Sender Icon" />
+                      {!isGeneral && <div className="absolute -bottom-1 -right-1 bg-primary-600 text-white p-0.5 rounded-full ring-2 ring-white dark:ring-slate-900"><Target size={10} /></div>}
+                      {isGeneral && <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white p-0.5 rounded-full ring-2 ring-white dark:ring-slate-900"><ShieldAlert size={10} /></div>}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-4 mb-2">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-bold text-sm text-slate-500 dark:text-slate-400">
+                              {isGeneral ? 'DropHunt Community' : `${project?.name} Update`}
+                            </span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">• {new Date(notif.createdAt).toLocaleDateString()}</span>
+                          </div>
+                          <h4 className="font-black text-lg leading-tight text-slate-900 dark:text-white">{notif.title}</h4>
+                        </div>
+                        <button onClick={() => hideNotification(notif.id)} className="p-2 text-slate-300 hover:text-red-500 transition-colors bg-slate-50 dark:bg-slate-800 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 shrink-0">
+                          <EyeOff size={16} />
+                        </button>
+                      </div>
+
+                      {isPremiumLocked ? (
+                        <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 flex flex-col items-center justify-center text-center">
+                          <Lock size={24} className="text-slate-400 mb-2" />
+                          <p className="text-sm font-bold text-slate-500 mb-4">This notification contains premium alpha content.</p>
+                          <Link to="/premium" className="bg-[#FFD700] hover:bg-[#F5C700] text-amber-950 px-6 py-2 rounded-xl font-black text-xs uppercase tracking-widest flex items-center gap-2 transition-all shadow-lg active:scale-95">
+                            <Crown size={16} /> Mint Premium Pass to View
+                          </Link>
+                        </div>
+                      ) : (
+                        <div className="mt-3 text-slate-600 dark:text-slate-300 text-sm whitespace-pre-wrap leading-relaxed font-medium">
+                          {notif.content}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+              {notifications.filter(n => !(user?.hiddenNotifications || []).includes(n.id)).length === 0 && (
+                <div className="col-span-full p-24 text-center bg-white dark:bg-slate-900 rounded-[3rem] border-4 border-dashed border-slate-100 dark:border-slate-800">
+                  <Bell size={48} className="mx-auto text-slate-200 mb-4" />
+                  <p className="text-slate-400 font-black uppercase text-xs tracking-widest">
+                    No new notifications
                   </p>
                 </div>
               )}

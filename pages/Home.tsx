@@ -198,9 +198,14 @@ const MobileProjectCard: React.FC<{ project: Airdrop, isTracked: boolean, onTrac
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-5 border border-slate-200 dark:border-slate-800 shadow-lg relative overflow-hidden">
+      {project.isAlpha && (
+        <div className="absolute top-4 left-4 z-20 pointer-events-none">
+          <span className="bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.8)] text-white text-[9px] font-black px-2 py-0.5 rounded animate-pulse">ALPHA</span>
+        </div>
+      )}
       {isLocked ? (
         <div className="flex items-start gap-4 mb-4 blur-[4px] opacity-50 select-none pointer-events-none">
-          <Image src={project.icon} fallback="https://picsum.photos/200" className="w-16 h-16 rounded-2xl shadow-md shrink-0" alt="" />
+          <div className="mt-4"><Image src={project.icon} fallback="https://picsum.photos/200" className="w-16 h-16 rounded-2xl shadow-md shrink-0" alt="" /></div>
           <div className="flex-1 min-w-0">
             <div className="flex justify-between items-center min-w-0">
               <div className="min-w-0 flex-1 mr-2">
@@ -214,15 +219,12 @@ const MobileProjectCard: React.FC<{ project: Airdrop, isTracked: boolean, onTrac
         </div>
       ) : (
         <Link to={`/project/${project.id}`} className="flex items-start gap-4 mb-4">
-          <Image src={project.icon} fallback="https://picsum.photos/200" className="w-16 h-16 rounded-2xl shadow-md shrink-0" alt="" />
+          <div className={project.isAlpha ? "mt-4" : ""}><Image src={project.icon} fallback="https://picsum.photos/200" className="w-16 h-16 rounded-2xl shadow-md shrink-0" alt="" /></div>
           <div className="flex-1 min-w-0">
             <div className="flex justify-between items-center min-w-0">
               <div className="min-w-0 flex-1 mr-2">
                 <div className="flex items-center gap-2 mb-1 min-w-0">
                   <h3 className="font-black text-lg uppercase tracking-tight leading-none text-slate-900 dark:text-white truncate block w-full">{project.name}</h3>
-                  {project.isAlpha && (
-                    <span className="bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.8)] text-white text-[9px] font-black px-1.5 py-0.5 rounded animate-pulse shrink-0">ALPHA</span>
-                  )}
                   {!project.isAlpha && (project.createdAt || 0) > Date.now() - 7 * 24 * 60 * 60 * 1000 && (
                     <span className="bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded animate-pulse shrink-0">NEW</span>
                   )}
@@ -381,7 +383,7 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
     const s = (status || '').toLowerCase();
     if (s === 'potential') return 'bg-purple-600 text-white';
     if (s.includes('available')) return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
-    if (s === 'airdrop confirmed') return 'bg-red-600 text-white shadow-lg animate-pulse';
+    if (s === 'airdrop confirmed') return 'bg-red-600 text-white shadow-lg';
     return 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500';
   };
 
@@ -538,13 +540,16 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
                   const platformObj = a.hasInfoFi ? infofiPlatforms.find(p => p.name === a.platform) : null;
                   return (
                     <tr key={a.id} className="group hover:bg-primary-50/30 dark:hover:bg-primary-900/5 transition-all relative">
-                      <td className="px-6 py-3">
-                        <div className={`flex items-center gap-4 ${isLocked ? 'blur-[5px] opacity-40 select-none pointer-events-none' : ''}`}>
+                      <td className="px-6 py-3 relative">
+                        {a.isAlpha && (
+                          <div className="absolute top-2 left-4 z-20 pointer-events-none">
+                            <span className="bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.8)] text-white text-[8px] font-black px-1.5 py-0.5 rounded-md animate-pulse">ALPHA</span>
+                          </div>
+                        )}
+                        <div className={`flex items-center gap-4 ${a.isAlpha ? 'mt-3' : ''} ${isLocked ? 'blur-[5px] opacity-40 select-none pointer-events-none' : ''}`}>
                           <div className="relative shrink-0">
                             <img src={getImgUrl(a.icon) || 'https://picsum.photos/200'} className={`w-12 h-12 rounded-xl object-cover shadow-lg transition-transform ${isLocked ? '' : 'group-hover:scale-110'}`} alt="" />
-                            {a.isAlpha && (
-                              <div className="absolute -top-2 -right-2 bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.8)] text-white text-[8px] font-black px-1.5 py-0.5 rounded-md z-10 animate-pulse">ALPHA</div>
-                            )}
+                            {/* ALPHA moved out to td level for z-index */}
                             {!a.isAlpha && (a.createdAt || 0) > Date.now() - 7 * 24 * 60 * 60 * 1000 && (
                               <div className="absolute -top-2 -right-2 bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-md shadow-sm z-10 animate-pulse">NEW</div>
                             )}

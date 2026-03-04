@@ -2,7 +2,7 @@
 import React, { useState, useEffect, createContext, useContext, useCallback } from 'react';
 import { useAccount, useDisconnect, useWalletClient } from 'wagmi';
 import { verifyMessage } from 'viem';
-import { Language, User, Airdrop, Claim, CalendarEvent, Comment, TodoItem, UserClaim, Guide, InboxMessage, Toast, AirdropRequest, OnChainActivity, Chain, InfoFiPlatform, Announcement, Investor, Tool, isPremiumUser } from './types';
+import { Language, User, Airdrop, Claim, CalendarEvent, Comment, TodoItem, UserClaim, Guide, InboxMessage, Toast, AirdropRequest, OnChainActivity, Chain, InfoFiPlatform, Announcement, Investor, Tool, Notification, isPremiumUser } from './types';
 import { RANDOM_AVATARS } from './constants';
 import { translations, TranslationKey } from './i18n';
 import { supabase } from './supabaseClient'; // Import our new client
@@ -14,6 +14,7 @@ interface AppContextType {
   setLang: (l: Language) => void;
   user: User | null;
   verifyWallet: () => Promise<void>;
+  logout: () => void;
   // username: string; // REMOVED: relied on user.username
   updateAvatar: (url: string) => Promise<void>;
   showUsernameModal: boolean;
@@ -22,6 +23,7 @@ interface AppContextType {
 
   isDataLoaded: boolean;
   isAuthLoading: boolean;
+  isVerified: boolean;
 
   // Data States
   airdrops: Airdrop[];
@@ -44,6 +46,10 @@ interface AppContextType {
   setGuides: React.Dispatch<React.SetStateAction<Guide[]>>;
   inbox: InboxMessage[];
   setInbox: React.Dispatch<React.SetStateAction<InboxMessage[]>>;
+  notifications: Notification[];
+  setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>;
+  markNotificationsRead: () => Promise<void>;
+  hideNotification: (id: string) => Promise<void>;
   unreadCount?: number;
   requests: AirdropRequest[];
   setRequests: React.Dispatch<React.SetStateAction<AirdropRequest[]>>;
@@ -112,6 +118,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [guides, setGuides] = useState<Guide[]>([]);
   const [inbox, setInbox] = useState<InboxMessage[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [requests, setRequests] = useState<AirdropRequest[]>([]);
   const [infofiPlatforms, setInfofiPlatforms] = useState<InfoFiPlatform[]>([]);
   const [investors, setInvestors] = useState<Investor[]>([]);
@@ -160,7 +167,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         supabase.from('tools').select('*'),
         supabase.from('users').select('*'),
         supabase.from('events').select('*'),
-        supabase.from('airdrop_requests').select('*')
+        supabase.from('airdrop_requests').select('*'),
+        supabase.from('notifications').select('*').order('createdAt', { ascending: false })
         // Messages are now fetched per-user in fetchUserData to ensure privacy
       ]);
 
@@ -177,6 +185,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (results[10].data) setUsersList(results[10].data as any);
       if (results[11].data) setEvents(results[11].data as any);
       if (results[12].data) setRequests(results[12].data as any);
+      if (results[13].data) setNotifications(results[13].data as any);
 
       setIsDataLoaded(true);
 
@@ -285,6 +294,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (user) {
       await supabase.from('inbox_messages').update({ isRead: true }).eq('id', msgId);
     }
+  };
+
+  const markNotificationsRead = async () => {
+    if (!user) return;
+    const unreadIds = notifications
+      .filter(n => !(user.readNotifications || []).includes(n.id) && !(user.hiddenNotifications || []).includes(n.id))
+      .map(n => n.id);
+
+    if (unreadIds.length === 0) return;
+
+    const newRead = [...new Set([...(user.readNotifications || []), ...unreadIds])];
+    await supabase.from('users').update({ readNotifications: newRead }).eq('id', user.id);
+    setUser({ ...user, readNotifications: newRead });
+  };
+
+  const hideNotification = async (id: string) => {
+    if (!user) return;
+    const newHidden = [...new Set([...(user.hiddenNotifications || []), id])];
+    await supabase.from('users').update({ hiddenNotifications: newHidden }).eq('id', user.id);
+    setUser({ ...user, hiddenNotifications: newHidden });
   };
 
   // CRUD Wrappers
@@ -571,8 +600,14 @@ Issued At: ${new Date().toISOString()}`;
 
   const updateAvatar = async (url: string) => {
     if (!user) return;
-    await supabase.from('users').update({ avatar: url }).eq('id', user.id);
-    setUser({ ...user, avatar: url });
+    const { error } = await supabase.from('users').update({ avatar: url }).eq('address', user.address).select();
+    if (error) {
+      console.error("Avatar DB Update Failed:", error);
+      addToast("Failed to sync avatar.", "error");
+    } else {
+      setUser({ ...user, avatar: url });
+      addToast("Avatar Updated globally.", "success");
+    }
   };
 
   const banUser = async (addr: string, until: number | 'perma') => {
@@ -599,25 +634,37 @@ Issued At: ${new Date().toISOString()}`;
 
     const updated = isCurrentlyTracking ? current.filter(x => x !== aid) : [...current, aid];
 
+    // Auto-hide old notifications for this project if newly tracked
+    let newHidden = user.hiddenNotifications || [];
+    if (!isCurrentlyTracking) {
+      const oldProjectNotifs = notifications.filter(n => n.targetProjectId === aid).map(n => n.id);
+      if (oldProjectNotifs.length > 0) {
+        newHidden = [...new Set([...newHidden, ...oldProjectNotifs])];
+      }
+    }
+
     // Optimistic Update
-    setUser({ ...user, trackedProjectIds: updated });
+    setUser({ ...user, trackedProjectIds: updated, hiddenNotifications: newHidden });
 
     try {
       // Use address fallback if id is missing in User type / SIWE
       const matchField = user.id ? 'id' : 'address';
       const matchValue = user.id ? user.id : user.address;
 
-      const { error } = await supabase.from('users').update({ "trackedProjectIds": updated }).eq(matchField, matchValue);
+      const { error } = await supabase.from('users').update({
+        trackedProjectIds: updated,
+        hiddenNotifications: newHidden
+      }).eq(matchField, matchValue);
 
       if (error) {
         console.error("Track Update Failed (camelCase):", error);
         // Revert optimistic update so the user actually sees it didn't stick
-        setUser({ ...user, trackedProjectIds: current });
+        setUser({ ...user, trackedProjectIds: current, hiddenNotifications: user.hiddenNotifications });
         addToast("Tracking failed: " + error.message, "error");
       }
     } catch (e: any) {
       console.error("Track Exception", e);
-      setUser({ ...user, trackedProjectIds: current });
+      setUser({ ...user, trackedProjectIds: current, hiddenNotifications: user.hiddenNotifications });
       addToast("Tracking Exception: " + e.message, "error");
     }
   };
@@ -650,7 +697,7 @@ Issued At: ${new Date().toISOString()}`;
       theme, toggleTheme: () => setTheme(t => t === 'light' ? 'dark' : 'light'),
       lang, setLang, t, isDataLoaded, isAuthLoading,
       user, isVerified, verifyWallet, logout: () => { disconnect(); },
-      setUsername, updateAvatar, banUser, toggleTrackProject, gainXP, logActivity, resetAllXPs, refreshData, manageTodo, manageUserClaim, showUsernameModal, markMessageRead,
+      setUsername, updateAvatar, banUser, toggleTrackProject, gainXP, logActivity, resetAllXPs, refreshData, manageTodo, manageUserClaim, showUsernameModal, setShowUsernameModal, markMessageRead,
 
       // Data Props (Read Only mostly, write via specific actions or direct supabase calls in AdminPanel)
       // We pass the "setters" to maintain compatibility with AdminPanel, 
@@ -659,7 +706,7 @@ Issued At: ${new Date().toISOString()}`;
       // AdminPanel refactor is needed to make "Save" buttons call Supabase.
       airdrops, setAirdrops, activities, setActivities, chains, setChains, claims, setClaims,
       events, setEvents, comments, setComments, userTasks, setUserTasks, userClaims, setUserClaims,
-      guides, setGuides, inbox, setInbox, requests, setRequests, infofiPlatforms, setInfofiPlatforms,
+      guides, setGuides, inbox, setInbox, notifications, setNotifications, markNotificationsRead, hideNotification, requests, setRequests, infofiPlatforms, setInfofiPlatforms,
       investors, setInvestors, announcements, setAnnouncements, tools, setTools,
       addToast, toasts, removeToast: (id) => setToasts(p => p.filter(t => t.id !== id)),
       usersList, setUsersList

@@ -313,7 +313,7 @@ export const ProjectDetails: React.FC = () => {
     if (tStr === 'gas only') return 'bg-sky-500 text-white shadow-sm';
     if (tStr === 'waitlist') return 'bg-primary-600 text-white shadow-sm';
     if (tStr === 'testnet') return 'bg-rose-500 text-white shadow-sm';
-    if (tStr === 'airdrop confirmed') return 'bg-red-600 text-white shadow-lg animate-pulse';
+    if (tStr === 'airdrop confirmed') return 'bg-red-600 text-white shadow-lg';
     return 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500';
   };
 
@@ -321,7 +321,7 @@ export const ProjectDetails: React.FC = () => {
     const s = (status || '').toLowerCase();
     if (s === 'potential') return 'bg-purple-600 text-white';
     if (s.includes('available')) return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
-    if (s === 'airdrop confirmed') return 'bg-red-600 text-white shadow-lg animate-pulse';
+    if (s === 'airdrop confirmed') return 'bg-red-600 text-white shadow-lg';
     return 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500';
   };
 

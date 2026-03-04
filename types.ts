@@ -46,6 +46,9 @@ export interface User {
   // Ban Info
   bannedUntil?: number; // timestamp
   isPermaBanned?: boolean;
+  // Notifications
+  readNotifications?: string[];
+  hiddenNotifications?: string[];
 }
 
 export interface Announcement {
@@ -192,6 +195,16 @@ export interface Comment {
   createdAt: string;
   createdAtTimestamp: number; // Track for constraints
   is_approved: boolean;
+}
+
+export interface Notification {
+  id: string;
+  type: 'general' | 'project';
+  targetProjectId?: string;
+  title: string;
+  content: string;
+  createdAt: number;
+  author: string;
 }
 
 export interface InboxMessage {

@@ -5,7 +5,7 @@ import { supabase } from '../supabaseClient';
 import {
    Shield, LayoutDashboard, Users, MessageSquare, Check, Trash2, Edit, Plus, Bell, Zap, X,
    Mail, Ticket, BarChart3, Star, Trophy, ArrowUpCircle, Sword, Globe, ExternalLink, Map, Sun, Sparkles, Youtube, Github, Twitter, Save, UserPlus, Link2, Calendar, UserCheck, ShieldAlert, Send,
-   Layers, Search, Info, Megaphone, TrendingUp, ChevronRight, Lock, Clock, History, ChevronLeft, Wrench, ChevronDown, Filter, Crown
+   Layers, Search, Info, Megaphone, TrendingUp, ChevronRight, Lock, Clock, History, ChevronLeft, Wrench, ChevronDown, Filter, Crown, Target
 } from 'lucide-react';
 import { OnChainActivity, Airdrop, Claim, Guide, Comment, TopUser, Chain, User, InfoFiPlatform, Announcement, Investor, Tool, ToolCategory } from '../types';
 import ReactQuill from 'react-quill';
@@ -49,7 +49,7 @@ const AdminPanelContent: React.FC = () => {
    const {
       airdrops, setAirdrops, comments, setComments, guides, setGuides, claims, setClaims,
       usersList, setUsersList, requests, setRequests, addToast, activities, setActivities,
-      chains, setChains, setInbox, infofiPlatforms, setInfofiPlatforms, t, user,
+      chains, setChains, notifications, setNotifications, infofiPlatforms, setInfofiPlatforms, t, user,
       announcements, setAnnouncements, investors, setInvestors, resetAllXPs, banUser,
       tools, setTools, isDataLoaded
    } = useApp();
@@ -57,7 +57,7 @@ const AdminPanelContent: React.FC = () => {
    if (!isDataLoaded) return <LoadingSpinner />;
 
 
-   const [activeTab, setActiveTab] = useState<'dash' | 'airdrops' | 'infofi' | 'platforms' | 'investors' | 'claims' | 'presales' | 'gm' | 'mint' | 'deploy' | 'rpg' | 'users' | 'requests' | 'moderation' | 'chains' | 'messages' | 'announcements' | 'tools'>('dash');
+   const [activeTab, setActiveTab] = useState<'dash' | 'airdrops' | 'infofi' | 'platforms' | 'investors' | 'claims' | 'presales' | 'gm' | 'mint' | 'deploy' | 'rpg' | 'users' | 'requests' | 'moderation' | 'chains' | 'notifications' | 'announcements' | 'tools'>('dash');
 
    const [showModal, setShowModal] = useState<string | null>(null);
    const [editingItem, setEditingItem] = useState<any>(null);
@@ -80,7 +80,7 @@ const AdminPanelContent: React.FC = () => {
    const canSee = (tab: string) => {
       if (isAuthenticated) return true; // Master Key Override
       if (isOwner) return true;
-      if (isSuper) return ['dash', 'airdrops', 'infofi', 'platforms', 'investors', 'claims', 'presales', 'messages', 'requests', 'moderation', 'users', 'announcements', 'tools'].includes(tab);
+      if (isSuper) return ['dash', 'airdrops', 'infofi', 'platforms', 'investors', 'claims', 'presales', 'notifications', 'requests', 'moderation', 'users', 'announcements', 'tools'].includes(tab);
       if (isMod) return ['requests', 'moderation'].includes(tab);
       return false;
    };
@@ -169,28 +169,47 @@ const AdminPanelContent: React.FC = () => {
       }
    }), []);
 
-   const sendBroadcast = async () => {
-      if (!msgData.title || !msgData.content) return addToast("Comms incomplete.", "error");
+   const [notifData, setNotifData] = useState({ id: '', title: '', content: '', type: 'general', projectId: '', createdAt: 0 });
 
-      const newMsg = {
-         title: msgData.title,
-         content: msgData.content,
-         projectId: msgData.projectId || null,
-         type: msgData.type,
-         createdAt: Date.now(),
-         targetRole: msgData.target === 'premium' ? 'premium' : 'all',
-         authorId: user?.id,
-         relatedAirdropId: msgData.target === 'project' && msgData.projectId ? msgData.projectId : null
+   const sendNotification = async () => {
+      if (!notifData.title || !notifData.content) return addToast("Notification incomplete.", "error");
+      if (notifData.type === 'project' && !notifData.projectId) return addToast("Select a project.", "error");
+
+      const payload = {
+         title: notifData.title,
+         content: notifData.content,
+         targetProjectId: notifData.type === 'project' ? notifData.projectId : null,
+         type: notifData.type,
+         author: user?.id,
       };
 
-      const { error } = await supabase.from('messages').insert(newMsg);
-
-      if (!error) {
-         addToast("Transmission broadcasted.");
-         setMsgData({ title: '', content: '', target: 'all', projectId: '' });
+      if (notifData.id) {
+         const { error } = await supabase.from('notifications').update(payload).eq('id', notifData.id);
+         if (!error) {
+            addToast("Notification updated.");
+            setNotifications((p: any) => p.map((n: any) => n.id === notifData.id ? { ...n, ...payload } : n));
+            setNotifData({ id: '', title: '', content: '', type: 'general', projectId: '', createdAt: 0 });
+         } else addToast("Error updating.", "error");
       } else {
-         console.error("Broadcast Error", error);
-         addToast(`Failed to broadcast: ${error?.message || 'Unknown error'}`, "error");
+         const { data, error } = await supabase.from('notifications').insert({ ...payload, createdAt: Date.now() }).select().single();
+         if (!error && data) {
+            addToast("Notification broadcasted.");
+            setNotifications((p: any) => [data, ...p]);
+            setNotifData({ id: '', title: '', content: '', type: 'general', projectId: '', createdAt: 0 });
+         } else {
+            console.error("Broadcast Error", error);
+            addToast(`Failed to broadcast: ${error?.message || 'Unknown error'}`, "error");
+         }
+      }
+   };
+
+   const deleteNotification = async (id: string) => {
+      if (confirm("Delete this notification globally?")) {
+         const { error } = await supabase.from('notifications').delete().eq('id', id);
+         if (!error) {
+            setNotifications((p: any) => p.filter((n: any) => n.id !== id));
+            addToast("Notification deleted.");
+         }
       }
    };
 
@@ -244,7 +263,7 @@ const AdminPanelContent: React.FC = () => {
       };
    }, [usersList, airdrops, comments, guides, chains]);
 
-   const [msgData, setMsgData] = useState({ title: '', content: '', target: 'all', projectId: '' });
+   // Removed old msgData
 
    const getDefaultData = (type: string) => {
       switch (type) {
@@ -466,7 +485,7 @@ const AdminPanelContent: React.FC = () => {
                   {canSee('rpg') && <NavBtn icon={<Map size={18} className="text-rose-500" />} label={t('rpgZone')} active={activeTab === 'rpg'} onClick={() => setActiveTab('rpg')} />}
 
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 py-2 mt-4">{t('secComms')}</p>
-                  {canSee('messages') && <NavBtn icon={<Send size={18} className="text-primary-600" />} label={t('globalComms')} active={activeTab === 'messages'} onClick={() => setActiveTab('messages')} />}
+                  {canSee('notifications') && <NavBtn icon={<Send size={18} className="text-primary-600" />} label={t('globalComms')} active={activeTab === 'notifications'} onClick={() => setActiveTab('notifications')} />}
                   {canSee('requests') && <NavBtn icon={<Mail size={18} />} label={t('requests')} active={activeTab === 'requests'} onClick={() => setActiveTab('requests')} count={requests.length} />}
                   {canSee('moderation') && <NavBtn icon={<MessageSquare size={18} />} label={t('moderation')} active={activeTab === 'moderation'} onClick={() => setActiveTab('moderation')} count={comments.filter(c => !c.is_approved).length + guides.filter(g => !g.is_approved).length} />}
                   {canSee('users') && <NavBtn icon={<Users size={18} />} label={t('hunterDb')} active={activeTab === 'users'} onClick={() => setActiveTab('users')} />}
@@ -682,55 +701,96 @@ const AdminPanelContent: React.FC = () => {
                   </SectionWrapper>
                )}
 
-               {activeTab === 'messages' && (
-                  <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-10 border dark:border-slate-800 shadow-xl max-w-2xl mx-auto">
-                     <h2 className="text-3xl font-black mb-8 tracking-tighter uppercase flex items-center gap-4"><Send className="text-primary-600" /> {t('globalComms')}</h2>
-                     <div className="space-y-6">
-                        <div><label className="text-[10px] font-black uppercase text-slate-400 block mb-2 tracking-widest ml-1">Title</label><input type="text" className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-primary-500 transition-all" value={msgData.title} onChange={e => setMsgData({ ...msgData, title: e.target.value })} /></div>
-                        <div><label className="text-[10px] font-black uppercase text-slate-400 block mb-2 tracking-widest ml-1">Content</label><textarea className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-sm h-32 outline-none border-2 border-transparent focus:border-primary-500 transition-all" value={msgData.content} onChange={e => setMsgData({ ...msgData, content: e.target.value })} /></div>
-                        <div className="grid grid-cols-2 gap-4">
-                           <div><label className="text-[10px] font-black uppercase text-slate-400 block mb-2 tracking-widest ml-1">Target</label><select className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-black text-xs outline-none" value={msgData.target} onChange={e => setMsgData({ ...msgData, target: e.target.value as any })}>
-                              <option value="all">All Hunters</option>
-                              <option value="premium">Premium Hunters Only (👑)</option>
-                              <option value="project">Project Followers</option>
-                           </select></div>
-                           {msgData.target === 'project' && (
-                              <div className="relative">
-                                 <label className="text-[10px] font-black uppercase text-slate-400 block mb-2 tracking-widest ml-1">Search Project</label>
+               {activeTab === 'notifications' && (
+                  <div className="space-y-8 max-w-4xl mx-auto">
+                     <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-10 border dark:border-slate-800 shadow-xl">
+                        <h2 className="text-3xl font-black mb-8 tracking-tighter uppercase flex items-center justify-between">
+                           <span className="flex items-center gap-4"><Send className="text-primary-600" /> {notifData.id ? 'Edit Notification' : 'New Notification'}</span>
+                           {notifData.id && <button onClick={() => setNotifData({ id: '', title: '', content: '', type: 'general', projectId: '', createdAt: 0 })} className="text-[10px] bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg text-slate-500 uppercase tracking-widest hover:text-red-500">Cancel Edit</button>}
+                        </h2>
+                        <div className="space-y-6">
+                           <div><label className="text-[10px] font-black uppercase text-slate-400 block mb-2 tracking-widest ml-1">Title</label><input type="text" className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-primary-500 transition-all" value={notifData.title} onChange={e => setNotifData({ ...notifData, title: e.target.value })} /></div>
+                           <div><label className="text-[10px] font-black uppercase text-slate-400 block mb-2 tracking-widest ml-1">Content</label><textarea className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-sm h-32 outline-none border-2 border-transparent focus:border-primary-500 transition-all" value={notifData.content} onChange={e => setNotifData({ ...notifData, content: e.target.value })} /></div>
 
-                                 {/* FIX: Show Selected Project */}
-                                 {msgData.projectId && (
-                                    <div className="mb-3 flex items-center gap-3 p-3 bg-primary-50 dark:bg-slate-800 border border-primary-500 rounded-xl">
-                                       <img src={getImgUrl(airdrops.find(a => a.id === msgData.projectId)?.icon)} className="w-8 h-8 rounded-lg object-cover" />
-                                       <div className="flex-1">
-                                          <p className="text-[9px] font-black uppercase text-primary-600">Selected Target</p>
-                                          <p className="text-xs font-black">{airdrops.find(a => a.id === msgData.projectId)?.name || 'Unknown Project'}</p>
+                           <div className="grid grid-cols-2 gap-4">
+                              <div><label className="text-[10px] font-black uppercase text-slate-400 block mb-2 tracking-widest ml-1">Type</label><select className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-black text-xs outline-none" value={notifData.type} onChange={e => setNotifData({ ...notifData, type: e.target.value as any, projectId: '' })}>
+                                 <option value="general">General Broadcast</option>
+                                 <option value="project">Project Update</option>
+                              </select></div>
+
+                              {notifData.type === 'project' && (
+                                 <div className="relative">
+                                    <label className="text-[10px] font-black uppercase text-slate-400 block mb-2 tracking-widest ml-1">Target Project</label>
+
+                                    {notifData.projectId ? (
+                                       <div className="flex items-center gap-3 p-3 bg-primary-50 dark:bg-slate-800 border border-primary-500 rounded-xl">
+                                          <img src={getImgUrl(airdrops.find(a => a.id === notifData.projectId)?.icon)} className="w-8 h-8 rounded-lg object-cover" />
+                                          <div className="flex-1">
+                                             <p className="text-[9px] font-black uppercase text-primary-600">Selected Project</p>
+                                             <p className="text-xs font-black">{airdrops.find(a => a.id === notifData.projectId)?.name}</p>
+                                          </div>
+                                          <button onClick={() => setNotifData({ ...notifData, projectId: '' })} className="p-2 hover:bg-rose-100 dark:hover:bg-slate-700 text-rose-500 rounded-lg transition-colors"><X size={16} /></button>
                                        </div>
-                                       <button onClick={() => setMsgData({ ...msgData, projectId: '' })} className="p-2 hover:bg-rose-100 dark:hover:bg-slate-700 text-rose-500 rounded-lg transition-colors"><X size={16} /></button>
-                                    </div>
-                                 )}
-
-                                 {!msgData.projectId && (
-                                    <div className="relative">
-                                       <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                                       <input type="text" className="w-full pl-10 pr-4 py-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-black text-xs outline-none" placeholder="Filter projects..." value={commsSearch} onChange={e => setCommsSearch(e.target.value)} />
-                                    </div>
-                                 )}
-                                 {commsSearch && commsProjectResults.length > 0 && (
-                                    <div className="absolute top-full mt-2 w-full bg-white dark:bg-slate-800 rounded-xl shadow-2xl border dark:border-slate-700 z-50 p-1">
-                                       {commsProjectResults.map(p => (
-                                          <button key={p.id} onClick={() => { setMsgData({ ...msgData, projectId: p.id }); setCommsSearch(''); }} className={`w-full text-left px-4 py-3 rounded-lg text-[10px] font-black uppercase flex items-center gap-3 ${msgData.projectId === p.id ? 'bg-primary-600 text-white' : 'hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-500'}`}>
-                                             <img src={getImgUrl(p.icon)} className="w-6 h-6 rounded-md object-cover" />
-                                             {p.name}
-                                          </button>
-                                       ))}
-                                    </div>
-                                 )}
-                              </div>
-                           )}
+                                    ) : (
+                                       <div className="relative">
+                                          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                                          <input type="text" className="w-full pl-10 pr-4 py-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-black text-xs outline-none" placeholder="Search projects..." value={commsSearch} onChange={e => setCommsSearch(e.target.value)} />
+                                          {commsSearch && commsProjectResults.length > 0 && (
+                                             <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border dark:border-slate-700 z-50 p-1">
+                                                {commsProjectResults.map(p => (
+                                                   <button key={p.id} onClick={() => { setNotifData({ ...notifData, projectId: p.id }); setCommsSearch(''); }} className={`w-full text-left px-4 py-3 rounded-lg text-[10px] font-black uppercase flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-500`}>
+                                                      <img src={getImgUrl(p.icon)} className="w-6 h-6 rounded-md object-cover" />
+                                                      {p.name}
+                                                   </button>
+                                                ))}
+                                             </div>
+                                          )}
+                                       </div>
+                                    )}
+                                 </div>
+                              )}
+                           </div>
+                           <button onClick={sendNotification} className="w-full py-5 bg-primary-600 text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3"><Send size={18} /> {notifData.id ? 'Save Changes' : 'Broadcast Payload'}</button>
                         </div>
-                        <button onClick={sendBroadcast} className="w-full py-5 bg-primary-600 text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3"><Send size={18} /> Broadcast Payload</button>
                      </div>
+
+                     <SectionWrapper title="Sent Notifications">
+                        <div className="space-y-4">
+                           {notifications.sort((a, b) => b.createdAt - a.createdAt).map(notif => {
+                              // Received By Calc: 
+                              // General -> total users. Project -> tracked project users.
+                              const isGen = notif.type === 'general';
+                              // This is a rough estimation based on track stats or total users. In reality, you'd do a DB query to count user's track lists.
+                              // We'll just show 'All Users' or 'Trackers'
+                              const reachText = isGen ? `${usersList.length} Hunters` : `Project Trackers`;
+
+                              return (
+                                 <div key={notif.id} className="p-5 bg-white dark:bg-slate-800 rounded-3xl flex items-start justify-between border dark:border-slate-700 shadow-sm relative overflow-hidden group">
+                                    <div className="flex gap-4">
+                                       <div className="w-12 h-12 bg-slate-100 dark:bg-slate-900 rounded-2xl flex items-center justify-center shrink-0">
+                                          {isGen ? <ShieldAlert size={20} className="text-primary-600" /> : <Target size={20} className="text-emerald-500" />}
+                                       </div>
+                                       <div>
+                                          <div className="flex items-center gap-2 mb-1">
+                                             <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase text-white ${isGen ? 'bg-primary-600' : 'bg-emerald-500'}`}>{notif.type}</span>
+                                             <span className="text-[10px] font-black text-slate-400 capitalize">{notif.targetProjectId ? airdrops.find(a => a.id === notif.targetProjectId)?.name : 'System'}</span>
+                                             <span className="text-[10px] font-black text-slate-500">• {new Date(notif.createdAt).toLocaleDateString()}</span>
+                                          </div>
+                                          <h4 className="font-black text-sm">{notif.title}</h4>
+                                          <p className="text-xs font-medium text-slate-500 mt-1 line-clamp-2">{notif.content}</p>
+                                          <p className="text-[9px] font-black uppercase text-slate-400 mt-3"><Users size={10} className="inline mr-1" /> Reached: {reachText}</p>
+                                       </div>
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                       <button onClick={() => setNotifData({ id: notif.id, title: notif.title, content: notif.content, type: notif.type, projectId: notif.targetProjectId || '', createdAt: notif.createdAt })} className="p-2.5 bg-slate-50 dark:bg-slate-900 rounded-xl text-slate-400 hover:text-primary-600 shadow-sm flex items-center justify-center"><Edit size={16} /></button>
+                                       <button onClick={() => deleteNotification(notif.id)} className="p-2.5 bg-slate-50 dark:bg-slate-900 rounded-xl text-slate-400 hover:text-red-500 shadow-sm flex items-center justify-center"><Trash2 size={16} /></button>
+                                    </div>
+                                 </div>
+                              );
+                           })}
+                           {notifications.length === 0 && <div className="p-20 text-center text-slate-300 font-black uppercase text-xs tracking-widest border-4 border-dashed rounded-[3rem]">No notifications sent.</div>}
+                        </div>
+                     </SectionWrapper>
                   </div>
                )}
 
