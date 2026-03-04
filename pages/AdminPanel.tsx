@@ -518,6 +518,7 @@ const AdminPanelContent: React.FC = () => {
 
                                              // 2. Sync to DB via RPC to bypass RLS
                                              const { error, data } = await supabase.rpc('update_user_role_admin', {
+                                                p_caller_address: user?.address || '',
                                                 p_target_address: u.address,
                                                 p_new_status: newStatus,
                                                 p_new_role: newStatus === 'Admin' || newStatus === 'Super Admin' ? 'admin' : 'user'
