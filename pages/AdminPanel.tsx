@@ -529,6 +529,7 @@ const AdminPanelContent: React.FC = () => {
                                              }
                                           }}>
                                              <option value="Hunter">Hunter</option>
+                                             <option value="Premium">Premium</option>
                                              <option value="Moderator">Moderator</option>
                                              <option value="Super Admin">Super Admin</option>
                                              <option value="Admin">Admin</option>
