@@ -326,6 +326,7 @@ export const ProjectDetails: React.FC = () => {
   };
 
   const getHashColor = (str: string) => {
+    if (str === 'DC Role') return 'bg-purple-900 text-white';
     const colors = [
       'bg-blue-500', 'bg-purple-500', 'bg-pink-500', 'bg-indigo-500',
       'bg-cyan-500', 'bg-teal-500', 'bg-emerald-500', 'bg-lime-500',

@@ -859,7 +859,7 @@ const AdminPanelContent: React.FC = () => {
                                              }}
                                           >
                                              <option value="" className="text-slate-900 dark:text-white bg-white dark:bg-slate-900">+ Add</option>
-                                             {['Points', 'DEX', 'Perp Dex', 'Lending', 'Bridge', 'L2', 'NFT', 'GameFi', 'Social', 'Infra', 'Wallet', 'Privacy', 'AI', 'RWA', 'Meme', 'Robotics', 'Layer1'].map(opt => (
+                                             {['DC Role', 'Points', 'DEX', 'Perp Dex', 'Lending', 'Bridge', 'L2', 'NFT', 'GameFi', 'Social', 'Infra', 'Wallet', 'Privacy', 'AI', 'RWA', 'Meme', 'Robotics', 'Layer1'].map(opt => (
                                                 <option key={opt} value={opt} className="text-slate-900 dark:text-white bg-white dark:bg-slate-900">{opt}</option>
                                              ))}
                                           </select>

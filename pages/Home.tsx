@@ -11,6 +11,7 @@ import { getImgUrl } from '../utils/getImgUrl';
 
 // Helper for colorful tags
 const getHashColor = (str: string) => {
+  if (str === 'DC Role') return 'bg-purple-900 text-white';
   const colors = [
     'bg-blue-500', 'bg-purple-500', 'bg-pink-500', 'bg-indigo-500',
     'bg-cyan-500', 'bg-teal-500', 'bg-emerald-500', 'bg-lime-500',
@@ -380,6 +381,7 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
     const s = (status || '').toLowerCase();
     if (s === 'potential') return 'bg-purple-600 text-white';
     if (s.includes('available')) return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
+    if (s === 'airdrop confirmed') return 'bg-red-600 text-white shadow-lg animate-pulse';
     return 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500';
   };
 
