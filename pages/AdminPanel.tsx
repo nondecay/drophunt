@@ -516,16 +516,20 @@ const AdminPanelContent: React.FC = () => {
                                              // 1. Optimistic Update
                                              setUsersList(prev => prev.map(usr => usr.address === u.address ? { ...usr, memberStatus: newStatus as any, isAdmin: newStatus !== 'Hunter' } : usr));
 
-                                             // 2. Sync to DB
-                                             const { error } = await supabase.from('users').update({ "memberStatus": newStatus, "role": newStatus === 'Admin' || newStatus === 'Super Admin' ? 'admin' : 'user' }).eq('address', u.address);
+                                             // 2. Sync to DB via RPC to bypass RLS
+                                             const { error, data } = await supabase.rpc('update_user_role_admin', {
+                                                p_target_address: u.address,
+                                                p_new_status: newStatus,
+                                                p_new_role: newStatus === 'Admin' || newStatus === 'Super Admin' ? 'admin' : 'user'
+                                             });
 
                                              if (!error) {
                                                 addToast(`User promoted to ${newStatus}`);
                                              } else {
                                                 console.error("Status Update Failed", error);
-                                                addToast("Failed to save status", "error");
-                                                // Revert on error (optional, but good practice)
-                                                // refreshData();
+                                                addToast(`Failed to save status: ${error.message || 'Unknown Error'}`, "error");
+                                                // Revert on error
+                                                setUsersList(prev => prev.map(usr => usr.address === u.address ? { ...usr, memberStatus: u.memberStatus as any, isAdmin: u.memberStatus !== 'Hunter' } : usr));
                                              }
                                           }}>
                                              <option value="Hunter">Hunter</option>
