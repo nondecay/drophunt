@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useApp } from '../AppContext';
-import { ChevronLeft, Youtube, Twitter, MessageSquare, Star, Zap, Plus, Globe, Trophy, ExternalLink, ShieldCheck, Github, Trash2, Medal, X, Lock, Info, Rocket, DollarSign, Users, Edit3, ChevronRight, CheckCircle, AlertCircle, ChevronDown, Copy, Send, Target } from 'lucide-react';
+import { ChevronLeft, Youtube, Twitter, MessageSquare, Star, Zap, Plus, Globe, Trophy, ExternalLink, ShieldCheck, Github, Trash2, Medal, X, Lock, Info, Rocket, DollarSign, Users, Edit3, ChevronRight, CheckCircle, AlertCircle, ChevronDown, Copy, Send, Target, Crown } from 'lucide-react';
 import { LoadingSpinner } from '../components/LoadingSpinner';
-import { Guide, Comment } from '../types';
+import { Guide, Comment, isPremiumUser } from '../types';
 import { supabase } from '../supabaseClient';
 import { OptimizedImage } from '../components/OptimizedImage';
 import { getImgUrl } from '../utils/getImgUrl';
@@ -614,32 +614,58 @@ export const ProjectDetails: React.FC = () => {
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {filteredGuides.map(guide => guide && (
-                  <div key={guide.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-transparent hover:border-primary-500 transition-all group flex items-center justify-between">
-                    <a href={ensureHttp(guide.url)} target="_blank" className="flex-1 flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-sm ${getPlatformColor(guide.platform)}`}>
-                        {getPlatformIcon(guide.platform)}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-black text-[10px] uppercase leading-none truncate">{guide.title || guide.author}</p>
-                        <p className="text-[7px] font-bold text-slate-400 uppercase mt-1">added: {new Date(guide.createdAt).toLocaleDateString()}</p>
-                      </div>
-                    </a>
-                    <div className="flex items-center gap-2">
-                      {isAdmin && (
-                        <div className="flex gap-2">
-                          <button onClick={() => openEditGuide(guide)} className="p-1.5 text-slate-400 hover:text-primary-600 transition-colors">
-                            <Edit3 size={14} />
-                          </button>
-                          <button onClick={() => handleDeleteGuide(guide.id)} className="p-1.5 text-rose-500 hover:text-rose-700 transition-colors">
-                            <Trash2 size={14} />
-                          </button>
+                {filteredGuides.map((guide, idx) => {
+                  if (!guide) return null;
+                  const isLocked = !isPremiumUser(user) && idx > 0;
+
+                  if (isLocked) {
+                    return (
+                      <div key={guide.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center justify-center relative overflow-hidden group">
+                        <div className="absolute inset-0 blur-md bg-white/50 dark:bg-slate-900/50 grayscale pointer-events-none flex items-center justify-between px-3 opacity-30">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-slate-300 dark:bg-slate-700"></div>
+                            <div className="w-24 h-3 bg-slate-300 dark:bg-slate-700 rounded"></div>
+                          </div>
                         </div>
-                      )}
-                      <ExternalLink size={10} className="text-slate-300 group-hover:text-primary-600" />
+                        <div className="relative z-10 flex flex-col items-center justify-center gap-2 p-2 w-full text-center">
+                          <Lock size={16} className="text-primary-500" />
+                          {!user ? (
+                            <span className="text-[10px] font-black uppercase text-slate-500">Connect wallet to view extra guides</span>
+                          ) : (
+                            <Link to="/premium" className="text-[10px] font-black uppercase text-[#FFD700] hover:underline flex items-center justify-center gap-1 mx-auto"><Crown size={12} /> Mint Premium Pass to unlock other guides</Link>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div key={guide.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-transparent hover:border-primary-500 transition-all group flex items-center justify-between">
+                      <a href={ensureHttp(guide.url)} target="_blank" className="flex-1 flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-sm ${getPlatformColor(guide.platform)}`}>
+                          {getPlatformIcon(guide.platform)}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-black text-[10px] uppercase leading-none truncate">{guide.title || guide.author}</p>
+                          <p className="text-[7px] font-bold text-slate-400 uppercase mt-1">added: {new Date(guide.createdAt).toLocaleDateString()}</p>
+                        </div>
+                      </a>
+                      <div className="flex items-center gap-2">
+                        {isAdmin && (
+                          <div className="flex gap-2">
+                            <button onClick={() => openEditGuide(guide)} className="p-1.5 text-slate-400 hover:text-primary-600 transition-colors">
+                              <Edit3 size={14} />
+                            </button>
+                            <button onClick={() => handleDeleteGuide(guide.id)} className="p-1.5 text-rose-500 hover:text-rose-700 transition-colors">
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        )}
+                        <ExternalLink size={10} className="text-slate-300 group-hover:text-primary-600" />
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
                 {filteredGuides.length === 0 && (
                   <div className="col-span-full py-6 text-center text-slate-400 font-black uppercase text-[10px] tracking-widest opacity-50">{t('noGuides')}</div>
                 )}
@@ -696,7 +722,17 @@ export const ProjectDetails: React.FC = () => {
                 </div>
               )}
 
-              <div className="p-6 bg-slate-50 dark:bg-slate-950 rounded-2xl border dark:border-slate-800 mt-6">
+              <div className="p-6 bg-slate-50 dark:bg-slate-950 rounded-2xl border dark:border-slate-800 mt-6 relative overflow-hidden">
+                {!isPremiumUser(user) && (
+                  <div className="absolute inset-0 z-20 bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center text-center p-4">
+                    <Lock size={28} className="text-primary-500 mb-3" />
+                    {!user ? (
+                      <p className="text-xs font-black uppercase text-slate-500">Connect wallet to leave a review</p>
+                    ) : (
+                      <Link to="/premium" className="text-[10px] sm:text-xs font-black uppercase text-[#FFD700] hover:underline flex items-center gap-1.5 bg-slate-900 border border-[#FFD700]/30 px-5 py-3 rounded-xl shadow-xl dark:bg-black/50"><Crown size={18} /> Mint Premium Pass to rate and review projects</Link>
+                    )}
+                  </div>
+                )}
                 <div className="flex items-center justify-between mb-4"><p className="text-[9px] font-black uppercase text-slate-400">{t('rating')}</p><div className="flex gap-1">{[1, 2, 3, 4, 5].map(s => (<button key={s} onClick={() => setUserRating(s)} className="transition-transform active:scale-90"><Star size={18} className={s <= userRating ? 'fill-yellow-400 text-yellow-400' : 'text-slate-300 dark:text-slate-700'} /></button>))}</div></div>
                 <textarea className="w-full bg-white dark:bg-slate-900 p-4 rounded-xl text-sm font-bold border-2 border-transparent focus:border-primary-500 outline-none transition-all shadow-sm" rows={3} placeholder={t('postIntelPlaceholder')} value={commentText} onChange={(e) => setCommentText(e.target.value)}></textarea>
                 <div className="mt-4 flex items-center gap-3 bg-white dark:bg-slate-900 p-3 rounded-xl border dark:border-slate-800"><Lock size={12} className="text-primary-600" /><span className="text-[9px] font-black uppercase text-slate-500">{captchaChallenge.a} + {captchaChallenge.b} = </span><input type="number" className="w-12 p-1 bg-slate-50 dark:bg-slate-800 rounded text-center font-black outline-none" value={captchaAnswer} onChange={e => setCaptchaAnswer(e.target.value)} /></div>

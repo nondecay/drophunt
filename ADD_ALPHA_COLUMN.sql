@@ -1,0 +1,2 @@
+ALTER TABLE public.airdrops 
+ADD COLUMN "isAlpha" BOOLEAN DEFAULT FALSE;

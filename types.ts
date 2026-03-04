@@ -28,7 +28,7 @@ export interface User {
   address: string;
   username?: string;
   avatar: string;
-  memberStatus: 'Admin' | 'Super Admin' | 'Moderator' | 'Hunter';
+  memberStatus: 'Admin' | 'Super Admin' | 'Moderator' | 'Hunter' | 'Premium';
   registeredAt: number;
   trackedProjectIds?: string[];
   // RPG Stats
@@ -106,6 +106,7 @@ export interface Airdrop {
   backerIds?: string[]; // New field for formal Investor IDs
   type: 'Gas Only' | 'Waitlist' | 'Free' | 'Paid' | 'Testnet';
   hasInfoFi: boolean;
+  isAlpha?: boolean;
   rating: number;
   voteCount: number;
   status: 'Potential' | 'Claim Available' | 'Airdrop Confirmed';
@@ -211,6 +212,12 @@ export interface AirdropRequest {
   funding: string;
   twitterLink: string;
   isInfoFi: boolean;
+  isAlpha?: boolean;
   address: string;
   timestamp: number;
 }
+
+export const isPremiumUser = (user: User | null): boolean => {
+  if (!user) return false;
+  return ['Admin', 'Super Admin', 'Moderator', 'Premium'].includes(user.memberStatus);
+};

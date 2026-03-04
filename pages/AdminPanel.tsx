@@ -172,7 +172,7 @@ const AdminPanelContent: React.FC = () => {
          projectId: msgData.projectId || null,
          type: msgData.type,
          createdAt: Date.now(),
-         targetRole: 'all',
+         targetRole: msgData.target === 'premium' ? 'premium' : 'all',
          authorId: user?.id,
          relatedAirdropId: msgData.target === 'project' && msgData.projectId ? msgData.projectId : null
       };
@@ -676,6 +676,7 @@ const AdminPanelContent: React.FC = () => {
                         <div className="grid grid-cols-2 gap-4">
                            <div><label className="text-[10px] font-black uppercase text-slate-400 block mb-2 tracking-widest ml-1">Target</label><select className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-black text-xs outline-none" value={msgData.target} onChange={e => setMsgData({ ...msgData, target: e.target.value as any })}>
                               <option value="all">All Hunters</option>
+                              <option value="premium">Premium Hunters Only (👑)</option>
                               <option value="project">Project Followers</option>
                            </select></div>
                            {msgData.target === 'project' && (
@@ -949,7 +950,12 @@ const AdminPanelContent: React.FC = () => {
 
                            <div className="col-span-2"><label className="text-[10px] font-black uppercase text-slate-400 block mb-2">Project Info / Details</label><textarea className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl font-bold text-xs h-32 outline-none" value={formData.projectInfo || ''} onChange={e => setFormData({ ...formData, projectInfo: e.target.value })} /></div>
 
-                           <div className="col-span-2 space-y-2">
+                           <div className="col-span-2 space-y-4">
+                              <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#FFD700]">
+                                 <input type="checkbox" className="w-4 h-4 rounded border-yellow-500 text-yellow-500 focus:ring-yellow-500" checked={!!formData.isAlpha} onChange={e => setFormData(prev => ({ ...prev, isAlpha: e.target.checked }))} />
+                                 Mark as Alpha Project (Premium Only)
+                              </label>
+
                               <label className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400 tracking-widest">
                                  <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500" checked={!!formData.editorsGuide} onChange={e => { const checked = e.target.checked; setFormData(prev => ({ ...prev, editorsGuide: checked ? '<p>Write your guide here...</p>' : undefined })); }} />
                                  Enable Editor's Guide

@@ -1,9 +1,10 @@
 
 import React, { useState } from 'react';
 import { useApp } from '../AppContext';
-import { User as UserIcon, Shield, Edit3, Check, X, Hash, CheckCircle, Wallet } from 'lucide-react';
+import { User as UserIcon, Shield, Edit3, Check, X, Hash, CheckCircle, Wallet, Crown } from 'lucide-react';
 import { RANDOM_AVATARS } from '../constants';
 import { LoadingSpinner } from '../components/LoadingSpinner';
+import { isPremiumUser } from '../types';
 
 export const Profile: React.FC = () => {
    const { user, setUsername, updateAvatar, t, isDataLoaded } = useApp();
@@ -55,9 +56,12 @@ export const Profile: React.FC = () => {
                   <div className="w-full flex items-center justify-between p-5 bg-slate-50 dark:bg-slate-800 rounded-2xl mt-4">
                      <div className="text-left">
                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{t('protocolRank')}</p>
-                        <p className="text-lg font-black text-primary-600">{user?.memberStatus}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                           <p className="text-lg font-black text-primary-600">{user?.memberStatus}</p>
+                           {isPremiumUser(user) && <Crown size={16} className="text-[#FFD700]" />}
+                        </div>
                      </div>
-                     {user?.isAdmin ? <Shield className="text-primary-600" size={28} /> : <UserIcon className="text-slate-400" size={28} />}
+                     {isPremiumUser(user) ? <Crown className="text-[#FFD700]" size={28} /> : <UserIcon className="text-slate-400" size={28} />}
                   </div>
 
                   <div className="w-full mt-6 p-4 border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-xl">

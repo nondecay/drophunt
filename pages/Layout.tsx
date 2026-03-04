@@ -8,7 +8,7 @@ import {
   LayoutDashboard, Calendar as CalendarIcon, Bell, Moon, Sun,
   User as UserIcon, Globe, Menu, X, ShieldAlert, ChevronDown, Zap,
   Ticket, CheckCircle, AlertCircle, Mail, Sun as SunIcon,
-  Sparkles, ArrowUpCircle, Sword, LogOut, Target, UserPlus, Users, Lock, Wrench, Droplets, ShieldCheck, Twitter
+  Sparkles, ArrowUpCircle, Sword, LogOut, Target, UserPlus, Users, Lock, Wrench, Droplets, ShieldCheck, Twitter, Crown
 } from 'lucide-react';
 
 const DiscordIcon = ({ size = 18, className = "" }) => (
@@ -186,6 +186,7 @@ export const Layout: React.FC = () => {
               <>
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mb-2 mt-6">{t('myHub')}</p>
                 <SidebarLink to="/my-airdrops" icon={<Target size={18} />} label={t('myAirdrops')} active={location.pathname === '/my-airdrops'} onClick={() => setSidebarOpen(false)} />
+                <SidebarLink to="/premium" icon={<Crown size={18} className="text-[#FFD700]" />} label="Premium" active={location.pathname === '/premium'} onClick={() => setSidebarOpen(false)} />
               </>
             )}
 
@@ -247,6 +248,7 @@ export const Layout: React.FC = () => {
                     </div>
                     <Link to="/profile" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-3 px-4 py-2.5 hover:bg-primary-50 dark:hover:bg-slate-800 rounded-xl text-sm font-bold transition-colors"><UserIcon size={18} /> {t('profile')}</Link>
                     <Link to="/my-airdrops" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-3 px-4 py-2.5 hover:bg-primary-50 dark:hover:bg-slate-800 rounded-xl text-sm font-bold transition-colors"><Target size={18} /> {t('myAirdrops')}</Link>
+                    <Link to="/premium" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-3 px-4 py-2.5 hover:bg-primary-50 dark:hover:bg-slate-800 rounded-xl text-sm font-bold transition-colors"><Crown size={18} className="text-[#FFD700]" /> Premium</Link>
                     <Link to="/inbox" onClick={() => setShowProfileMenu(false)} className="flex items-center justify-between px-4 py-2.5 hover:bg-primary-50 dark:hover:bg-slate-800 rounded-xl text-sm font-bold transition-colors">
                       <div className="flex items-center gap-3"><Mail size={18} /> {t('messages')}</div>
                       {unreadCount > 0 && <span className="bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full">{unreadCount}</span>}

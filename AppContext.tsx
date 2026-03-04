@@ -2,7 +2,7 @@
 import React, { useState, useEffect, createContext, useContext, useCallback } from 'react';
 import { useAccount, useDisconnect, useWalletClient } from 'wagmi';
 import { verifyMessage } from 'viem';
-import { Language, User, Airdrop, Claim, CalendarEvent, Comment, TodoItem, UserClaim, Guide, InboxMessage, Toast, AirdropRequest, OnChainActivity, Chain, InfoFiPlatform, Announcement, Investor, Tool } from './types';
+import { Language, User, Airdrop, Claim, CalendarEvent, Comment, TodoItem, UserClaim, Guide, InboxMessage, Toast, AirdropRequest, OnChainActivity, Chain, InfoFiPlatform, Announcement, Investor, Tool, isPremiumUser } from './types';
 import { RANDOM_AVATARS } from './constants';
 import { translations, TranslationKey } from './i18n';
 import { supabase } from './supabaseClient'; // Import our new client
@@ -589,7 +589,14 @@ Issued At: ${new Date().toISOString()}`;
   const toggleTrackProject = async (aid: string) => {
     if (!user) return;
     let current = user.trackedProjectIds || [];
-    const updated = current.includes(aid) ? current.filter(x => x !== aid) : [...current, aid];
+    const isCurrentlyTracking = current.includes(aid);
+
+    if (!isCurrentlyTracking && !isPremiumUser(user) && current.length >= 3) {
+      addToast("👑 Mint Premium Pass to track more projects", "warning");
+      return;
+    }
+
+    const updated = isCurrentlyTracking ? current.filter(x => x !== aid) : [...current, aid];
 
     // Optimistic Update
     setUser({ ...user, trackedProjectIds: updated });

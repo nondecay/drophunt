@@ -11,6 +11,7 @@ import { Claims } from './pages/Claims';
 import { ProjectDetails } from './pages/ProjectDetails';
 import { AdminPanel } from './pages/AdminPanel';
 import { Profile } from './pages/Profile';
+import Premium from './pages/Premium';
 import { Inbox } from './pages/Inbox';
 import { DailyGM } from './pages/DailyGM';
 import { DailyMint } from './pages/DailyMint';
@@ -101,6 +102,7 @@ export const App: React.FC = () => {
                   <Route path="/project/:id" element={<ErrorBoundary><ProjectDetails /></ErrorBoundary>} />
 
                   <Route path="/my-airdrops" element={<ProtectedRoute><MyAirdrops /></ProtectedRoute>} />
+                  <Route path="/premium" element={<ProtectedRoute><Premium /></ProtectedRoute>} />
                   <Route path="/inbox" element={<ProtectedRoute><Inbox /></ProtectedRoute>} />
                   <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 

@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../AppContext';
-import { Search, Plus, Star, TrendingUp, Users, Bell, Zap, Lock, ChevronDown, Filter, X, Twitter, Calendar, Check, ArrowUpDown, ChevronLeft, ChevronRight, ExternalLink, DollarSign } from 'lucide-react';
+import { Search, Plus, Star, TrendingUp, Users, Bell, Zap, Lock, ChevronDown, Filter, X, Twitter, Calendar, Check, ArrowUpDown, ChevronLeft, ChevronRight, ExternalLink, DollarSign, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Airdrop } from '../types';
+import { Airdrop, isPremiumUser } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { supabase } from '../supabaseClient';
 import { Image } from '../components/Image';
@@ -202,7 +202,10 @@ const MobileProjectCard: React.FC<{ project: Airdrop, isTracked: boolean, onTrac
             <div className="min-w-0 flex-1 mr-2">
               <div className="flex items-center gap-2 mb-1 min-w-0">
                 <h3 className="font-black text-lg uppercase tracking-tight leading-none text-slate-900 dark:text-white truncate block w-full">{project.name}</h3>
-                {(project.createdAt || 0) > Date.now() - 7 * 24 * 60 * 60 * 1000 && (
+                {project.isAlpha && (
+                  <span className="bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.8)] text-white text-[9px] font-black px-1.5 py-0.5 rounded animate-pulse shrink-0">ALPHA</span>
+                )}
+                {!project.isAlpha && (project.createdAt || 0) > Date.now() - 7 * 24 * 60 * 60 * 1000 && (
                   <span className="bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded animate-pulse shrink-0">NEW</span>
                 )}
               </div>
@@ -243,6 +246,19 @@ const MobileProjectCard: React.FC<{ project: Airdrop, isTracked: boolean, onTrac
         <div className="text-[10px] font-bold text-slate-400"><span className="uppercase tracking-widest mr-2">Date Added:</span>{new Date(project.createdAt || Date.now()).toLocaleDateString()}</div>
         <div className="flex items-center gap-1"><PartialStar rating={project.rating} /><span className="text-[10px] font-bold text-slate-400">{(project.rating || 0).toFixed(1)}</span></div>
       </div>
+
+      {/* Alpha Lock Overlay */}
+      {project.isAlpha && !isPremiumUser(user) && (
+        <div className="absolute inset-0 z-20 bg-white/60 dark:bg-slate-900/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center border border-blue-500/30 rounded-[2rem]">
+          <Lock className="text-blue-500 w-8 h-8 mb-3 animate-pulse" />
+          <h4 className="font-black text-white text-base mb-2 tracking-tighter uppercase">Alpha Project</h4>
+          {!user ? (
+            <p className="text-xs font-bold text-slate-300">Connect wallet to view this project</p>
+          ) : (
+            <Link to="/premium" className="text-xs font-bold text-[#FFD700] hover:underline flex items-center gap-1 bg-black/40 px-3 py-1.5 rounded-lg border border-[#FFD700]/30"><Crown size={12} /> Mint Premium Pass to view this project</Link>
+          )}
+        </div>
+      )}
     </div>
   );
 };
@@ -505,8 +521,11 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
                       <td className="px-6 py-3">
                         <Link to={`/project/${a.id}`} className="flex items-center gap-4">
                           <div className="relative shrink-0">
-                            <img src={getImgUrl(a.icon) || 'https://picsum.photos/200'} className="w-12 h-12 rounded-xl object-cover shadow-lg group-hover:scale-110 transition-transform" alt="" />
-                            {(a.createdAt || 0) > Date.now() - 7 * 24 * 60 * 60 * 1000 && (
+                            <img src={getImgUrl(a.icon) || 'https://picsum.photos/200'} className={`w-12 h-12 rounded-xl object-cover shadow-lg transition-transform ${a.isAlpha && !isPremiumUser(user) ? 'blur-sm' : 'group-hover:scale-110'}`} alt="" />
+                            {a.isAlpha && (
+                              <div className="absolute -top-2 -right-2 bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.8)] text-white text-[8px] font-black px-1.5 py-0.5 rounded-md z-10 animate-pulse">ALPHA</div>
+                            )}
+                            {!a.isAlpha && (a.createdAt || 0) > Date.now() - 7 * 24 * 60 * 60 * 1000 && (
                               <div className="absolute -top-2 -right-2 bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-md shadow-sm z-10 animate-pulse">NEW</div>
                             )}
                           </div>
@@ -521,36 +540,54 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
                           </div>
                         </Link>
                       </td>
-                      <td className="px-6 py-3 text-[11px] font-bold text-slate-500 whitespace-nowrap">{new Date(a.createdAt || Date.now()).toLocaleDateString()}</td>
-                      <td className="px-6 py-3">
-                        <div className="flex items-center text-slate-900 dark:text-white font-bold gap-0.5">
-                          <span className="text-2xl">$</span>
-                          <span className="text-2xl">{a.investment}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-3">
-                        <span className={`inline-flex items-center px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest whitespace-nowrap ${getStatusStyle(a.status)}`}>
-                          {a.status}
-                        </span>
-                      </td>
-                      {category === 'infofi' && <td className="px-6 py-3">
-                        <div className="flex items-center gap-2">
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 transition-all whitespace-nowrap`}>
-                            {platformObj?.logo && <img src={getImgUrl(platformObj.logo)} className="w-3 h-3 object-contain" />}
-                            {a.platform || 'N/A'}
-                          </span>
-                        </div>
-                      </td>}
-                      <td className="px-6 py-3"><div className="flex flex-col gap-1"><PartialStar rating={a.rating} /><span className="text-[10px] font-bold text-slate-400">{(a.rating || 0).toFixed(1)}</span></div></td>
-                      <td className="px-6 py-3 text-right">
-                        {user?.username ? (
-                          <button onClick={() => toggleTrackProject(a.id)} className={`p-3 rounded-xl transition-all shadow-sm active:scale-95 ${isProjectTracked(a.id) ? 'bg-primary-600 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary-600'}`}>
-                            <Plus size={20} className={isProjectTracked(a.id) ? 'rotate-45' : ''} />
-                          </button>
-                        ) : (
-                          <div className="flex justify-end"><div className="p-3 bg-slate-100 dark:bg-slate-800 text-slate-300 rounded-xl cursor-not-allowed group/lock relative"><Lock size={20} /><div className="absolute bottom-full right-0 mb-2 hidden group-hover/lock:block bg-slate-900 text-white text-[10px] py-1 px-2 rounded whitespace-nowrap">Connect Wallet to Track</div></div></div>
-                        )}
-                      </td>
+
+                      {a.isAlpha && !isPremiumUser(user) ? (
+                        <td colSpan={category === 'infofi' ? 6 : 5} className="px-6 py-3 relative">
+                          <div className="absolute inset-0 bg-white/60 dark:bg-slate-900/80 backdrop-blur-sm z-10 flex items-center justify-center">
+                            {!user ? (
+                              <span className="font-bold text-xs text-slate-600 dark:text-slate-300 flex items-center gap-2"><Lock size={12} /> Connect wallet to view this project</span>
+                            ) : (
+                              <Link to="/premium" className="font-bold text-xs text-[#FFD700] hover:underline flex items-center gap-1.5"><Crown size={12} /> Mint Premium Pass to view this project</Link>
+                            )}
+                          </div>
+                          <div className="opacity-0 grid grid-cols-5">
+                            <span>Locked</span><span>Locked</span><span>Locked</span><span>Locked</span><span>Locked</span>
+                          </div>
+                        </td>
+                      ) : (
+                        <>
+                          <td className="px-6 py-3 text-[11px] font-bold text-slate-500 whitespace-nowrap">{new Date(a.createdAt || Date.now()).toLocaleDateString()}</td>
+                          <td className="px-6 py-3">
+                            <div className="flex items-center text-slate-900 dark:text-white font-bold gap-0.5">
+                              <span className="text-2xl">$</span>
+                              <span className="text-2xl">{a.investment}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-3">
+                            <span className={`inline-flex items-center px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest whitespace-nowrap ${getStatusStyle(a.status)}`}>
+                              {a.status}
+                            </span>
+                          </td>
+                          {category === 'infofi' && <td className="px-6 py-3">
+                            <div className="flex items-center gap-2">
+                              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 transition-all whitespace-nowrap`}>
+                                {platformObj?.logo && <img src={getImgUrl(platformObj.logo)} className="w-3 h-3 object-contain" />}
+                                {a.platform || 'N/A'}
+                              </span>
+                            </div>
+                          </td>}
+                          <td className="px-6 py-3"><div className="flex flex-col gap-1"><PartialStar rating={a.rating} /><span className="text-[10px] font-bold text-slate-400">{(a.rating || 0).toFixed(1)}</span></div></td>
+                          <td className="px-6 py-3 text-right">
+                            {user?.username ? (
+                              <button onClick={() => toggleTrackProject(a.id)} className={`p-3 rounded-xl transition-all shadow-sm active:scale-95 ${isProjectTracked(a.id) ? 'bg-primary-600 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary-600'}`}>
+                                <Plus size={20} className={isProjectTracked(a.id) ? 'rotate-45' : ''} />
+                              </button>
+                            ) : (
+                              <div className="flex justify-end"><div className="p-3 bg-slate-100 dark:bg-slate-800 text-slate-300 rounded-xl cursor-not-allowed group/lock relative"><Lock size={20} /><div className="absolute bottom-full right-0 mb-2 hidden group-hover/lock:block bg-slate-900 text-white text-[10px] py-1 px-2 rounded whitespace-nowrap">Connect Wallet to Track</div></div></div>
+                            )}
+                          </td>
+                        </>
+                      )}
                     </tr>
                   );
                 })

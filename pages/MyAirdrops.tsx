@@ -6,6 +6,7 @@ import { Plus, CheckCircle2, Trash2, ListChecks, Zap, Clock, PieChart, RefreshCw
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 import { getImgUrl } from '../utils/getImgUrl';
+import { isPremiumUser } from '../types';
 
 import { LoadingSpinner } from '../components/LoadingSpinner';
 
@@ -157,6 +158,13 @@ export const MyAirdrops: React.FC = () => {
 
   const addTask = async () => {
     if (!newTask.note) return;
+
+    const limit = isPremiumUser(user) ? 100 : 5;
+    if (userTasks.length >= limit) {
+      addToast("👑 Mint Premium Pass to add more tasks", "warning");
+      return;
+    }
+
     await manageTodo('add', {
       note: newTask.note,
       airdropId: newTask.airdropId, // 'custom' or ID
@@ -172,6 +180,13 @@ export const MyAirdrops: React.FC = () => {
 
   const addClaimEntry = async () => {
     if (!newClaim.projectName) return;
+
+    const limit = isPremiumUser(user) ? 100 : 3;
+    if (userClaims.length >= limit) {
+      addToast("👑 Mint Premium Pass to add more claims", "warning");
+      return;
+    }
+
     await manageUserClaim('add', {
       projectName: newClaim.projectName,
       expense: newClaim.expense || 0,
