@@ -39,6 +39,12 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
 
 import { LoadingSpinner } from '../components/LoadingSpinner';
 
+const ensureHttp = (url: string) => {
+   if (!url) return '#';
+   if (url.startsWith('http')) return url;
+   return `https://${url}`;
+};
+
 const AdminPanelContent: React.FC = () => {
    const {
       airdrops, setAirdrops, comments, setComments, guides, setGuides, claims, setClaims,
@@ -604,8 +610,8 @@ const AdminPanelContent: React.FC = () => {
                                        <div className={`p-3 rounded-2xl ${g.platform === 'youtube' ? 'bg-red-50 text-red-500' : g.platform === 'twitter' ? 'bg-sky-50 text-sky-500' : 'bg-slate-50 text-slate-900'}`}>{g.platform === 'youtube' ? <Youtube size={24} /> : g.platform === 'twitter' ? <Twitter size={24} /> : <Github size={24} />}</div>
                                        <div>
                                           <p className="font-black text-xs uppercase tracking-tight">{g.author} on {airdrops.find(a => a.id === g.airdropId)?.name || 'Protocol'}</p>
-                                          <a href={g.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 mt-1 bg-slate-100 dark:bg-slate-900/50 text-slate-600 dark:text-slate-300 text-[10px] font-black uppercase rounded-lg hover:bg-primary-50 hover:text-primary-600 transition-colors truncate max-w-sm">
-                                             <ExternalLink size={12} className="shrink-0" /> <span className="truncate">{g.url}</span>
+                                          <a href={ensureHttp(g.url)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 mt-1 bg-slate-100 dark:bg-slate-900/50 text-slate-600 dark:text-slate-300 text-[10px] font-black uppercase rounded-lg hover:bg-primary-50 hover:text-primary-600 transition-colors truncate max-w-sm">
+                                             <ExternalLink size={12} className="shrink-0" /> <span className="truncate">{g.url.replace(/^https?:\/\//i, '').replace(/^www\./i, '')}</span>
                                           </a>
                                        </div>
                                     </div>
@@ -650,7 +656,7 @@ const AdminPanelContent: React.FC = () => {
                               <div>
                                  <h4 className="font-black text-xl uppercase tracking-tighter">{r.name}</h4>
                                  <p className={`text-[10px] font-black uppercase tracking-widest ${r.isInfoFi ? 'text-amber-500' : 'text-primary-600'}`}>Proposal by {r.address}</p>
-                                 {r.twitterLink && <a href={r.twitterLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 mt-2 bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 text-[10px] font-black uppercase rounded-lg hover:bg-sky-100 dark:hover:bg-sky-900/50 transition-colors truncate max-w-sm"><Twitter size={12} className="shrink-0" /> <span className="truncate">{r.twitterLink}</span></a>}
+                                 {r.twitterLink && <a href={ensureHttp(r.twitterLink)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 mt-2 bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 text-[10px] font-black uppercase rounded-lg hover:bg-sky-100 dark:hover:bg-sky-900/50 transition-colors truncate max-w-sm"><Twitter size={12} className="shrink-0" /> <span className="truncate">@{r.twitterLink.replace(/^https?:\/\/(www\.)?(twitter|x)\.com\//i, '').split('/')[0].split('?')[0]}</span></a>}
                               </div>
                               <div className="flex gap-2">
                                  <button onClick={async () => {
