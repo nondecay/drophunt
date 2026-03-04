@@ -522,9 +522,9 @@ export const MyAirdrops: React.FC = () => {
       </div>
 
       {showAdd && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md">
-          <div className="bg-white dark:bg-slate-900 w-full max-lg rounded-[2.5rem] p-10 shadow-2xl relative animate-in zoom-in-95">
-            <h3 className="text-2xl font-black mb-8 tracking-tighter">{t('newObjective')}</h3>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl p-6 sm:p-8 border border-slate-100 dark:border-slate-800 shadow-2xl relative animate-in zoom-in-95 duration-200">
+            <h3 className="text-xl font-black mb-6 tracking-tighter">{t('newObjective')}</h3>
             <div className="space-y-4">
               <div>
                 <label className="text-[10px] font-black text-slate-400 mb-1 block uppercase tracking-widest ml-1">Task Name</label>
@@ -546,9 +546,9 @@ export const MyAirdrops: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className="flex gap-4 mt-10">
-              <button onClick={() => setShowAdd(false)} className="flex-1 font-black text-slate-400 uppercase text-xs tracking-widest">{t('abort')}</button>
-              <button onClick={addTask} className="flex-1 py-4 bg-primary-600 text-white rounded-xl font-black shadow-xl active:scale-95 transition-transform uppercase text-xs tracking-widest">+Add Task</button>
+            <div className="flex gap-3 mt-8">
+              <button onClick={() => setShowAdd(false)} className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-black uppercase text-[10px] tracking-widest transition-colors">{t('abort')}</button>
+              <button onClick={addTask} disabled={!newTask.note} className="flex-1 py-3 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white rounded-xl font-black uppercase text-[10px] tracking-widest shadow-lg active:scale-95 transition-all text-center flex items-center justify-center">+Add Task</button>
             </div>
           </div>
         </div>
