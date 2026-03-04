@@ -30,7 +30,7 @@ const RankBadge = ({ rank }: { rank: number }) => {
 
 export const ProjectDetails: React.FC = () => {
   const { id } = useParams();
-  const { user, airdrops = [], comments = [], setComments, guides = [], setGuides, investors = [], addToast, toggleTrackProject, logActivity, setUsersList, t, refreshData, isDataLoaded } = useApp();
+  const { user, airdrops = [], comments = [], setComments, guides = [], setGuides, investors = [], addToast, toggleTrackProject, logActivity, usersList = [], setUsersList, t, refreshData, isDataLoaded } = useApp();
   const [guideFilter, setGuideFilter] = useState<'tr' | 'us' | 'es' | 'ru' | 'in' | 'cn' | 'jp' | 'kr' | 'vn' | 'ph' | 'id'>('us');
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -686,7 +686,7 @@ export const ProjectDetails: React.FC = () => {
                 ) : (
                   paginatedComments.map(c => c && (
                     <div key={c.id} className="flex gap-4 py-4 first:pt-0 last:pb-0 animate-in slide-in-from-left duration-300">
-                      <img src={c.avatar} className="w-10 h-10 rounded-xl object-cover shadow-sm" />
+                      <img src={usersList.find(u => u.address === c.address)?.avatar || c.avatar} className="w-10 h-10 rounded-xl object-cover shadow-sm bg-slate-100 dark:bg-slate-800" />
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-1.5">
                           <div className="flex flex-col">
