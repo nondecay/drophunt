@@ -2,12 +2,25 @@
 -- The error is caused because your Web3 login created a new auth.users ID (bf59ae35-6e92-4d21-910c-621e361d1e09)
 -- but your public.users table still thinks your ID is the old one (59d84d29-56cb-4db9-87cf-52b483766518).
 
--- 1. First, we update your public.users record to match your new session ID:
+-- 1. Temporarily drop the foreign key constraint to allow the ID update
+ALTER TABLE public.admin_secrets DROP CONSTRAINT IF EXISTS admin_secrets_user_id_fkey;
+
+-- 2. Update your public.users record to match your new session ID
 UPDATE public.users 
 SET id = 'bf59ae35-6e92-4d21-910c-621e361d1e09' 
 WHERE id = '59d84d29-56cb-4db9-87cf-52b483766518';
 
--- 2. Then, we simplify the RPC function so it doesn't strictly block you if this happens again:
+-- 3. Update the admin_secrets record to point to the new ID
+UPDATE public.admin_secrets 
+SET user_id = 'bf59ae35-6e92-4d21-910c-621e361d1e09' 
+WHERE user_id = '59d84d29-56cb-4db9-87cf-52b483766518';
+
+-- 4. Re-add the foreign key constraint
+ALTER TABLE public.admin_secrets 
+ADD CONSTRAINT admin_secrets_user_id_fkey 
+FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+-- 5. Then, we simplify the RPC function so it doesn't strictly block you if this happens again:
 CREATE OR REPLACE FUNCTION public.update_user_role_admin(
   p_caller_address TEXT,
   p_target_address TEXT,
