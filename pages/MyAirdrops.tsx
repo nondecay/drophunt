@@ -521,38 +521,6 @@ export const MyAirdrops: React.FC = () => {
         </div>
       </div>
 
-      {showAdd && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md">
-          <div className="bg-white dark:bg-slate-900 w-full max-lg rounded-[2.5rem] p-10 shadow-2xl relative animate-in zoom-in-95">
-            <h3 className="text-2xl font-black mb-8 tracking-tighter">{t('newObjective')}</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="text-[10px] font-black text-slate-400 mb-1 block uppercase tracking-widest ml-1">Task Name</label>
-                <input type="text" placeholder={t('taskDetails')} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl font-bold outline-none shadow-inner" value={newTask.note} onChange={e => setNewTask({ ...newTask, note: e.target.value })} />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-[10px] font-black text-slate-400 mb-1 block uppercase tracking-widest ml-1">{t('cycleFreq')}</label>
-                  <select className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl font-bold outline-none shadow-inner" value={newTask.reminder} onChange={e => setNewTask({ ...newTask, reminder: e.target.value as any })}>
-                    <option value="none">{t('once')}</option>
-                    <option value="daily">{t('dailyReset')}</option>
-                    <option value="weekly">{t('weeklyReset')}</option>
-                    <option value="monthly">{t('monthlyReset')}</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-[10px] font-black text-slate-400 mb-1 block uppercase tracking-widest ml-1">Deadline</label>
-                  <input type="date" className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl font-bold outline-none shadow-inner" value={newTask.deadline} onChange={e => setNewTask({ ...newTask, deadline: e.target.value })} />
-                </div>
-              </div>
-            </div>
-            <div className="flex gap-4 mt-10">
-              <button onClick={() => setShowAdd(false)} className="flex-1 font-black text-slate-400 uppercase text-xs tracking-widest">{t('abort')}</button>
-              <button onClick={addTask} className="flex-1 py-4 bg-primary-600 text-white rounded-xl font-black shadow-xl active:scale-95 transition-transform uppercase text-xs tracking-widest">{t('deploy')}</button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {showClaimAdd && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md">
