@@ -656,7 +656,15 @@ const AdminPanelContent: React.FC = () => {
                               <div>
                                  <h4 className="font-black text-xl uppercase tracking-tighter">{r.name}</h4>
                                  <p className={`text-[10px] font-black uppercase tracking-widest ${r.isInfoFi ? 'text-amber-500' : 'text-primary-600'}`}>Proposal by {r.address}</p>
-                                 {r.twitterLink && <a href={ensureHttp(r.twitterLink)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 mt-2 bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 text-[10px] font-black uppercase rounded-lg hover:bg-sky-100 dark:hover:bg-sky-900/50 transition-colors truncate max-w-sm"><Twitter size={12} className="shrink-0" /> <span className="truncate">@{r.twitterLink.replace(/^https?:\/\/(www\.)?(twitter|x)\.com\//i, '').split('/')[0].split('?')[0]}</span></a>}
+                                 {r.twitterLink && (() => {
+                                    const handle = r.twitterLink.replace(/^https?:\/\/(www\.)?(twitter|x)\.com\//i, '').replace(/^@/, '').split('/')[0].split('?')[0];
+                                    const fullUrl = `https://x.com/${handle}`;
+                                    return (
+                                       <a href={fullUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 mt-2 bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 text-[10px] font-black uppercase rounded-lg hover:bg-sky-100 dark:hover:bg-sky-900/50 transition-colors truncate max-w-sm">
+                                          <Twitter size={12} className="shrink-0" /> <span className="truncate">@{handle}</span>
+                                       </a>
+                                    );
+                                 })()}
                               </div>
                               <div className="flex gap-2">
                                  <button onClick={async () => {
