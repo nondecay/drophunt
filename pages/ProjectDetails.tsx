@@ -485,7 +485,7 @@ export const ProjectDetails: React.FC = () => {
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-lg font-black uppercase tracking-tighter">{t('guides')}</h2>
                 <div className="flex gap-2">
-                  <div className="relative z-10" ref={dropdownRef}>
+                  <div className="relative z-50" ref={dropdownRef}>
                     <button
                       onClick={() => setDropdownOpen(!isDropdownOpen)}
                       className="flex items-center gap-2 pl-3 pr-4 py-2 bg-slate-100 dark:bg-slate-950 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-900 transition-colors"
@@ -634,7 +634,7 @@ export const ProjectDetails: React.FC = () => {
                         <div className="relative z-10 flex flex-col items-center justify-center gap-2 p-2 w-full text-center">
                           <Lock size={16} className="text-primary-500" />
                           {!user ? (
-                            <span className="text-[10px] font-black uppercase text-slate-500">Connect wallet to view extra guides</span>
+                            <span className="text-[10px] font-black uppercase text-slate-500">Connect wallet to view other guides</span>
                           ) : (
                             <Link to="/premium" className="text-[10px] font-black uppercase text-[#FFD700] hover:underline flex items-center justify-center gap-1 mx-auto"><Crown size={12} /> Mint Premium Pass to unlock other guides</Link>
                           )}
