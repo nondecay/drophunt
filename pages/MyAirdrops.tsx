@@ -548,7 +548,7 @@ export const MyAirdrops: React.FC = () => {
             </div>
             <div className="flex gap-4 mt-10">
               <button onClick={() => setShowAdd(false)} className="flex-1 font-black text-slate-400 uppercase text-xs tracking-widest">{t('abort')}</button>
-              <button onClick={addTask} className="flex-1 py-4 bg-primary-600 text-white rounded-xl font-black shadow-xl active:scale-95 transition-transform uppercase text-xs tracking-widest">{t('deploy')}</button>
+              <button onClick={addTask} className="flex-1 py-4 bg-primary-600 text-white rounded-xl font-black shadow-xl active:scale-95 transition-transform uppercase text-xs tracking-widest">+Add Task</button>
             </div>
           </div>
         </div>
