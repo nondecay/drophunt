@@ -5,7 +5,7 @@ import { supabase } from '../supabaseClient';
 import {
    Shield, LayoutDashboard, Users, MessageSquare, Check, Trash2, Edit, Plus, Bell, Zap, X,
    Mail, Ticket, BarChart3, Star, Trophy, ArrowUpCircle, Sword, Globe, ExternalLink, Map, Sun, Sparkles, Youtube, Github, Twitter, Save, UserPlus, Link2, Calendar, UserCheck, ShieldAlert, Send,
-   Layers, Search, Info, Megaphone, TrendingUp, ChevronRight, Lock, Clock, History, ChevronLeft, Wrench, ChevronDown, Filter
+   Layers, Search, Info, Megaphone, TrendingUp, ChevronRight, Lock, Clock, History, ChevronLeft, Wrench, ChevronDown, Filter, Crown
 } from 'lucide-react';
 import { OnChainActivity, Airdrop, Claim, Guide, Comment, TopUser, Chain, User, InfoFiPlatform, Announcement, Investor, Tool, ToolCategory } from '../types';
 import ReactQuill from 'react-quill';
@@ -224,6 +224,7 @@ const AdminPanelContent: React.FC = () => {
 
       return {
          totalUsers: usersList.length,
+         totalPremium: usersList.filter(u => u.memberStatus === 'Premium').length,
          totalAirdrops: airdrops.filter(a => !a.hasInfoFi).length,
          totalInfoFi: airdrops.filter(a => a.hasInfoFi).length,
          totalComments: comments.length,
@@ -473,8 +474,9 @@ const AdminPanelContent: React.FC = () => {
                         <StatBox label="Total Hunters" value={stats.totalUsers} icon={<Users className="text-primary-600" />} />
                         <StatBox label="Airdrop Nodes" value={stats.totalAirdrops} icon={<LayoutDashboard className="text-emerald-500" />} />
                         {/* <StatBox label="InfoFi Hubs" value={stats.totalInfoFi} icon={<Zap className="text-amber-500" />} /> */}
-                        <StatBox label="Protocol Intel" value={stats.totalComments} icon={<MessageSquare className="text-sky-500" />} />
+                        <StatBox label="REVIEWS" value={stats.totalComments} icon={<MessageSquare className="text-sky-500" />} />
                         <StatBox label="Live Chains" value={stats.totalChains} icon={<Link2 className="text-rose-500" />} />
+                        <StatBox label="Premium Users" value={stats.totalPremium} icon={<Crown className="text-amber-500" />} />
                      </div>
 
                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -602,7 +604,9 @@ const AdminPanelContent: React.FC = () => {
                                        <div className={`p-3 rounded-2xl ${g.platform === 'youtube' ? 'bg-red-50 text-red-500' : g.platform === 'twitter' ? 'bg-sky-50 text-sky-500' : 'bg-slate-50 text-slate-900'}`}>{g.platform === 'youtube' ? <Youtube size={24} /> : g.platform === 'twitter' ? <Twitter size={24} /> : <Github size={24} />}</div>
                                        <div>
                                           <p className="font-black text-xs uppercase tracking-tight">{g.author} on {airdrops.find(a => a.id === g.airdropId)?.name || 'Protocol'}</p>
-                                          <p className="text-[10px] text-slate-400 font-mono truncate w-64">{g.url}</p>
+                                          <a href={g.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 mt-1 bg-slate-100 dark:bg-slate-900/50 text-slate-600 dark:text-slate-300 text-[10px] font-black uppercase rounded-lg hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                                             <ExternalLink size={12} /> URL
+                                          </a>
                                        </div>
                                     </div>
                                     <div className="flex gap-2">
@@ -646,18 +650,9 @@ const AdminPanelContent: React.FC = () => {
                               <div>
                                  <h4 className="font-black text-xl uppercase tracking-tighter">{r.name}</h4>
                                  <p className={`text-[10px] font-black uppercase tracking-widest ${r.isInfoFi ? 'text-amber-500' : 'text-primary-600'}`}>Proposal by {r.address}</p>
-                                 {r.twitterLink && <a href={r.twitterLink} target="_blank" rel="noreferrer" className="text-[10px] text-sky-500 font-bold hover:underline flex items-center gap-1 mt-1"><Twitter size={10} /> {r.twitterLink}</a>}
+                                 {r.twitterLink && <a href={r.twitterLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 mt-2 bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 text-[10px] font-black uppercase rounded-lg hover:bg-sky-100 dark:hover:bg-sky-900/50 transition-colors"><Twitter size={12} /> URL</a>}
                               </div>
                               <div className="flex gap-2">
-                                 <button onClick={async () => {
-                                    const newProj = { name: r.name, investment: r.funding, type: 'Free', "hasInfoFi": r.isInfoFi, rating: 5, "voteCount": 0, status: 'Potential', socials: { twitter: r.twitterLink } as any };
-                                    const { data: inserted, error } = await supabase.from('airdrops').insert(newProj).select().single();
-                                    if (error) { addToast("Failed to index", "error"); return; }
-                                    await supabase.from('airdrop_requests').delete().eq('id', r.id);
-                                    setAirdrops(prev => [inserted as any, ...prev]);
-                                    setRequests(p => p.filter(x => x.id !== r.id));
-                                    addToast("Project indexed.");
-                                 }} className="p-3.5 bg-emerald-500 text-white rounded-2xl shadow-lg active:scale-90 transition-all"><Check size={24} /></button>
                                  <button onClick={async () => {
                                     if (confirm("Discard proposal?")) {
                                        await supabase.from('airdrop_requests').delete().eq('id', r.id);
