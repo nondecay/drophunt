@@ -193,36 +193,54 @@ const MobileProjectCard: React.FC<{ project: Airdrop, isTracked: boolean, onTrac
 
   const platformObj = project.hasInfoFi ? infofiPlatforms.find(p => p.name === project.platform) : null;
 
+  const isLocked = project.isAlpha && !isPremiumUser(user);
+
   return (
     <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-5 border border-slate-200 dark:border-slate-800 shadow-lg relative overflow-hidden">
-      <Link to={`/project/${project.id}`} className="flex items-start gap-4 mb-4">
-        <Image src={project.icon} fallback="https://picsum.photos/200" className="w-16 h-16 rounded-2xl shadow-md shrink-0" alt="" />
-        <div className="flex-1 min-w-0">
-          <div className="flex justify-between items-center min-w-0">
-            <div className="min-w-0 flex-1 mr-2">
-              <div className="flex items-center gap-2 mb-1 min-w-0">
-                <h3 className="font-black text-lg uppercase tracking-tight leading-none text-slate-900 dark:text-white truncate block w-full">{project.name}</h3>
-                {project.isAlpha && (
-                  <span className="bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.8)] text-white text-[9px] font-black px-1.5 py-0.5 rounded animate-pulse shrink-0">ALPHA</span>
-                )}
-                {!project.isAlpha && (project.createdAt || 0) > Date.now() - 7 * 24 * 60 * 60 * 1000 && (
-                  <span className="bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded animate-pulse shrink-0">NEW</span>
-                )}
+      {isLocked ? (
+        <div className="flex items-start gap-4 mb-4 blur-[4px] opacity-50 select-none pointer-events-none">
+          <Image src={project.icon} fallback="https://picsum.photos/200" className="w-16 h-16 rounded-2xl shadow-md shrink-0" alt="" />
+          <div className="flex-1 min-w-0">
+            <div className="flex justify-between items-center min-w-0">
+              <div className="min-w-0 flex-1 mr-2">
+                <div className="flex items-center gap-2 mb-1 min-w-0">
+                  <h3 className="font-black text-lg uppercase tracking-tight leading-none text-slate-900 dark:text-white truncate block w-full">{project.name}</h3>
+                </div>
+                <span className={`inline-block text-[9px] font-black uppercase px-2 py-0.5 rounded-md mb-2 ${getTypeStyle(project.type)}`}>{project.type}</span>
               </div>
-              <span className={`inline-block text-[9px] font-black uppercase px-2 py-0.5 rounded-md mb-2 ${getTypeStyle(project.type)}`}>{project.type}</span>
             </div>
-            {user?.username ? (
-              <button onClick={(e) => { e.preventDefault(); onTrack(); }} className={`p-2 rounded-xl transition-all shadow-sm active:scale-95 shrink-0 ${isTracked ? 'bg-primary-600 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary-600'}`}>
-                <Plus size={16} className={isTracked ? 'rotate-45' : ''} />
-              </button>
-            ) : (
-              <div className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-300 rounded-xl shrink-0"><Lock size={16} /></div>
-            )}
           </div>
         </div>
-      </Link>
+      ) : (
+        <Link to={`/project/${project.id}`} className="flex items-start gap-4 mb-4">
+          <Image src={project.icon} fallback="https://picsum.photos/200" className="w-16 h-16 rounded-2xl shadow-md shrink-0" alt="" />
+          <div className="flex-1 min-w-0">
+            <div className="flex justify-between items-center min-w-0">
+              <div className="min-w-0 flex-1 mr-2">
+                <div className="flex items-center gap-2 mb-1 min-w-0">
+                  <h3 className="font-black text-lg uppercase tracking-tight leading-none text-slate-900 dark:text-white truncate block w-full">{project.name}</h3>
+                  {project.isAlpha && (
+                    <span className="bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.8)] text-white text-[9px] font-black px-1.5 py-0.5 rounded animate-pulse shrink-0">ALPHA</span>
+                  )}
+                  {!project.isAlpha && (project.createdAt || 0) > Date.now() - 7 * 24 * 60 * 60 * 1000 && (
+                    <span className="bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded animate-pulse shrink-0">NEW</span>
+                  )}
+                </div>
+                <span className={`inline-block text-[9px] font-black uppercase px-2 py-0.5 rounded-md mb-2 ${getTypeStyle(project.type)}`}>{project.type}</span>
+              </div>
+              {user?.username ? (
+                <button onClick={(e) => { e.preventDefault(); onTrack(); }} className={`p-2 rounded-xl transition-all shadow-sm active:scale-95 shrink-0 ${isTracked ? 'bg-primary-600 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary-600'}`}>
+                  <Plus size={16} className={isTracked ? 'rotate-45' : ''} />
+                </button>
+              ) : (
+                <div className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-300 rounded-xl shrink-0"><Lock size={16} /></div>
+              )}
+            </div>
+          </div>
+        </Link>
+      )}
 
-      <div className="grid grid-cols-2 gap-3 mb-4">
+      <div className={`grid grid-cols-2 gap-3 mb-4 ${isLocked ? 'blur-[4px] opacity-50 select-none pointer-events-none' : ''}`}>
         <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl">
           <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">Raise</p>
           <p className="font-black text-sm dark:text-white">${project.investment}</p>
@@ -242,20 +260,19 @@ const MobileProjectCard: React.FC<{ project: Airdrop, isTracked: boolean, onTrac
         )}
       </div>
 
-      <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
+      <div className={`flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800 ${isLocked ? 'blur-[4px] opacity-50' : ''}`}>
         <div className="text-[10px] font-bold text-slate-400"><span className="uppercase tracking-widest mr-2">Date Added:</span>{new Date(project.createdAt || Date.now()).toLocaleDateString()}</div>
         <div className="flex items-center gap-1"><PartialStar rating={project.rating} /><span className="text-[10px] font-bold text-slate-400">{(project.rating || 0).toFixed(1)}</span></div>
       </div>
 
       {/* Alpha Lock Overlay */}
-      {project.isAlpha && !isPremiumUser(user) && (
-        <div className="absolute inset-0 z-20 bg-white/60 dark:bg-slate-900/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center border border-blue-500/30 rounded-[2rem]">
-          <Lock className="text-blue-500 w-8 h-8 mb-3 animate-pulse" />
-          <h4 className="font-black text-white text-base mb-2 tracking-tighter uppercase">Alpha Project</h4>
+      {isLocked && (
+        <div className="absolute inset-0 z-20 bg-white/20 dark:bg-slate-900/30 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center border border-blue-500/30 rounded-[2rem] pointer-events-auto">
+          <h4 className="font-black text-slate-800 dark:text-white text-base mb-3 tracking-tighter uppercase drop-shadow-md">Alpha Project</h4>
           {!user ? (
-            <p className="text-xs font-bold text-slate-300">Connect wallet to view this project</p>
+            <span className="text-xs font-bold text-slate-600 dark:text-slate-300 flex items-center justify-center gap-2 bg-white/90 dark:bg-slate-800/90 py-2.5 px-4 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 w-full backdrop-blur-sm"><Lock size={14} className="text-slate-400" /> Connect wallet to view</span>
           ) : (
-            <Link to="/premium" className="text-xs font-bold text-[#FFD700] hover:underline flex items-center gap-1 bg-black/40 px-3 py-1.5 rounded-lg border border-[#FFD700]/30"><Crown size={12} /> Mint Premium Pass to view this project</Link>
+            <Link to="/premium" className="text-xs font-black text-[#FFD700] hover:scale-105 transition-transform flex items-center justify-center gap-2 bg-slate-900/95 px-4 py-3 rounded-xl border border-[#FFD700]/30 shadow-2xl w-full backdrop-blur-sm"><Crown size={14} /> Mint Premium Pass to view</Link>
           )}
         </div>
       )}
@@ -515,13 +532,14 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
               ) : (
                 currentItems.map((a) => {
                   if (!a) return null;
+                  const isLocked = a.isAlpha && !isPremiumUser(user);
                   const platformObj = a.hasInfoFi ? infofiPlatforms.find(p => p.name === a.platform) : null;
                   return (
-                    <tr key={a.id} className="group hover:bg-primary-50/30 dark:hover:bg-primary-900/5 transition-all">
+                    <tr key={a.id} className="group hover:bg-primary-50/30 dark:hover:bg-primary-900/5 transition-all relative">
                       <td className="px-6 py-3">
-                        <Link to={`/project/${a.id}`} className="flex items-center gap-4">
+                        <div className={`flex items-center gap-4 ${isLocked ? 'blur-[5px] opacity-40 select-none pointer-events-none' : ''}`}>
                           <div className="relative shrink-0">
-                            <img src={getImgUrl(a.icon) || 'https://picsum.photos/200'} className={`w-12 h-12 rounded-xl object-cover shadow-lg transition-transform ${a.isAlpha && !isPremiumUser(user) ? 'blur-sm' : 'group-hover:scale-110'}`} alt="" />
+                            <img src={getImgUrl(a.icon) || 'https://picsum.photos/200'} className={`w-12 h-12 rounded-xl object-cover shadow-lg transition-transform ${isLocked ? '' : 'group-hover:scale-110'}`} alt="" />
                             {a.isAlpha && (
                               <div className="absolute -top-2 -right-2 bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.8)] text-white text-[8px] font-black px-1.5 py-0.5 rounded-md z-10 animate-pulse">ALPHA</div>
                             )}
@@ -530,7 +548,7 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
                             )}
                           </div>
                           <div className="min-w-0">
-                            <span className="font-black text-base block leading-tight mb-1 group-hover:text-primary-600 transition-colors uppercase truncate">{a.name}</span>
+                            <span className={`font-black text-base block leading-tight mb-1 transition-colors uppercase truncate ${isLocked ? '' : 'group-hover:text-primary-600'}`}>{a.name}</span>
                             <div className="flex flex-wrap gap-1">
                               <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-md ${getTypeStyle(a.type)}`}>{a.type}</span>
                               {(a.tags || []).slice(0, 3).map((t: string) => (
@@ -538,56 +556,59 @@ export const Home: React.FC<{ category: 'all' | 'infofi' }> = ({ category }) => 
                               ))}
                             </div>
                           </div>
-                        </Link>
+                        </div>
+                        {isLocked && (
+                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-auto">
+                            {!user ? (
+                              <span className="font-bold text-xs text-slate-800 dark:text-slate-200 flex items-center gap-2 bg-white/95 dark:bg-slate-800/95 shadow-2xl px-5 py-3 rounded-2xl whitespace-nowrap border border-slate-200 dark:border-slate-700 backdrop-blur-sm"><Lock size={14} className="text-slate-400" /> Connect wallet to view this project</span>
+                            ) : (
+                              <Link to="/premium" className="font-black text-xs text-[#FFD700] hover:scale-105 transition-transform flex items-center gap-2 bg-slate-900/95 shadow-2xl px-6 py-3.5 rounded-2xl whitespace-nowrap border border-[#FFD700]/30 backdrop-blur-sm"><Crown size={14} /> Mint Premium Pass to view this project</Link>
+                            )}
+                          </div>
+                        )}
+                        {!isLocked && (
+                          <Link to={`/project/${a.id}`} className="absolute inset-0 z-10" />
+                        )}
                       </td>
 
-                      {a.isAlpha && !isPremiumUser(user) ? (
-                        <td colSpan={category === 'infofi' ? 6 : 5} className="px-6 py-3 relative">
-                          <div className="absolute inset-0 bg-white/60 dark:bg-slate-900/80 backdrop-blur-sm z-10 flex items-center justify-center">
-                            {!user ? (
-                              <span className="font-bold text-xs text-slate-600 dark:text-slate-300 flex items-center gap-2"><Lock size={12} /> Connect wallet to view this project</span>
-                            ) : (
-                              <Link to="/premium" className="font-bold text-xs text-[#FFD700] hover:underline flex items-center gap-1.5"><Crown size={12} /> Mint Premium Pass to view this project</Link>
-                            )}
-                          </div>
-                          <div className="opacity-0 grid grid-cols-5">
-                            <span>Locked</span><span>Locked</span><span>Locked</span><span>Locked</span><span>Locked</span>
-                          </div>
-                        </td>
-                      ) : (
-                        <>
-                          <td className="px-6 py-3 text-[11px] font-bold text-slate-500 whitespace-nowrap">{new Date(a.createdAt || Date.now()).toLocaleDateString()}</td>
-                          <td className="px-6 py-3">
-                            <div className="flex items-center text-slate-900 dark:text-white font-bold gap-0.5">
-                              <span className="text-2xl">$</span>
-                              <span className="text-2xl">{a.investment}</span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-3">
-                            <span className={`inline-flex items-center px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest whitespace-nowrap ${getStatusStyle(a.status)}`}>
-                              {a.status}
-                            </span>
-                          </td>
-                          {category === 'infofi' && <td className="px-6 py-3">
-                            <div className="flex items-center gap-2">
-                              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 transition-all whitespace-nowrap`}>
-                                {platformObj?.logo && <img src={getImgUrl(platformObj.logo)} className="w-3 h-3 object-contain" />}
-                                {a.platform || 'N/A'}
-                              </span>
-                            </div>
-                          </td>}
-                          <td className="px-6 py-3"><div className="flex flex-col gap-1"><PartialStar rating={a.rating} /><span className="text-[10px] font-bold text-slate-400">{(a.rating || 0).toFixed(1)}</span></div></td>
-                          <td className="px-6 py-3 text-right">
-                            {user?.username ? (
-                              <button onClick={() => toggleTrackProject(a.id)} className={`p-3 rounded-xl transition-all shadow-sm active:scale-95 ${isProjectTracked(a.id) ? 'bg-primary-600 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary-600'}`}>
-                                <Plus size={20} className={isProjectTracked(a.id) ? 'rotate-45' : ''} />
-                              </button>
-                            ) : (
-                              <div className="flex justify-end"><div className="p-3 bg-slate-100 dark:bg-slate-800 text-slate-300 rounded-xl cursor-not-allowed group/lock relative"><Lock size={20} /><div className="absolute bottom-full right-0 mb-2 hidden group-hover/lock:block bg-slate-900 text-white text-[10px] py-1 px-2 rounded whitespace-nowrap">Connect Wallet to Track</div></div></div>
-                            )}
-                          </td>
-                        </>
-                      )}
+                      <td className="px-6 py-3">
+                        <div className={`text-[11px] font-bold text-slate-500 whitespace-nowrap ${isLocked ? 'blur-[5px] opacity-40 select-none pointer-events-none' : ''}`}>{new Date(a.createdAt || Date.now()).toLocaleDateString()}</div>
+                      </td>
+                      <td className="px-6 py-3">
+                        <div className={`flex items-center text-slate-900 dark:text-white font-bold gap-0.5 ${isLocked ? 'blur-[5px] opacity-40 select-none pointer-events-none' : ''}`}>
+                          <span className="text-2xl">$</span>
+                          <span className="text-2xl">{a.investment}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-3">
+                        <div className={isLocked ? 'blur-[5px] opacity-40 select-none pointer-events-none' : 'relative z-20'}>
+                          <span className={`inline-flex items-center px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest whitespace-nowrap ${getStatusStyle(a.status)}`}>
+                            {a.status}
+                          </span>
+                        </div>
+                      </td>
+                      {category === 'infofi' && <td className="px-6 py-3">
+                        <div className={`flex items-center gap-2 ${isLocked ? 'blur-[5px] opacity-40 select-none pointer-events-none' : ''}`}>
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 transition-all whitespace-nowrap`}>
+                            {platformObj?.logo && <img src={getImgUrl(platformObj.logo)} className="w-3 h-3 object-contain" />}
+                            {a.platform || 'N/A'}
+                          </span>
+                        </div>
+                      </td>}
+                      <td className="px-6 py-3">
+                        <div className={`flex flex-col gap-1 ${isLocked ? 'blur-[5px] opacity-40 select-none pointer-events-none' : ''}`}><PartialStar rating={a.rating} /><span className="text-[10px] font-bold text-slate-400">{(a.rating || 0).toFixed(1)}</span></div>
+                      </td>
+                      <td className="px-6 py-3 text-right">
+                        <div className={isLocked ? 'blur-[5px] opacity-40 select-none pointer-events-none' : 'relative z-20'}>
+                          {user?.username ? (
+                            <button onClick={() => toggleTrackProject(a.id)} className={`p-3 rounded-xl transition-all shadow-sm active:scale-95 ${isProjectTracked(a.id) ? 'bg-primary-600 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary-600'}`}>
+                              <Plus size={20} className={isProjectTracked(a.id) ? 'rotate-45' : ''} />
+                            </button>
+                          ) : (
+                            <div className="flex justify-end"><div className="p-3 bg-slate-100 dark:bg-slate-800 text-slate-300 rounded-xl cursor-not-allowed group/lock relative"><Lock size={20} /><div className="absolute bottom-full right-0 mb-2 hidden group-hover/lock:block bg-slate-900 text-white text-[10px] py-1 px-2 rounded whitespace-nowrap">Connect Wallet to Track</div></div></div>
+                          )}
+                        </div>
+                      </td>
                     </tr>
                   );
                 })

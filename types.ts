@@ -24,6 +24,7 @@ export interface Tool {
 }
 
 export interface User {
+  id: string;
   uid: number;
   address: string;
   username?: string;
@@ -107,6 +108,7 @@ export interface Airdrop {
   type: 'Gas Only' | 'Waitlist' | 'Free' | 'Paid' | 'Testnet';
   hasInfoFi: boolean;
   isAlpha?: boolean;
+  tags?: string[];
   rating: number;
   voteCount: number;
   status: 'Potential' | 'Claim Available' | 'Airdrop Confirmed';

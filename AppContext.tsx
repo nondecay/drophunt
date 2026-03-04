@@ -60,6 +60,7 @@ interface AppContextType {
   addToast: (msg: string, type?: Toast['type']) => void;
   toasts: Toast[];
   removeToast: (id: string) => void;
+  t: (key: any) => string;
 
   // User Actions
   usersList: User[];
