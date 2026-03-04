@@ -126,6 +126,10 @@ export const ProjectDetails: React.FC = () => {
   const handlePostComment = async () => {
     if (!user) return addToast("Connect your wallet to post a comment", "warning");
 
+    if (!isPremiumUser(user)) {
+      return addToast("👑 Mint Premium Pass to rate and review projects", "warning");
+    }
+
     // 24-hour project-specific cooldown check
     const COOLDOWN_24H = 24 * 60 * 60 * 1000;
     const projectTimestamps = user.lastCommentTimestamps || {};
@@ -723,14 +727,10 @@ export const ProjectDetails: React.FC = () => {
               )}
 
               <div className="p-6 bg-slate-50 dark:bg-slate-950 rounded-2xl border dark:border-slate-800 mt-6 relative overflow-hidden">
-                {!isPremiumUser(user) && (
+                {!user && (
                   <div className="absolute inset-0 z-20 bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center text-center p-4">
                     <Lock size={28} className="text-primary-500 mb-3" />
-                    {!user ? (
-                      <p className="text-xs font-black uppercase text-slate-500">Connect wallet to leave a review</p>
-                    ) : (
-                      <Link to="/premium" className="text-[10px] sm:text-xs font-black uppercase text-[#FFD700] hover:underline flex items-center gap-1.5 bg-slate-900 border border-[#FFD700]/30 px-5 py-3 rounded-xl shadow-xl dark:bg-black/50"><Crown size={18} /> Mint Premium Pass to rate and review projects</Link>
-                    )}
+                    <p className="text-xs font-black uppercase text-slate-500">Connect wallet to leave a review</p>
                   </div>
                 )}
                 <div className="flex items-center justify-between mb-4"><p className="text-[9px] font-black uppercase text-slate-400">{t('rating')}</p><div className="flex gap-1">{[1, 2, 3, 4, 5].map(s => (<button key={s} onClick={() => setUserRating(s)} className="transition-transform active:scale-90"><Star size={18} className={s <= userRating ? 'fill-yellow-400 text-yellow-400' : 'text-slate-300 dark:text-slate-700'} /></button>))}</div></div>

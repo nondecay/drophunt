@@ -30,6 +30,7 @@ export interface User {
   username?: string;
   avatar: string;
   memberStatus: 'Admin' | 'Super Admin' | 'Moderator' | 'Hunter' | 'Premium';
+  role?: 'admin' | 'user';
   registeredAt: number;
   trackedProjectIds?: string[];
   // RPG Stats
@@ -109,6 +110,7 @@ export interface Airdrop {
   hasInfoFi: boolean;
   isAlpha?: boolean;
   tags?: string[];
+  referral_code?: string;
   rating: number;
   voteCount: number;
   status: 'Potential' | 'Claim Available' | 'Airdrop Confirmed';
