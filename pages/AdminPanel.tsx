@@ -485,12 +485,12 @@ const AdminPanelContent: React.FC = () => {
                   {canSee('rpg') && <NavBtn icon={<Map size={18} className="text-rose-500" />} label={t('rpgZone')} active={activeTab === 'rpg'} onClick={() => setActiveTab('rpg')} />}
 
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 py-2 mt-4">{t('secComms')}</p>
-                  {canSee('notifications') && <NavBtn icon={<Send size={18} className="text-primary-600" />} label={t('globalComms')} active={activeTab === 'notifications'} onClick={() => setActiveTab('notifications')} />}
+                  {canSee('notifications') && <NavBtn icon={<Bell size={18} className="text-primary-600" />} label="Notifications" active={activeTab === 'notifications'} onClick={() => setActiveTab('notifications')} />}
                   {canSee('requests') && <NavBtn icon={<Mail size={18} />} label={t('requests')} active={activeTab === 'requests'} onClick={() => setActiveTab('requests')} count={requests.length} />}
                   {canSee('moderation') && <NavBtn icon={<MessageSquare size={18} />} label={t('moderation')} active={activeTab === 'moderation'} onClick={() => setActiveTab('moderation')} count={comments.filter(c => !c.is_approved).length + guides.filter(g => !g.is_approved).length} />}
                   {canSee('users') && <NavBtn icon={<Users size={18} />} label={t('hunterDb')} active={activeTab === 'users'} onClick={() => setActiveTab('users')} />}
                </nav>
-            </aside>
+            </aside >
 
             <main className="flex-1 min-w-0">
                {activeTab === 'dash' && (
@@ -757,12 +757,10 @@ const AdminPanelContent: React.FC = () => {
                      <SectionWrapper title="Sent Notifications">
                         <div className="space-y-4">
                            {notifications.sort((a, b) => b.createdAt - a.createdAt).map(notif => {
-                              // Received By Calc: 
                               // General -> total users. Project -> tracked project users.
                               const isGen = notif.type === 'general';
-                              // This is a rough estimation based on track stats or total users. In reality, you'd do a DB query to count user's track lists.
-                              // We'll just show 'All Users' or 'Trackers'
-                              const reachText = isGen ? `${usersList.length} Hunters` : `Project Trackers`;
+                              const projectTrackersCount = notif.targetProjectId ? usersList.filter(u => u.trackedProjectIds?.includes(notif.targetProjectId)).length : 0;
+                              const reachText = isGen ? `${usersList.length} Hunters` : `${projectTrackersCount} Trackers`;
 
                               return (
                                  <div key={notif.id} className="p-5 bg-white dark:bg-slate-800 rounded-3xl flex items-start justify-between border dark:border-slate-700 shadow-sm relative overflow-hidden group">
@@ -845,7 +843,7 @@ const AdminPanelContent: React.FC = () => {
                {activeTab === 'deploy' && <SectionWrapper title="Deploy Hub Ops" onAdd={() => openModal('deploy')}><div className="space-y-3">{activities.filter(a => a.type === 'deploy').map(a => <ListItem key={a.id} title={a.name} sub={`Chain ${a.chainId}`} img={a.logo} onEdit={() => openModal('deploy', a)} onDelete={() => { deleteFromDb('activities', a.id); setActivities(p => p.filter(x => x.id !== a.id)); }} />)}</div></SectionWrapper>}
                {activeTab === 'rpg' && <SectionWrapper title="RPG Activity Control" onAdd={() => openModal('rpg')}><div className="space-y-3">{activities.filter(a => a.type === 'rpg').map(a => <ListItem key={a.id} title={a.name} sub={`Chain ${a.chainId} - Bonus XP: ${a.extraXP}`} img={a.logo} onEdit={() => openModal('rpg', a)} onDelete={() => { deleteFromDb('activities', a.id); setActivities(p => p.filter(x => x.id !== a.id)); }} />)}</div></SectionWrapper>}
             </main>
-         </div>
+         </div >
 
          {showModal && (
             <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-950/90 backdrop-blur-xl">

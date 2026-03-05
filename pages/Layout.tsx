@@ -89,7 +89,7 @@ const SidebarLink: React.FC<{ to: string, icon: React.ReactNode, label: string, 
 );
 
 export const Layout: React.FC = () => {
-  const { theme, toggleTheme, lang, setLang, t, user, isVerified, verifyWallet, logout, setUsername, toasts, removeToast, notifications } = useApp();
+  const { theme, toggleTheme, lang, setLang, t, user, isVerified, verifyWallet, logout, setUsername, toasts, removeToast, notifications, usersList } = useApp();
   const location = useLocation();
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -172,7 +172,18 @@ export const Layout: React.FC = () => {
             }
           `}</style>
           <nav className="flex-1 flex flex-col gap-1 overflow-y-auto custom-scrollbar">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mb-2 mt-4">DROPHUNT.IO</p>
+            {/* Mobile Only Airdrop Hunters Stat */}
+            <div className="lg:hidden mx-4 mb-4 mt-2 p-4 bg-primary-50 dark:bg-slate-800 rounded-2xl border border-primary-100 dark:border-slate-700 shadow-sm flex items-center gap-4">
+              <div className="p-3 bg-white dark:bg-slate-900 rounded-xl text-primary-600 shadow-sm shrink-0">
+                <Users size={20} />
+              </div>
+              <div>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">{t('activeHunters')}</p>
+                <p className="text-xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">{usersList ? usersList.length.toLocaleString() : 0}</p>
+              </div>
+            </div>
+
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mb-2 mt-2">DROPHUNT.IO</p>
 
             <SidebarLink to="/" icon={<LayoutDashboard size={18} />} label={t('airdrops')} active={location.pathname === '/'} onClick={() => setSidebarOpen(false)} />
             {/* <SidebarLink to="/infofi" icon={<Zap size={18} />} label={t('infofi')} active={location.pathname === '/infofi'} onClick={() => setSidebarOpen(false)} /> */}
@@ -235,20 +246,16 @@ export const Layout: React.FC = () => {
             <ConnectButton accountStatus="address" showBalance={false} chainStatus="icon" />
 
             {user && isVerified && (
-              <Link to="/my-airdrops?tab=notifications" className="relative p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:text-primary-600 transition-colors shadow-sm ml-1">
-                <Bell size={20} />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-black text-white shadow-sm ring-2 ring-white dark:ring-slate-900">
-                    {unreadCount > 5 ? '5+' : unreadCount}
-                  </span>
-                )}
-              </Link>
-            )}
-
-            {user && isVerified && (
               <div className="relative ml-2" ref={profileMenuRef}>
-                <button onClick={() => setShowProfileMenu(!showProfileMenu)} className="flex items-center gap-2 p-1 pl-3 bg-slate-100 dark:bg-slate-800 rounded-full transition-all border border-transparent hover:border-primary-500">
-                  <img src={user.avatar} className="w-8 h-8 rounded-full object-cover" />
+                <button onClick={() => setShowProfileMenu(!showProfileMenu)} className="relative flex items-center gap-2 p-1 pl-3 bg-slate-100 dark:bg-slate-800 rounded-full transition-all border border-transparent hover:border-primary-500">
+                  <div className="relative">
+                    <img src={user.avatar} className="w-8 h-8 rounded-full object-cover" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -bottom-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-black text-white shadow-sm ring-2 ring-white dark:ring-slate-900 border border-white dark:border-slate-900 z-10">
+                        {unreadCount > 5 ? '5+' : unreadCount}
+                      </span>
+                    )}
+                  </div>
                   <ChevronDown size={14} className="text-slate-400 mr-1" />
                 </button>
                 {showProfileMenu && (

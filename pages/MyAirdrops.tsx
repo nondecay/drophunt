@@ -284,8 +284,8 @@ export const MyAirdrops: React.FC = () => {
       {/* User Hub Dashboard */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
         <DashboardStat label="Tracked Airdrops" val={trackedAirdrops?.length || 0} icon={<Target size={20} />} color="bg-primary-600" />
-        {/* <DashboardStat label="Tracked InfoFi" val={trackedInfoFi?.length || 0} icon={<Zap size={20} />} color="bg-primary-600" /> */}
         <DashboardStat label="Pending Tasks" val={activeTasksCount || 0} icon={<ListChecks size={20} />} color="bg-rose-600" />
+        <DashboardStat label="Notifications" val={notifications.filter(n => !(user?.hiddenNotifications || []).includes(n.id)).length} icon={<Bell size={20} />} color="bg-blue-600" />
         <DashboardStat label="Total Earning" val={`$${(totalEarning || 0).toLocaleString()}`} icon={<DollarSign size={20} />} color="bg-emerald-600" />
       </div>
 
@@ -365,10 +365,9 @@ export const MyAirdrops: React.FC = () => {
 
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="lg:w-72 flex lg:flex-col gap-2 overflow-x-auto pb-4 shrink-0">
-          <NavBtn icon={<Bell size={18} />} label="NOTIFICATIONS" active={activeTab === 'notifications'} onClick={() => setActiveTab('notifications')} notificationCount={unreadCount} colorClass="bg-red-500" />
           <NavBtn icon={<ListChecks size={18} />} label={t('tasks').toUpperCase()} active={activeTab === 'tasks'} onClick={() => setActiveTab('tasks')} count={manualTasks.length} />
           <NavBtn icon={<Target size={18} />} label={`${t('airdrops').toUpperCase()} (${trackedAirdrops.length})`} active={activeTab === 'airdrops'} onClick={() => setActiveTab('airdrops')} colorClass="bg-primary-600" />
-          {/* <NavBtn icon={<Zap size={18} />} label={`${t('infofi').toUpperCase()} (${trackedInfoFi.length})`} active={activeTab === 'infofi'} onClick={() => setActiveTab('infofi')} colorClass="bg-primary-600" /> */}
+          <NavBtn icon={<Bell size={18} />} label="NOTIFICATIONS" active={activeTab === 'notifications'} onClick={() => setActiveTab('notifications')} notificationCount={unreadCount} colorClass="bg-red-500" />
           <NavBtn icon={<CheckCircle2 size={18} />} label={t('completed').toUpperCase()} active={activeTab === 'completed'} onClick={() => setActiveTab('completed')} count={completedTasks.length} />
           <NavBtn icon={<PieChart size={18} />} label={t('claimed').toUpperCase()} active={activeTab === 'claimed'} onClick={() => setActiveTab('claimed')} />
         </div>
@@ -473,7 +472,7 @@ export const MyAirdrops: React.FC = () => {
                           <h4 className="font-black text-lg leading-tight text-slate-900 dark:text-white">{notif.title}</h4>
                         </div>
                         <button onClick={() => hideNotification(notif.id)} className="p-2 text-slate-300 hover:text-red-500 transition-colors bg-slate-50 dark:bg-slate-800 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 shrink-0">
-                          <EyeOff size={16} />
+                          <Trash2 size={16} />
                         </button>
                       </div>
 
